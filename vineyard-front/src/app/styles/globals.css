@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-sans: "Onest", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-owner: var(--owner);
+  --color-inspector: var(--inspector);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+:root {
+  --radius: 0.375rem;
+
+  --owner: #33573f;
+  --inspector: #2b4a7e;
+
+  --background: #fafaf8;
+  --foreground: #1d2420;
+  --surface: #eef1ec;
+  --muted: #eef1ec;
+  --muted-foreground: #5c665f;
+  --border: #dde1dc;
+  --input: #cfd5cf;
+  --popover: #ffffff;
+  --popover-foreground: #1d2420;
+  --accent: #eef1ec;
+  --accent-foreground: #1d2420;
+  --destructive: #a3322b;
+
+  /* The primary colour follows the selected role; see [data-role] below. */
+  --primary: var(--owner);
+  --primary-foreground: #ffffff;
+}
+
+/* Re-declared on the role element so the ring picks up that element's --primary, not :root's. */
+:root,
+[data-role] {
+  --ring: var(--primary);
+}
+
+[data-role="inspector"] {
+  --primary: var(--inspector);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
