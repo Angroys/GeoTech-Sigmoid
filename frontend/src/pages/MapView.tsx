@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '../components/Toast';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
@@ -159,7 +159,89 @@ export function MapView() {
   const nCols = grid ? grid.c1 - grid.c0 + 1 : 1;
   const nRows = grid ? grid.r1 - grid.r0 + 1 : 1;
   // Fit the grid into the viewport.
-  const cell = Math.max(10, Math.min(34, Math.floor(Math.min((window.innerWidth - 80) / nCols, (window.innerHeight - 190) / nRows))));
+  // Fit-to-screen cell size; zoom multiplies it (the page scrolls to pan).
+  const baseCell = Math.max(10, Math.min(34, Math.floor(Math.min((window.innerWidth - 80) / nCols, (window.innerHeight - 190) / nRows))));
+  const [zoom, setZoom] = useState(1);
+  const cell = baseCell * zoom;
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  // Point (in content px of the OLD zoom) + screen offset to keep fixed while zooming.
+  const anchorRef = useRef<{ cx: number; cy: number; sx: number; sy: number; from: number } | null>(null);
+  const zoomTo = useCallback((next: number, sx?: number, sy?: number) => {
+    const body = bodyRef.current;
+    const grid = gridRef.current;
+    const z = Math.min(16, Math.max(1, next));
+    if (body && grid) {
+      const br = body.getBoundingClientRect();
+      const px = sx ?? br.width / 2;
+      const py = sy ?? br.height / 2;
+      anchorRef.current = {
+        cx: body.scrollLeft + px - grid.offsetLeft,
+        cy: body.scrollTop + py - grid.offsetTop,
+        sx: px,
+        sy: py,
+        from: zoomRef.current,
+      };
+    }
+    setZoom(z);
+  }, []);
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+  useLayoutEffect(() => {
+    const a = anchorRef.current;
+    const body = bodyRef.current;
+    const grid = gridRef.current;
+    if (!a || !body || !grid) return;
+    const k = zoom / a.from;
+    body.scrollLeft = a.cx * k + grid.offsetLeft - a.sx;
+    body.scrollTop = a.cy * k + grid.offsetTop - a.sy;
+    anchorRef.current = null;
+  }, [zoom]);
+  // Mouse wheel zooms around the cursor (non-passive so the page doesn't scroll).
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const br = body.getBoundingClientRect();
+      const f = Math.exp(-e.deltaY * 0.0015);
+      zoomTo(zoomRef.current * f, e.clientX - br.left, e.clientY - br.top);
+    };
+    body.addEventListener('wheel', onWheel, { passive: false });
+    return () => body.removeEventListener('wheel', onWheel);
+  }, [zoomTo, grid]);
+  // Drag to pan (a click without movement still opens the tile).
+  const panRef = useRef<{ x: number; y: number; sl: number; st: number; moved: boolean } | null>(null);
+  const didPanRef = useRef(false);
+  const onBodyPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const t = e.target as Element;
+    if (t.closest('.parcel-corner, .parcel-mid, .map-info, button.btn')) return;
+    const body = bodyRef.current;
+    if (!body) return;
+    panRef.current = { x: e.clientX, y: e.clientY, sl: body.scrollLeft, st: body.scrollTop, moved: false };
+    didPanRef.current = false;
+  };
+  const onBodyPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const pr = panRef.current;
+    const body = bodyRef.current;
+    if (!pr || !body) return;
+    const dx = e.clientX - pr.x;
+    const dy = e.clientY - pr.y;
+    if (!pr.moved && Math.hypot(dx, dy) > 4) {
+      pr.moved = true;
+      didPanRef.current = true;
+    }
+    if (pr.moved) {
+      body.scrollLeft = pr.sl - dx;
+      body.scrollTop = pr.st - dy;
+    }
+  };
+  const onBodyPointerUp = () => {
+    panRef.current = null;
+    // let the click handler see didPanRef, then reset
+    window.setTimeout(() => (didPanRef.current = false), 0);
+  };
   const cellRef = useRef(cell);
   cellRef.current = cell;
   const pct = tiles.length ? Math.round((100 * counts.verified) / tiles.length) : 0;
@@ -183,6 +265,12 @@ export function MapView() {
         <span className="map-legend__item">
           <i className="map-legend__lock" /> being edited
         </span>
+        <span className="map-zoom">
+          <button type="button" className="btn btn--sm btn--ghost" onClick={() => zoomTo(zoom / 1.5)} title="Zoom out">−</button>
+          <span className="map-zoom__val">{Math.round(zoom * 100)}%</span>
+          <button type="button" className="btn btn--sm btn--ghost" onClick={() => zoomTo(zoom * 1.5)} title="Zoom in (or mouse wheel)">+</button>
+          <button type="button" className="btn btn--sm btn--ghost" onClick={() => zoomTo(1)} title="Fit the whole area">Fit</button>
+        </span>
         <button
           type="button"
           className={`btn btn--sm ${editParcels ? 'btn--primary' : 'btn--ghost'}`}
@@ -205,15 +293,24 @@ export function MapView() {
           <input type="checkbox" checked={onlyVerified} onChange={(e) => setOnlyVerified(e.target.checked)} /> Highlight verified only
         </label>
       </div>
-      <div className="map-body">
+      <div
+        className={`map-body ${zoom > 1 ? 'is-zoomed' : ''}`}
+        ref={bodyRef}
+        onPointerDown={onBodyPointerDown}
+        onPointerMove={onBodyPointerMove}
+        onPointerUp={onBodyPointerUp}
+        onPointerLeave={onBodyPointerUp}
+      >
         {grid && (
           <div
+            ref={gridRef}
             className="map-grid"
             style={{
               width: nCols * cell,
               height: nRows * cell,
               // Real imagery mosaic of the whole area, stitched server-side.
-              backgroundImage: 'url(/api/map/mosaic.jpg?cell=48)',
+              // Sharper imagery once zoomed in.
+              backgroundImage: `url(/api/map/mosaic.jpg?cell=${cell > 40 ? 128 : 48})`,
               backgroundSize: `${nCols * cell}px ${nRows * cell}px`,
             }}
           >
@@ -244,7 +341,10 @@ export function MapView() {
                   title={`${t.name} — ${STATUS_TEXT[st] ?? st}${lock ? ` — editing: ${lock.name}` : ''}${t.updated_by ? ` — by ${t.updated_by}` : ''} · ${t.annotation_count} shapes`}
                   onMouseEnter={() => setHover(t)}
                   onMouseLeave={() => setHover(null)}
-                  onClick={() => navigate(`/tile/${encodeURIComponent(t.name)}`)}
+                  onClick={() => {
+                    if (didPanRef.current) return; // it was a drag, not a click
+                    navigate(`/tile/${encodeURIComponent(t.name)}`);
+                  }}
                 >
                   {lock && cell >= 18 ? <span className="map-cell__who">{lock.name.slice(0, 1).toUpperCase()}</span> : null}
                 </button>
