@@ -92,7 +92,7 @@ def _feature_for(ann: dict[str, Any], transform: Any) -> dict[str, Any] | None:
 def write_labels_geojson(tile_name: str, out_path: str | Path) -> Path:
     """Write a tile's stored annotations as an EPSG:32635 GeoJSON FeatureCollection."""
     src_path = tiles.tile_path(tile_name)
-    annotations = db.list_annotations(tile_name)
+    annotations = db.export_annotations(tile_name)
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
