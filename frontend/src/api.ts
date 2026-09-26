@@ -10,6 +10,11 @@ import type {
   ImportResult,
   SamImportResult,
   VerificationStatus,
+  SegmentHint,
+  SegmentResponse,
+  PresenceResponse,
+  ClaimResponse,
+  ReleaseResponse,
 } from './types';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -48,6 +53,24 @@ export const api = {
       { method: 'PUT', body: JSON.stringify({ annotations }) },
     ),
 
+  // Magic draw — auto-segment the object under a freehand scribble.
+  // `path` = points in the SAME tile-pixel coord space as stored annotation
+  // points (i.e. what MapCanvas.ll2p yields). Returned points share that space
+  // and are added to an annotation with NO scaling.
+  // `signal` lets callers abort a superseded request (hover-preview debounce
+  // aborts the previous in-flight detect before firing the next).
+  segment: (
+    name: string,
+    path: [number, number][],
+    hint: SegmentHint = 'auto',
+    signal?: AbortSignal,
+  ) =>
+    request<SegmentResponse>(`/api/tiles/${encodeURIComponent(name)}/segment`, {
+      method: 'POST',
+      body: JSON.stringify(hint && hint !== 'auto' ? { path, hint } : { path }),
+      signal,
+    }),
+
   // Status
   getStatus: (name: string) =>
     request<TileStatus>(`/api/tiles/${encodeURIComponent(name)}/status`),
@@ -85,4 +108,25 @@ export const api = {
   exportStatus: (jobId: string) =>
     request<ExportJob>(`/api/export/${encodeURIComponent(jobId)}/status`),
   downloadUrl: (relPath: string) => apiUrl(relPath),
+
+  // ---- Collaboration ----
+  // Heartbeat. When `tile` is set it also refreshes THIS client's lock on that
+  // tile (never steals). Returns everyone online + all current locks.
+  presence: (client_id: string, name: string, tile: string | null) =>
+    request<PresenceResponse>('/api/presence', {
+      method: 'POST',
+      body: JSON.stringify({ client_id, name, tile: tile ?? null }),
+    }),
+  // Try to take a tile's edit lock. ok:true = you hold it; ok:false =
+  // someone else holds it (locked_by = them). `display` is the human name.
+  claimTile: (name: string, client_id: string, display: string) =>
+    request<ClaimResponse>(`/api/tiles/${encodeURIComponent(name)}/claim`, {
+      method: 'POST',
+      body: JSON.stringify({ client_id, name: display }),
+    }),
+  releaseTile: (name: string, client_id: string) =>
+    request<ReleaseResponse>(`/api/tiles/${encodeURIComponent(name)}/release`, {
+      method: 'POST',
+      body: JSON.stringify({ client_id }),
+    }),
 };

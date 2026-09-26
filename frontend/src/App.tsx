@@ -1,18 +1,25 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import { ToastProvider } from './components/Toast';
+import { CollabProvider } from './collab';
 import { TileNavigator } from './pages/TileNavigator';
 import { TileViewer } from './pages/TileViewer';
 import { ExportPanel } from './pages/ExportPanel';
+import { MapView } from './pages/MapView';
+import { BurgerMenu } from './components/BurgerMenu';
 
 export default function App() {
   return (
     <ToastProvider>
-      <Routes>
-        <Route path="/" element={<TileNavigator />} />
-        <Route path="/tile/:name" element={<TileViewer />} />
-        <Route path="/export" element={<ExportPanel />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <CollabProvider>
+        <BurgerMenu />
+        <Routes>
+          <Route path="/" element={<TileNavigator />} />
+          <Route path="/map" element={<MapView />} />
+          <Route path="/tile/:name" element={<TileViewer />} />
+          <Route path="/export" element={<ExportPanel />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </CollabProvider>
     </ToastProvider>
   );
 }

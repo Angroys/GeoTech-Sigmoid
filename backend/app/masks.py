@@ -10,6 +10,7 @@ Class -> mask value map (config.CLASS_VALUE_MAP)
     2 = row
     3 = interrow_area
     4 = waste
+    5 = dead_vine
 
 Rasterization
     Annotation points are in image/pixel coordinates, so geometries are burned

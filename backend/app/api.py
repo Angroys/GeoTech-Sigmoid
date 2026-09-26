@@ -1,6 +1,7 @@
 """REST API router. Mounted under /api by app.main."""
 from __future__ import annotations
 
+import logging
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -9,9 +10,10 @@ from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from . import config, cvat, db, export, geojson_import, tiles
+from . import config, collab, cvat, db, export, finish_export, geojson_import, segment, tiles
 
 router = APIRouter(prefix="/api")
+logger = logging.getLogger(__name__)
 
 
 # ------------------------------------------------------------- schemas ----
@@ -43,6 +45,13 @@ class AnnotationsReplace(BaseModel):
     annotations: list[AnnotationIn]
 
 
+class SegmentRequest(BaseModel):
+    path: list[list[float]] = Field(
+        ..., description="scribble in tile pixel coords; 1+ [x,y] points"
+    )
+    hint: str = Field("auto", description="auto | canopy | waste | road")
+
+
 class StatusIn(BaseModel):
     status: str
     updated_by: str | None = None
@@ -57,12 +66,33 @@ class GeojsonImportRequest(BaseModel):
     dir: str | None = None
 
 
+class SegmentRequest(BaseModel):
+    path: list[list[float]] = Field(..., description="scribble in tile pixel coords")
+    hint: str = "auto"
+
+
+class PresenceIn(BaseModel):
+    client_id: str
+    name: str
+    tile: str | None = None
+
+
+class ClaimIn(BaseModel):
+    client_id: str
+    name: str
+
+
+class ReleaseIn(BaseModel):
+    client_id: str
+
+
 # --------------------------------------------------------------- tiles ----
 @router.get("/tiles")
 def get_tiles() -> dict[str, Any]:
     names = tiles.list_tile_names()
     db.sync_tiles(names)
     counts = db.annotation_counts()
+    locks = collab.locks_by_tile()
     out = []
     for name in names:
         st = db.get_tile_status(name) or {}
@@ -73,6 +103,7 @@ def get_tiles() -> dict[str, Any]:
                 "updated_at": st.get("updated_at"),
                 "updated_by": st.get("updated_by"),
                 "annotation_count": counts.get(name, 0),
+                "locked_by": locks.get(name),
             }
         )
     return {"tiles": out, "count": len(out)}
@@ -99,6 +130,25 @@ def get_tile_geo(name: str) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+# ------------------------------------------------------------- segment ----
+@router.post("/tiles/{name}/segment")
+def segment_tile(name: str, payload: SegmentRequest) -> dict[str, Any]:
+    """"Magic draw": grow the object under a scribble into a classified shape.
+
+    Classic CV only (ExG vegetation mask + region grow); no ML model calls and
+    no DB writes -- the frontend adds the returned shape as an annotation.
+    """
+    try:
+        tiles.tile_path(name)  # 404 for unknown tiles
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"tile not found: {name}")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if not payload.path:
+        raise HTTPException(status_code=400, detail="path must have >= 1 point")
+    return segment.segment(name, payload.path, payload.hint)
+
+
 # --------------------------------------------------------- annotations ----
 @router.get("/tiles/{name}/annotations")
 def get_annotations(name: str) -> dict[str, Any]:
@@ -108,6 +158,15 @@ def get_annotations(name: str) -> dict[str, Any]:
 @router.put("/tiles/{name}/annotations")
 def put_annotations(name: str, payload: AnnotationsReplace) -> dict[str, Any]:
     anns = db.replace_annotations(name, [a.model_dump() for a in payload.annotations])
+    # After the save is persisted, also write this tile's finished,
+    # georeferenced outputs into the ``finish`` dataset. Guard it so a failed
+    # export (e.g. a missing tile raster) never fails the save.
+    try:
+        # Invalidated tiles never enter the finish dataset.
+        if (db.get_tile_status(name) or {}).get("verification_status") != "invalid":
+            finish_export.write_finish_outputs(name)
+    except Exception as exc:  # noqa: BLE001 - export is best-effort; never fail the save
+        logger.warning("finish export skipped for %s: %s", name, exc)
     return {"tile_name": name, "annotations": anns}
 
 
@@ -166,9 +225,45 @@ def get_status(name: str) -> dict[str, Any]:
 @router.put("/tiles/{name}/status")
 def put_status(name: str, payload: StatusIn) -> dict[str, Any]:
     try:
-        return db.set_tile_status(name, payload.status, payload.updated_by)
+        result = db.set_tile_status(name, payload.status, payload.updated_by)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+    # A finished ("verified") or rejected ("invalid") tile frees up:
+    # auto-release any edit lock on it.
+    if payload.status == "invalid":
+        # Rejected image: remove it from the finish dataset too.
+        try:
+            finish_export.remove_finish_outputs(name)
+        except Exception:  # noqa: BLE001 - never fail the status change
+            logger.warning("could not remove finish outputs for %s", name, exc_info=True)
+    if payload.status in ("verified", "invalid"):
+        collab.release_any(name)
+    return result
+
+
+# --------------------------------------------------------------- collab ----
+@router.post("/presence")
+def post_presence(payload: PresenceIn) -> dict[str, Any]:
+    """Heartbeat: upsert presence + refresh this client's lock; return state."""
+    return collab.heartbeat(payload.client_id, payload.name, payload.tile)
+
+
+@router.get("/presence")
+def get_presence() -> dict[str, Any]:
+    """Read-only live-state snapshot (no upsert)."""
+    return collab.snapshot()
+
+
+@router.post("/tiles/{name}/claim")
+def claim_tile(name: str, payload: ClaimIn) -> dict[str, Any]:
+    """Acquire the tile's edit lock if free or already held by this client."""
+    return collab.claim(name, payload.client_id, payload.name)
+
+
+@router.post("/tiles/{name}/release")
+def release_tile(name: str, payload: ReleaseIn) -> dict[str, Any]:
+    """Release the tile's edit lock if this client holds it (no-op otherwise)."""
+    return collab.release(name, payload.client_id)
 
 
 # -------------------------------------------------------------- import ----
@@ -225,17 +320,27 @@ def import_geojson(payload: GeojsonImportRequest | None = None) -> dict[str, Any
 
 
 # -------------------------------------------------------------- export ----
+def _export_tiles(requested: list[str] | None) -> list[str] | None:
+    """Invalidated tiles are never exported. None = all tiles minus invalid."""
+    invalid = db.tiles_with_status("invalid")
+    if requested is None:
+        if not invalid:
+            return None
+        return [n for n in db.all_tiles_with_annotations() if n not in invalid]
+    return [n for n in requested if n not in invalid]
+
+
 @router.post("/export/cvat")
 def post_export_cvat(payload: ExportRequest | None = None) -> dict[str, Any]:
     payload = payload or ExportRequest()
-    job_id = export.export_cvat(payload.tiles, include_images=payload.include_images)
+    job_id = export.export_cvat(_export_tiles(payload.tiles), include_images=payload.include_images)
     return export.get_job(job_id)
 
 
 @router.post("/export/masks")
 def post_export_masks(payload: ExportRequest | None = None) -> dict[str, Any]:
     payload = payload or ExportRequest()
-    job_id = export.export_masks(payload.tiles)
+    job_id = export.export_masks(_export_tiles(payload.tiles))
     return export.get_job(job_id)
 
 
@@ -270,5 +375,6 @@ def get_progress() -> dict[str, Any]:
         "verified": counts["verified"],
         "in_progress": counts["in_progress"],
         "unchecked": counts["unchecked"],
+        "invalid": counts.get("invalid", 0),
         "percent_verified": round(100 * counts["verified"] / total, 2) if total else 0.0,
     }
