@@ -1,5 +1,5 @@
 {
- "exported_at": "2026-09-26T20:51:03.761926Z",
+ "exported_at": "2026-09-26T21:00:02.335872Z",
  "crs": "EPSG:32635",
  "mask_values": {
   "background": 0,
@@ -2049,10 +2049,10 @@
   },
   {
    "tile": "siret3_r035_c026.tif",
-   "status": "in_progress",
+   "status": "verified",
    "updated_by": null,
-   "updated_at": "2026-09-26T20:46:02.952649+00:00",
-   "annotations": 230
+   "updated_at": "2026-09-26T20:56:11.489766+00:00",
+   "annotations": 268
   },
   {
    "tile": "siret3_r035_c027.tif",
