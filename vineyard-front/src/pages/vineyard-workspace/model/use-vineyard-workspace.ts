@@ -11,6 +11,7 @@ import {
   type SurveySource,
 } from "@/entities/survey";
 import { useRouteStart } from "@/features/set-route-start";
+import { useRouteCalculation } from "@/features/calculate-route";
 import { useLayerVisibility } from "@/features/toggle-map-layers";
 import { useRouteProgress } from "@/features/track-route-progress";
 
@@ -22,11 +23,13 @@ const isVineyardOnly = (selection: SurveySelection) =>
 
 type WorkspaceOptions = { role: Role; source: SurveySource; survey: Survey; initialBlockId: string | null };
 
-export const useVineyardWorkspace = ({ role, source, survey, initialBlockId }: WorkspaceOptions) => {
+export const useVineyardWorkspace = ({ role, source, survey: originalSurvey, initialBlockId }: WorkspaceOptions) => {
   const { routePurpose, initialLayers } = WORKSPACE_CONFIG[role];
   const layers = useLayerVisibility(initialLayers);
-  const selection = useSurveySelection(blockSelection(survey, initialBlockId));
   const routeStart = useRouteStart(source.id, routePurpose);
+  const routeCalculation = useRouteCalculation(originalSurvey, source.id, routePurpose, routeStart.request?.lngLat ?? null);
+  const survey = routeCalculation.survey;
+  const selection = useSurveySelection(blockSelection(survey, initialBlockId));
   const tab = useWorkspaceTab();
 
   const stopIds = useMemo(
@@ -49,6 +52,9 @@ export const useVineyardWorkspace = ({ role, source, survey, initialBlockId }: W
   const isRoutePlanned = survey.routes[routePurpose] !== null;
 
   return {
+    survey,
+    originalStart: originalSurvey.start.geometry.coordinates,
+    routeCalculation,
     routePurpose,
     layers,
     selection,

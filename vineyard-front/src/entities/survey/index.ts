@@ -19,6 +19,7 @@ export {
   type SurveySource,
 } from "./config/sources";
 export { ImageryCheckError, inspectImagery } from "./api/inspect-imagery";
+export { planSurveyRoute, type RouteReport, type RoutePathMode } from "./api/plan-route";
 export { blocksBounds } from "./lib/assemble-survey";
 export { describeCapture } from "./lib/describe-source";
 export { checkSurveyFile, type SurveyFileCheck } from "./lib/check-survey-file";

@@ -1,5 +1,5 @@
 import type { Position } from "geojson";
-import { Hourglass, MapPin } from "lucide-react";
+import { Info, MapPin } from "lucide-react";
 import { useState, type FC } from "react";
 
 import { formatMetres } from "@/shared/lib/format";
@@ -48,9 +48,8 @@ const RequestedStart: FC<RequestedStartProps> = ({ vineyardStart, request, onCha
         </p>
       </div>
       <p className="bg-muted text-muted-foreground flex gap-2.5 rounded-md px-3 py-2.5 text-sm leading-snug">
-        <Hourglass className="mt-0.5 size-4 shrink-0" aria-hidden />
-        The route from your point is being planned. Until it is ready, the stops below begin at the vineyard's
-        starting point.
+        <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+        Routes from this point are limited to connected walking areas.
       </p>
       <div className="flex flex-wrap gap-x-4 gap-y-1 pl-7">
         <LinkButton onClick={onChange}>Change</LinkButton>

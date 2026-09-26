@@ -5,7 +5,7 @@ import type { Role } from "@/entities/role";
 import { ROUTE_COPY, type Survey, type SurveySource } from "@/entities/survey";
 import { RouteStartControl } from "@/features/set-route-start";
 import { ScrollRevealProvider } from "@/shared/lib/dom";
-import { CollapsiblePanelSection, PanelSection, PanelTabs, type PanelTab } from "@/shared/ui";
+import { Button, CollapsiblePanelSection, PanelSection, PanelTabs, type PanelTab } from "@/shared/ui";
 import { InterrowList } from "@/widgets/interrow-list";
 import { MeasurementSheet } from "@/widgets/measurement-sheet";
 import { RoutePanel } from "@/widgets/route-panel";
@@ -60,17 +60,50 @@ const VineyardTab: FC<TabContentProps> = props => {
 
 const RouteTab: FC<TabContentProps> = props => {
   const { survey, workspace } = props;
-  const { routePurpose, routeStart } = workspace;
+  const { routePurpose, routeStart, routeCalculation } = workspace;
 
   return (
     <PanelSection title={ROUTE_COPY[routePurpose].title} description={ROUTE_COPY[routePurpose].description}>
       <RouteStartControl
-        vineyardStart={survey.start.geometry.coordinates}
+        vineyardStart={workspace.originalStart}
         request={routeStart.request}
         onRequest={routeStart.requestStart}
         onClear={routeStart.clearStart}
       />
-      <RoutePanel {...listPropsOf(props)} purpose={routePurpose} progress={workspace.progress} />
+      <div className="mb-5 grid gap-3">
+        {routeCalculation.supportsDemoPaths && <label className="grid gap-1.5 text-sm">
+          <span className="font-medium">Route paths</span>
+          <select aria-label="Route paths" className="border-input bg-background rounded-md border px-2 py-2" value={routeCalculation.pathMode}
+            onChange={event => routeCalculation.setPathMode(event.target.value === "demo_headlands" ? "demo_headlands" : "supplied")}>
+            <option value="demo_headlands">Demo paths — inferred access at row ends</option>
+            <option value="supplied">Supplied passages only</option>
+          </select>
+          {routeCalculation.pathMode === "demo_headlands" && <span className="text-muted-foreground">This generated survey uses inferred access paths to connect the aisles. Demo routes are not validated for challenge submission.</span>}
+        </label>}
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" disabled={routeCalculation.status === "calculating"} onClick={routeCalculation.calculate}>
+            {routeCalculation.status === "calculating" ? "Calculating route…" : "Calculate route"}
+          </Button>
+          {routeCalculation.status === "ready" && (
+            <Button size="sm" variant="outline" onClick={routeCalculation.download}>Download route</Button>
+          )}
+        </div>
+        <div aria-live="polite" className="text-muted-foreground grid gap-2 text-sm">
+          {routeCalculation.status === "idle" && <p>Calculate a route using the available walking areas and targets. Any route already shown is a saved preview.</p>}
+          {routeCalculation.status === "calculating" && <p>Checking walking paths and arranging stops…</p>}
+          {routeCalculation.error && <p role="alert" className="text-destructive">{routeCalculation.error}</p>}
+          {routeCalculation.status === "no_route" && (
+            <p className="text-foreground font-medium">{routeCalculation.report?.target_count === 0 ? "No targets to visit" : "No route available from this start"}</p>
+          )}
+          {routeCalculation.report && <>
+            <p>{routeCalculation.report.visited_count} of {routeCalculation.report.target_count} supplied targets covered.{routeCalculation.status === "ready" && (routeCalculation.report.path_mode === "demo_headlands"
+              ? ` Includes ${routeCalculation.report.outside_supplied_length_m.toFixed(1)} m outside supplied walking areas, on inferred demo paths.`
+              : ` Distance outside permitted areas: ${routeCalculation.report.outside_length_m.toFixed(2)} m.`)}</p>
+            {routeCalculation.report.warnings.map(warning => <p key={warning}>{warning}</p>)}
+          </>}
+        </div>
+      </div>
+      {survey.routes[routePurpose] && <RoutePanel {...listPropsOf(props)} purpose={routePurpose} progress={workspace.progress} />}
     </PanelSection>
   );
 };
@@ -82,7 +115,7 @@ const RouteTabLabel: FC<RouteTabLabelProps> = ({ workspace }) => {
     return (
       <>
         Route
-        <Hourglass className="size-3.5" aria-label="being planned" />
+        {workspace.routeCalculation.status === "calculating" && <Hourglass className="size-3.5" aria-label="being planned" />}
       </>
     );
   }

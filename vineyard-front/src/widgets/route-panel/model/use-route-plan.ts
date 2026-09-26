@@ -27,6 +27,7 @@ export const useRoutePlan = (survey: Survey, purpose: RoutePurpose, route: Plann
       savedM,
       savedRatio: baselineM > 0 ? savedM / baselineM : 0,
       savedMinutes: walkingMinutes(savedM, speedKmh),
+      baselineKind: route.properties.baseline_kind,
     };
   }, [survey, purpose, route]);
 };

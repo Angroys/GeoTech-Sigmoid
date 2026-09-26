@@ -42,7 +42,6 @@ const BLOCK_TRACES: Record<string, [Vec, Vec, Vec, Vec]> = {
     { x: 836, y: 964 },
   ],
 };
-const START_TRACE: Vec = { x: 268, y: 356 };
 const OUTSIDE_WASTE_TRACE: Vec = { x: 160, y: 300 };
 
 const createRandom = (seed: number) => {
@@ -195,7 +194,11 @@ const blocks = Object.entries(BLOCK_TRACES).map(([vineyardId, [topLeft, topRight
 );
 const allRows = blocks.flatMap(block => block.rows);
 const allInterrows = blocks.flatMap(block => block.interrows);
-const startPoint = traceToUtm(START_TRACE);
+// Preserve the supplied start; a traced approximation may be off the passage.
+const startData = await Bun.file(path.join(OUTPUT_DIR, "start.geojson")).json();
+const [startX, startY] = startData.features[0].geometry.coordinates;
+if (!Number.isFinite(startX) || !Number.isFinite(startY)) throw new Error("Invalid supplied start");
+const startPoint: Vec = { x: startX, y: startY };
 
 type Target = {
   id: string;

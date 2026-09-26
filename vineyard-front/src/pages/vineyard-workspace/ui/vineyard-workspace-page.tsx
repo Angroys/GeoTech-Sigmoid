@@ -13,8 +13,9 @@ import { WorkspacePanel } from "./workspace-panel";
 type VineyardWorkspaceProps = { role: Role; source: SurveySource; survey: Survey; initialBlockId: string | null };
 
 const VineyardWorkspace: FC<VineyardWorkspaceProps> = props => {
-  const { role, source, survey } = props;
+  const { role, source } = props;
   const workspace = useVineyardWorkspace(props);
+  const survey = workspace.survey;
 
   return (
     <div data-role={role}>

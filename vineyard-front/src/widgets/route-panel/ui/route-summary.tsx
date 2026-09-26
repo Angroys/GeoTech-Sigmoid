@@ -25,8 +25,9 @@ type RouteSavingsProps = { plan: RoutePlan };
 export const RouteSavings: FC<RouteSavingsProps> = ({ plan }) => {
   return (
     <p className="text-sm leading-relaxed">
-      {formatMetres(plan.savedM)} ({formatPercent(plan.savedRatio)}) shorter than an estimated walk along every
-      inter-row, which saves about {formatMinutes(plan.savedMinutes)}.
+      {formatMetres(plan.savedM)} ({formatPercent(plan.savedRatio)}) shorter than {plan.baselineKind === "nearest_neighbour"
+        ? "visiting the nearest remaining stop each time"
+        : "an estimated walk along every inter-row"}, which saves about {formatMinutes(plan.savedMinutes)}.
     </p>
   );
 };
