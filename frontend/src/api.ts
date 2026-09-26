@@ -8,6 +8,7 @@ import type {
   AnnotationIn,
   ExportJob,
   ImportResult,
+  SamImportResult,
   VerificationStatus,
 } from './types';
 
@@ -62,6 +63,13 @@ export const api = {
   // Import
   // Omit both path and file to import the bundled example (no body).
   importExampleCvat: () => request<ImportResult>('/api/import/cvat', { method: 'POST' }),
+  // Import SAM GeoJSON (EPSG:32635) pre-annotations. Omit dir to use the
+  // server default (GEOTECH_SAM_DIR / <repo_root>/labels).
+  importSamGeojson: (dir?: string) =>
+    request<SamImportResult>('/api/import/geojson', {
+      method: 'POST',
+      body: JSON.stringify(dir ? { dir } : {}),
+    }),
 
   // Export
   exportCvat: (tiles: string[] | null, include_images = false) =>

@@ -84,3 +84,12 @@ export interface ImportResult {
   shapes_imported: number;
   labels: string[];
 }
+
+export interface SamImportResult {
+  source: string;
+  tiles: number;
+  images: number;
+  shapes_imported: number;
+  skipped: number;
+  labels: Record<string, number>;
+}

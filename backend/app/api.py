@@ -9,7 +9,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from . import config, cvat, db, export, tiles
+from . import config, cvat, db, export, geojson_import, tiles
 
 router = APIRouter(prefix="/api")
 
@@ -51,6 +51,10 @@ class StatusIn(BaseModel):
 class ExportRequest(BaseModel):
     tiles: list[str] | None = None
     include_images: bool = True
+
+
+class GeojsonImportRequest(BaseModel):
+    dir: str | None = None
 
 
 # --------------------------------------------------------------- tiles ----
@@ -204,6 +208,20 @@ async def import_cvat(
     finally:
         if tmp_path and tmp_path.exists():
             tmp_path.unlink()
+
+
+@router.post("/import/geojson")
+def import_geojson(payload: GeojsonImportRequest | None = None) -> dict[str, Any]:
+    """Import SAM GeoJSON (EPSG:32635) pre-annotations from a directory.
+
+    Body is optional ``{"dir": "<path>"}``; defaults to ``config.sam_dir()``.
+    """
+    payload = payload or GeojsonImportRequest()
+    directory = payload.dir or str(config.sam_dir())
+    try:
+        return geojson_import.import_dir(directory)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 # -------------------------------------------------------------- export ----

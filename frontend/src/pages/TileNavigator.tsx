@@ -26,6 +26,7 @@ export function TileNavigator() {
   const [activeFilters, setActiveFilters] = useState<Set<VerificationStatus>>(new Set());
   const [sort, setSort] = useState<SortKey>('id');
   const [importing, setImporting] = useState(false);
+  const [importingSam, setImportingSam] = useState(false);
 
   const jumpRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -145,6 +146,26 @@ export function TileNavigator() {
     }
   };
 
+  const doImportSam = async () => {
+    setImportingSam(true);
+    try {
+      const r = await api.importSamGeojson();
+      const labels = Object.entries(r.labels)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', ');
+      toast.push(
+        `Imported ${r.shapes_imported} SAM shapes across ${r.tiles} tiles` +
+          `${r.skipped ? ` (${r.skipped} skipped)` : ''}${labels ? ` — ${labels}` : ''}`,
+        'success',
+      );
+      await load();
+    } catch (e) {
+      toast.push(`SAM import failed: ${e instanceof Error ? e.message : e}`, 'error');
+    } finally {
+      setImportingSam(false);
+    }
+  };
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -153,6 +174,9 @@ export function TileNavigator() {
         <span className="spacer" />
         <Button variant="ghost" onClick={doImport} loading={importing}>
           Import example CVAT
+        </Button>
+        <Button variant="ghost" onClick={doImportSam} loading={importingSam}>
+          Import SAM GeoJSON
         </Button>
         <Link to="/export" className="btn">
           Export

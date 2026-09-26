@@ -30,6 +30,10 @@ _DEFAULT_CVAT_EXAMPLE = (
     / "siret3_examples_cvat"
 )
 
+# SAM (Segment Anything Model) GeoJSON pre-annotation output lives at the repo
+# root by default (three levels above backend/, same base as the tiles path).
+_DEFAULT_SAM = BACKEND_ROOT.parent.parent.parent / "labels"
+
 
 def db_path() -> Path:
     p = Path(os.environ.get("GEOTECH_DB", str(BACKEND_ROOT / "data" / "geotech.db")))
@@ -43,6 +47,11 @@ def tiles_dir() -> Path:
 
 def cvat_example_path() -> Path:
     return Path(os.environ.get("GEOTECH_CVAT_EXAMPLE", str(_DEFAULT_CVAT_EXAMPLE)))
+
+
+def sam_dir() -> Path:
+    """Directory of SAM GeoJSON pre-annotation output (EPSG:32635)."""
+    return Path(os.environ.get("GEOTECH_SAM_DIR", str(_DEFAULT_SAM)))
 
 
 def exports_dir() -> Path:
