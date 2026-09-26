@@ -1,24 +1,16 @@
 import { ChevronDown, Layers } from "lucide-react";
-import { useId, useState, type FC } from "react";
+import { useId, useRef, type FC, type KeyboardEvent } from "react";
 
 import { SURVEY_LAYERS, type LayerVisibility, type SurveyLayerId } from "@/entities/survey";
 import { cn } from "@/shared/lib/cn";
 
 import { LAYER_SWATCH, layerKeys } from "../config/layer-keys";
+import { useControlOpen } from "../model/use-control-open";
 import type { AllLayersState } from "../model/use-layer-visibility";
 import { LayerSwatch } from "./layer-swatch";
 
-const WIDE_SCREEN = "(min-width: 768px)";
 const ROW_CLASS = "hover:bg-muted flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5";
 const CHECKBOX_CLASS = "accent-primary size-3.5 shrink-0";
-
-const startsOpen = () => {
-  try {
-    return window.matchMedia(WIDE_SCREEN).matches;
-  } catch {
-    return true;
-  }
-};
 
 type AllLayersToggleProps = { state: AllLayersState; onToggle: () => void };
 
@@ -50,7 +42,7 @@ type LayerRowProps = {
 };
 
 const LayerRow: FC<LayerRowProps> = ({ layerId, label, isVisible, hasRequestedStart, onToggle }) => {
-  const keys = isVisible ? layerKeys(layerId, hasRequestedStart) : [];
+  const keys = layerKeys(layerId, hasRequestedStart);
 
   return (
     <li>
@@ -60,10 +52,15 @@ const LayerRow: FC<LayerRowProps> = ({ layerId, label, isVisible, hasRequestedSt
         <span className={cn(!isVisible && "text-muted-foreground")}>{label}</span>
       </label>
       {keys.length > 0 && (
-        <ul className="text-muted-foreground grid gap-1 pt-0.5 pb-1.5 pl-[3.25rem]">
+        <ul
+          className={cn(
+            "text-muted-foreground flex flex-wrap gap-x-2.5 gap-y-1 pb-1.5 pl-[3.25rem] text-[0.6875rem] transition-opacity motion-reduce:transition-none",
+            !isVisible && "opacity-45",
+          )}
+        >
           {keys.map(key => {
             return (
-              <li key={key.label} className="flex items-center gap-2">
+              <li key={key.label} className="flex items-center gap-1">
                 <LayerSwatch swatch={key} />
                 {key.label}
               </li>
@@ -90,22 +87,31 @@ export const MapLayersControl: FC<MapLayersControlProps> = ({
   onToggle,
   onToggleAll,
 }) => {
-  const [isOpen, setIsOpen] = useState(startsOpen);
+  const { isOpen, setIsOpen } = useControlOpen();
   const panelId = useId();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const closeOnEscape = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Escape" || !isOpen) return;
+    setIsOpen(false);
+    buttonRef.current?.focus();
+  };
   const visibleCount = SURVEY_LAYERS.filter(({ id }) => visibility[id]).length;
 
   return (
     <div
+      onKeyDown={closeOnEscape}
       className={cn(
         "bg-popover/95 flex max-h-full min-h-0 flex-col overflow-hidden rounded-lg text-xs shadow-[0_1px_3px_rgb(29_36_32/0.18)] backdrop-blur-sm",
         isOpen && "w-60",
       )}
     >
       <button
+        ref={buttonRef}
         type="button"
         aria-expanded={isOpen}
         aria-controls={panelId}
-        onClick={() => setIsOpen(open => !open)}
+        onClick={() => setIsOpen(!isOpen)}
         className="hover:bg-muted/60 focus-visible:ring-ring/50 flex shrink-0 items-center gap-2 px-3 py-2.5 outline-none focus-visible:ring-[3px] focus-visible:ring-inset"
       >
         <Layers className="text-muted-foreground size-4" aria-hidden />

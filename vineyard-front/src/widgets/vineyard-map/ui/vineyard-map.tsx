@@ -55,7 +55,7 @@ export const VineyardMap: FC<VineyardMapProps> = ({
           aria-label={`Map of the ${source.name} survey, captured ${source.capturedOn}`}
         />
       </div>
-      <div className="pointer-events-none absolute top-3 bottom-3 left-3 z-10 flex flex-col justify-end">
+      <div className="pointer-events-none absolute top-3 bottom-3 left-3 z-10 flex flex-col justify-start">
         <div className="pointer-events-auto flex min-h-0 flex-col">{layersControl}</div>
       </div>
     </div>
