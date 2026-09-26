@@ -1,5 +1,6 @@
 import { apiUrl } from './config';
 import type {
+  ParcelShape,
   TilesResponse,
   TileGeo,
   TileStatus,
@@ -38,6 +39,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   // Tiles
   listTiles: () => request<TilesResponse>('/api/tiles'),
+  tileParcels: (name: string) =>
+    request<{ tile_name: string; parcels: ParcelShape[] }>(`/api/tiles/${encodeURIComponent(name)}/parcels`),
+  mapParcels: () =>
+    request<{ layout: { r0: number; c0: number; rows: number; cols: number }; parcels: ParcelShape[] }>('/api/parcels/map'),
   tileGeo: (name: string) => request<TileGeo>(`/api/tiles/${encodeURIComponent(name)}/geo`),
   rasterUrl: (name: string, thumb = false) =>
     apiUrl(`/api/tiles/${encodeURIComponent(name)}/raster.png${thumb ? '?thumb=1' : ''}`),

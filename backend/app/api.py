@@ -10,7 +10,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from . import config, collab, cvat, db, export, finish_export, geojson_import, mosaic, segment, tiles
+from . import config, collab, cvat, db, export, finish_export, geojson_import, mosaic, parcels, segment, tiles
 
 router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
@@ -364,6 +364,19 @@ def export_download(job_id: str, filename: str) -> FileResponse:
 
 
 # --------------------------------------------------------------- map ----
+@router.get("/parcels/map")
+def get_parcels_map() -> dict[str, Any]:
+    return parcels.for_map()
+
+
+@router.get("/tiles/{name}/parcels")
+def get_tile_parcels(name: str) -> dict[str, Any]:
+    try:
+        return {"tile_name": name, "parcels": parcels.for_tile(name)}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="tile not found")
+
+
 @router.get("/map/layout")
 def get_map_layout() -> dict[str, Any]:
     return mosaic.layout()

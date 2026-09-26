@@ -79,6 +79,17 @@ def finish_dir() -> Path:
     return p
 
 
+def parcels_path() -> Path:
+    """Vineyard parcel outlines (EPSG:32635 GeoJSON) shown on the site.
+
+    Env GEOTECH_PARCELS; default <repo_root>/data/tested-on-vm/parcels/parcels_v2.geojson.
+    """
+    return Path(os.environ.get(
+        "GEOTECH_PARCELS",
+        str(BACKEND_ROOT.parent.parent.parent / "data" / "tested-on-vm" / "parcels" / "parcels_v2.geojson"),
+    ))
+
+
 def frontend_dist() -> Path:
     """Built frontend (Vite dist) to serve as a single-origin SPA.
 

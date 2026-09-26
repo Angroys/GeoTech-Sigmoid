@@ -168,3 +168,11 @@ export interface SamImportResult {
   skipped: number;
   labels: Record<string, number>;
 }
+
+// Vineyard parcel outline (read-only overlay). `points` are in the requesting
+// view's coords: tile pixels for a tile, grid units for the progress map.
+export interface ParcelShape {
+  id: number;
+  points: [number, number][];
+  area_m2?: number | null;
+}

@@ -7,7 +7,7 @@ import type { MultiPolygon, Polygon as PcPolygon, Ring as PcRing } from 'polygon
 // of the boolean ops); its .d.ts declares named exports, so we take the default
 // and destructure the two ops we use. MIT, ~small.
 const { difference, union } = polygonClipping;
-import type { Annotation, Label, SegmentHit, SegmentResponse, Tool } from '../types';
+import type { Annotation, Label, ParcelShape, SegmentHit, SegmentResponse, Tool } from '../types';
 import { overlayStyle, haloColor, haloWidthOffset, vertex as vtok, zoom as ztok } from '../tokens';
 
 type Point = [number, number];
@@ -292,6 +292,9 @@ export interface MapCanvasProps {
   // Shift+drag box over points of the selected shape.
   onBoxSelectVertices?: (idxs: number[]) => void;
   visibility: Record<Label, boolean>;
+  // Read-only vineyard parcel outlines for this tile (tile px) + toggle.
+  parcels?: ParcelShape[];
+  showParcels?: boolean;
   // Overlay fill/stroke opacity multiplier (0..1). Applied to the whole vector
   // overlay pane so the user can dim labels and see the imagery underneath
   // (e.g. check a plant is really there). Vertex handles stay full opacity.
@@ -333,6 +336,9 @@ export interface MapCanvasProps {
   onCutLine?: (id: string, segIndex: number, splitPoint: Point) => void;
   // Cut tool: a click that didn't land on any polyline (for a gentle hint).
   onCutMiss?: () => void;
+  // Cut a ROAD (inter-row polygon) along the line through two clicked points.
+  onCutPolygon?: (id: string, a: Point, b: Point) => void;
+  onCutPending?: () => void;
   // Join tool: the nearest visible polyline to a click (tile-px hit-test), or
   // null when the click landed on nothing / only a polygon. The parent tracks
   // the pending row and merges the two picked polylines.
@@ -362,6 +368,8 @@ export interface MapCanvasProps {
     cancel: () => boolean;
   } | null>;
   onSelectAnnotation: (id: string | null) => void;
+  // Ctrl/Cmd+click: toggle a shape in the multi-selection.
+  onToggleAnnotation?: (id: string) => void;
   // TileViewer passes a ref that MapCanvas populates with a resolver returning
   // the id of the shape currently under the pointer (same nearest/containing
   // hit-test as click), used by the SPACE multi-select toggle. null = nothing.
@@ -376,6 +384,7 @@ export function MapCanvas(props: MapCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const overlayGroupRef = useRef<L.LayerGroup | null>(null);
+  const parcelGroupRef = useRef<L.LayerGroup | null>(null);
   const selBoxGroupRef = useRef<L.LayerGroup | null>(null);
   const handleGroupRef = useRef<L.LayerGroup | null>(null);
   const selectedLayerRef = useRef<L.Polygon | L.Polyline | null>(null);
@@ -506,9 +515,15 @@ export function MapCanvas(props: MapCanvasProps) {
   // Plain click: single-select, replacing the set. Repeated clicks at the same
   // spot cycle the primary through the stacked candidates so a shape hidden
   // under another can be reached. Empty space (no candidate) clears selection.
-  const pickAndSelectRef = useRef<(p: Pt2) => void>(() => {});
-  pickAndSelectRef.current = (p: Pt2) => {
+  const pickAndSelectRef = useRef<(p: Pt2, additive?: boolean) => void>(() => {});
+  pickAndSelectRef.current = (p: Pt2, additive?: boolean) => {
     const ids = collectCandidates(p);
+    // Ctrl/Cmd+click: add/remove the shape under the cursor to/from the
+    // multi-selection instead of replacing it.
+    if (additive) {
+      if (ids.length) propsRef.current.onToggleAnnotation?.(ids[0]);
+      return;
+    }
     if (ids.length === 0) {
       lastClickRef.current = null;
       propsRef.current.onSelectAnnotation(null);
@@ -541,10 +556,25 @@ export function MapCanvas(props: MapCanvasProps) {
   // --- Cut tool: hit-test a click to the nearest visible polyline, project it
   // onto the closest segment, and hand the split (segment index + tile-px point)
   // to the parent. Polygons are ignored (Cut only splits lines).
+  // Road cut in progress: the road picked by the 1st click + that point.
+  const roadCutRef = useRef<{ id: string; a: Point; marker: L.CircleMarker } | null>(null);
+  const clearRoadCut = () => {
+    roadCutRef.current?.marker.remove();
+    roadCutRef.current = null;
+  };
   const cutAtRef = useRef<(p: Pt2) => void>(() => {});
   cutAtRef.current = (p: Pt2) => {
     const map = mapRef.current;
     if (!map) return;
+    // 2nd click of a road cut: split the road along the line through both points.
+    if (roadCutRef.current) {
+      const { id, a } = roadCutRef.current;
+      const b = ll2p(map.containerPointToLatLng(L.point(p.x, p.y)));
+      clearRoadCut();
+      if (Math.hypot(b[0] - a[0], b[1] - a[1]) < 2) return; // same spot: cancel
+      propsRef.current.onCutPolygon?.(id, a, b);
+      return;
+    }
     const anns = propsRef.current.annotations;
     const vis = propsRef.current.visibility;
     let best: { id: string; segIndex: number; dist: number; split: Point } | null = null;
@@ -567,12 +597,46 @@ export function MapCanvas(props: MapCanvasProps) {
         }
       }
     }
+    // Is the click inside a road (inter-row polygon)? A click inside a road
+    // cuts the ROAD unless it is practically on a line (rows run right next to
+    // roads, so the generous line tolerance would otherwise always win).
+    const ON_LINE_PX = 6;
+    if (!best || best.dist > ON_LINE_PX) {
+      let road: { id: string; area: number } | null = null;
+      for (const ann of anns) {
+        if (ann.label !== 'interrow_area' || ann.shape_type === 'polyline') continue;
+        if (vis[ann.label] === false || ann.points.length < 3) continue;
+        const cpts = ann.points.map((pt) => {
+          const cp = map.latLngToContainerPoint(p2ll(pt) as L.LatLngExpression);
+          return { x: cp.x, y: cp.y };
+        });
+        if (!pointInPolygon(p, cpts)) continue;
+        let area = 0;
+        for (let k = 0, m = cpts.length - 1; k < cpts.length; m = k++) area += (cpts[m].x + cpts[k].x) * (cpts[m].y - cpts[k].y);
+        area = Math.abs(area / 2);
+        if (!road || area < road.area) road = { id: ann.id, area };
+      }
+      if (road) {
+        const a = ll2p(map.containerPointToLatLng(L.point(p.x, p.y)));
+        const marker = L.circleMarker(p2ll(a) as L.LatLngExpression, {
+          pane: 'drawPane', radius: 6, color: '#fff', weight: 2, fillColor: '#FF5A5A', fillOpacity: 1, interactive: false,
+        }).addTo(map);
+        roadCutRef.current = { id: road.id, a, marker };
+        propsRef.current.onCutPending?.();
+        return;
+      }
+    }
     if (!best) {
       propsRef.current.onCutMiss?.();
       return;
     }
     propsRef.current.onCutLine?.(best.id, best.segIndex, best.split);
   };
+  // Leaving the Cut tool drops a half-made road cut.
+  useEffect(() => {
+    if (props.tool !== 'cut') clearRoadCut();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.tool]);
 
   // --- Eraser tool (region-subtract brush) ---
   // Monotonic suffix for the fresh ids of split pieces during a drag.
@@ -978,6 +1042,11 @@ export function MapCanvas(props: MapCanvasProps) {
     const drawPane = map.createPane('drawPane');
     drawPane.style.zIndex = '650';
     drawPane.style.pointerEvents = 'none';
+    // Parcel outlines sit just under the label overlays and never take clicks.
+    const parcelPane = map.createPane('parcelPane');
+    parcelPane.style.zIndex = '450'; // above labels (non-interactive), below handles
+    parcelPane.style.pointerEvents = 'none';
+    parcelGroupRef.current = L.layerGroup().addTo(map);
 
     // Shift+drag on the map = box-select points of the selected shape (replaces
     // Leaflet's default shift+drag box-zoom).
@@ -1249,7 +1318,10 @@ export function MapCanvas(props: MapCanvasProps) {
         joinAtRef.current({ x: e.containerPoint.x, y: e.containerPoint.y });
         return;
       }
-      pickAndSelectRef.current({ x: e.containerPoint.x, y: e.containerPoint.y });
+      pickAndSelectRef.current(
+        { x: e.containerPoint.x, y: e.containerPoint.y },
+        !!((e.originalEvent as MouseEvent)?.ctrlKey || (e.originalEvent as MouseEvent)?.metaKey),
+      );
     });
 
     mapRef.current = map;
@@ -1259,6 +1331,29 @@ export function MapCanvas(props: MapCanvasProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Vineyard parcel outlines (read-only, dashed amber), toggled from Layers.
+  useEffect(() => {
+    const g = parcelGroupRef.current;
+    if (!g) return;
+    g.clearLayers();
+    if (!props.showParcels || !props.parcels) return;
+    for (const pc of props.parcels) {
+      if (pc.points.length < 3) continue;
+      L.polygon(pc.points.map((q) => p2ll(q as Point)), {
+        pane: 'parcelPane',
+        color: '#FFD23F',
+        weight: 2.5,
+        opacity: 0.95,
+        dashArray: '8 6',
+        fill: true,
+        fillColor: '#FFD23F',
+        fillOpacity: 0.06,
+        interactive: false,
+      }).addTo(g);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.parcels, props.showParcels, H]);
 
   // Dim/brighten all vector overlays via the overlay pane's CSS opacity — cheap
   // and instant (no redraw), so the user can peek at the imagery under labels.
@@ -1376,7 +1471,10 @@ export function MapCanvas(props: MapCanvasProps) {
           joinAtRef.current({ x: e.containerPoint.x, y: e.containerPoint.y });
           return;
         }
-        pickAndSelectRef.current({ x: e.containerPoint.x, y: e.containerPoint.y });
+        pickAndSelectRef.current(
+        { x: e.containerPoint.x, y: e.containerPoint.y },
+        !!((e.originalEvent as MouseEvent)?.ctrlKey || (e.originalEvent as MouseEvent)?.metaKey),
+      );
       });
       group.addLayer(main);
 
