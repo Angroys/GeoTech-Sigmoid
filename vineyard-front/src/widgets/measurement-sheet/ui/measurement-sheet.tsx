@@ -45,7 +45,7 @@ const BlockTable: FC<BlockTableProps> = ({ blocks }) => {
             Row length
           </th>
           <th scope="col" className="py-1.5 pl-3 text-right font-medium">
-            Canopy
+            Canopies
           </th>
           <th scope="col" className="py-1.5 pl-3 text-right font-medium">
             Inter-row
@@ -61,7 +61,7 @@ const BlockTable: FC<BlockTableProps> = ({ blocks }) => {
               </th>
               <NumericCell>{formatCount(block.rowCount)}</NumericCell>
               <NumericCell>{formatMetres(block.rowLengthM)}</NumericCell>
-              <NumericCell>{formatHectares(block.canopyAreaM2)}</NumericCell>
+              <NumericCell>{formatCount(block.canopyCount)}</NumericCell>
               <NumericCell>{formatHectares(block.interrowAreaM2)}</NumericCell>
             </tr>
           );
@@ -82,11 +82,7 @@ export const MeasurementSheet: FC<MeasurementSheetProps> = ({ survey }) => {
         <MeasurementRow label="Vineyard blocks" value={formatCount(summary.blockCount)} />
         <MeasurementRow label="Rows" value={formatCount(summary.rowCount)} />
         <MeasurementRow label="Total row length" value={formatMetres(summary.rowLengthM)} />
-        <MeasurementRow
-          label="Canopy area"
-          value={formatHectares(summary.canopyAreaM2)}
-          detail={formatSquareMetres(summary.canopyAreaM2)}
-        />
+        <MeasurementRow label="Vine canopies" value={formatCount(summary.canopyCount)} />
         <MeasurementRow
           label="Inter-row area"
           value={formatHectares(summary.interrowAreaM2)}

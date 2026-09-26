@@ -8,10 +8,12 @@ import { cn } from "@/shared/lib/cn";
 
 import { useFeatureClicks } from "../model/use-feature-clicks";
 import { useLayerVisibilitySync } from "../model/use-layer-visibility-sync";
+import { useLoupeWaste } from "../model/use-loupe-waste";
 import { useMapInstance } from "../model/use-map-instance";
 import { useRequestedStartSync } from "../model/use-requested-start-sync";
 import { useSelectionSync } from "../model/use-selection-sync";
 import { useSurveyLayers } from "../model/use-survey-layers";
+import { WasteLoupe } from "./waste-loupe";
 
 type VineyardMapProps = {
   source: SurveySource;
@@ -44,6 +46,7 @@ export const VineyardMap: FC<VineyardMapProps> = ({
   useSelectionSync(map, isReady, survey, selection);
   useFeatureClicks(map, isReady, survey, onSelect);
   useRequestedStartSync(map, isReady, survey, requestedStart);
+  const loupe = useLoupeWaste(survey, selection);
 
   return (
     <div className={cn("relative isolate overflow-hidden", className)}>
@@ -58,6 +61,16 @@ export const VineyardMap: FC<VineyardMapProps> = ({
       <div className="pointer-events-none absolute top-3 bottom-3 left-3 z-10 flex flex-col justify-start">
         <div className="pointer-events-auto flex min-h-0 flex-col">{layersControl}</div>
       </div>
+      {loupe.waste && source.imagery && (
+        <div className="absolute right-3 bottom-20 z-10">
+          <WasteLoupe
+            key={loupe.waste.properties.waste_id}
+            waste={loupe.waste}
+            imagery={source.imagery}
+            onClose={loupe.hide}
+          />
+        </div>
+      )}
     </div>
   );
 };

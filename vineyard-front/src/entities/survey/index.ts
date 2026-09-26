@@ -8,11 +8,10 @@ export {
   type RowStructure,
 } from "./config/attributes";
 export { SURVEY_LAYERS, type LayerVisibility, type SurveyLayerId } from "./config/layers";
-export { ROUTE_COPY, ROUTE_PURPOSES, type RoutePurpose } from "./config/routes";
+export { ROUTE_COPY, type RoutePurpose } from "./config/routes";
 export {
-  BUILT_IN_SOURCES,
+  imageryCropUrl,
   imageryFromCog,
-  SIRET3,
   type LngLatBounds,
   type SurveyId,
   type SurveyImagery,
@@ -20,12 +19,21 @@ export {
 } from "./config/sources";
 export { ImageryCheckError, inspectImagery } from "./api/inspect-imagery";
 export { blocksBounds } from "./lib/assemble-survey";
-export { describeCapture } from "./lib/describe-source";
+export { blockOfSelection, blockSelection } from "./lib/block-selection";
 export { checkSurveyFile, type SurveyFileCheck } from "./lib/check-survey-file";
 export { createSurveyId } from "./lib/create-survey-id";
+export { describeCapture } from "./lib/describe-source";
+export { listOfSelection } from "./lib/list-of-selection";
+export {
+  getRouteStops,
+  getUnreachableTargets,
+  locateSelection,
+  walkingMinutes,
+  type RouteStop,
+} from "./lib/route-stops";
+export { groupRowsByBlock, summarizeSurvey, type BlockSummary } from "./lib/summarize";
 export {
   isServerPlanned,
-  SERVER_PLANNED_FILES,
   SURVEY_FILE_KEYS,
   SURVEY_FILE_NAMES,
   surveyFileKeyOf,
@@ -33,21 +41,6 @@ export {
   type SurveyFileKey,
   type SurveyFiles,
 } from "./model/schema";
-export { removeUploadedVineyard, saveUploadedVineyard, type UploadedVineyard } from "./model/uploaded-vineyards";
-export { useSurveySource, useSurveySources } from "./model/use-survey-sources";
-export { blockSelection } from "./lib/block-selection";
-export { listOfSelection, type SelectionList } from "./lib/list-of-selection";
-export {
-  getRouteStops,
-  getUnreachableTargets,
-  locateSelection,
-  walkingMinutes,
-  type InspectionStop,
-  type RouteStop,
-  type UnreachableTarget,
-  type WasteStop,
-} from "./lib/route-stops";
-export { groupRowsByBlock, summarizeSurvey, type BlockSummary, type SurveySummary } from "./lib/summarize";
 export {
   NO_SELECTION,
   type InterrowId,
@@ -58,7 +51,10 @@ export {
   type SurveySelection,
   type TargetId,
   type VineyardId,
+  type WasteProperties,
 } from "./model/types";
-export { useSurvey, type SurveyState } from "./model/use-survey";
+export { removeUploadedVineyard, saveUploadedVineyard } from "./model/uploaded-vineyards";
+export { useSurvey } from "./model/use-survey";
 export { useSurveySelection } from "./model/use-survey-selection";
+export { useSurveySource, useSurveySources } from "./model/use-survey-sources";
 export { SurveyLoader } from "./ui/survey-loader";

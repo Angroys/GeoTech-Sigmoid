@@ -19,6 +19,7 @@ const uploadedSourceSchema = z.object({
     .object({
       tileUrl: z.url(),
       thumbnailUrl: z.url(),
+      cogUrl: z.url().nullable().default(null),
       attribution: z.string(),
       bounds: lngLatBoundsSchema,
     })

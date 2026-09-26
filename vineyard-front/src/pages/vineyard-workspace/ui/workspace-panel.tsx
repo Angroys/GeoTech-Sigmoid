@@ -11,10 +11,10 @@ import { MeasurementSheet } from "@/widgets/measurement-sheet";
 import { RoutePanel } from "@/widgets/route-panel";
 import { RowTable } from "@/widgets/row-table";
 import { WasteList } from "@/widgets/waste-list";
-import { WorkspaceHeader } from "@/widgets/workspace-header";
 
 import type { VineyardWorkspaceState } from "../model/use-vineyard-workspace";
 import type { WorkspaceTab } from "../model/use-workspace-tab";
+import { WorkspaceHeader } from "./workspace-header";
 
 type TabContentProps = { survey: Survey; workspace: VineyardWorkspaceState };
 

@@ -3,12 +3,12 @@ import type { FC } from "react";
 import { RoleSwitch } from "@/features/select-role";
 import { DemoSignInButton, SignInForm } from "@/features/sign-in";
 import { SignUpForm } from "@/features/sign-up";
-import { ParcelMap } from "@/widgets/parcel-map";
 
 import { MODE_COPY, ROLE_HEADLINE } from "../config/copy";
 import { OTHER_MODE } from "../model/auth-mode";
 import { useAuthLocation } from "../model/use-auth-location";
 import { AuthLayout } from "./auth-layout";
+import { ParcelMap } from "./parcel-map";
 
 export const AuthPage: FC = () => {
   const { mode, role, setMode, setRole } = useAuthLocation();

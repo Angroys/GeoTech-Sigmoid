@@ -11,13 +11,13 @@ type ParcelSpec = {
 
 export type RowLine = { x1: number; y1: number; x2: number; y2: number };
 
-export type Parcel = {
+type Parcel = {
   id: string;
   points: string;
   rows: RowLine[];
 };
 
-export type ParcelFocus = {
+type ParcelFocus = {
   parcelId: string;
   title: string;
   detail: string;
