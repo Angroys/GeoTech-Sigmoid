@@ -1,0 +1,7 @@
+venv/
+data/
+exports/
+__pycache__/
+*.py[cod]
+*.db
+.pytest_cache/

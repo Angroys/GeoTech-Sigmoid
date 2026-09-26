@@ -25,6 +25,11 @@ __pycache__/
 .venv/
 venv/
 
+# App data / local stores (never committed)
+backend/data/
+backend/exports/
+*.db
+
 # Local worktrees / handoffs (orchestration)
 worktrees/
 .handoffs/

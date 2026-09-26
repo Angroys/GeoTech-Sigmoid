@@ -1,0 +1,223 @@
+{
+  "$meta": {
+    "name": "GeoTech-Sigmoid Annotation Tokens",
+    "version": "1.0.0",
+    "description": "Design tokens for the vineyard geo-annotation platform (view / correct / verify / export over 311 GeoTIFF tiles). Import directly into the React + Leaflet frontend. Overlay colors follow Marcaj preview convention: bright saturated strokes + subtle low-opacity fills + a thin dark halo for legibility over aerial imagery.",
+    "usage": "import tokens from '@/design/design-tokens.json'. Reference nested groups, e.g. tokens.overlay.rows.stroke.",
+    "grid": "8px base spacing scale (with 4px half-step)",
+    "theme": "dark-first (primary theme for an imagery tool); light theme included as secondary"
+  },
+
+  "overlay": {
+    "_doc": "Class overlay colors. Each class: stroke (bright saturated, drawn ON TOP), halo (thin dark outline drawn UNDER the stroke for contrast on bright imagery), fill (rgba low-alpha), strokeWidth (px at native zoom). Render order per polygon: halo path (haloWidth) -> fill -> stroke. haloWidth = strokeWidth + 2.",
+    "halo": {
+      "color": "rgba(0, 0, 0, 0.55)",
+      "widthOffset": 2,
+      "_doc": "Shared dark halo under every overlay stroke. Draw the same geometry once at strokeWidth+widthOffset in this color, then the colored stroke on top."
+    },
+    "rows": {
+      "_class": "rows (regular row axes)",
+      "stroke": "#FF2D2D",
+      "fill": "rgba(255, 45, 45, 0.18)",
+      "strokeWidth": 2,
+      "dashArray": null
+    },
+    "rowsDisrupted": {
+      "_class": "rows with attr=disrupted",
+      "stroke": "#FF3DE0",
+      "fill": "rgba(255, 61, 224, 0.18)",
+      "strokeWidth": 2,
+      "dashArray": null
+    },
+    "canopies": {
+      "_class": "canopies (one polygon per plant)",
+      "stroke": "#22E06B",
+      "fill": "rgba(34, 224, 107, 0.20)",
+      "strokeWidth": 1.5,
+      "dashArray": null
+    },
+    "interRowBareSoil": {
+      "_class": "inter-row area, attr=bare_soil",
+      "stroke": "#18E0E0",
+      "fill": "rgba(24, 224, 224, 0.15)",
+      "strokeWidth": 1.5,
+      "dashArray": null
+    },
+    "interRowMixed": {
+      "_class": "inter-row area, attr=mixed (DISTINCT treatment)",
+      "_treatment": "Chosen: amber hue + dashed stroke. A differentiated hue (amber, not cyan) plus a dash pattern makes 'mixed' unmistakable next to bare_soil (solid cyan) even at a glance and for color-vision-deficient users. Both signal (hue + pattern) redundantly.",
+      "stroke": "#FFB020",
+      "fill": "rgba(255, 176, 32, 0.16)",
+      "strokeWidth": 1.5,
+      "dashArray": "6 4"
+    },
+    "deadVine": {
+      "_class": "dead_vine (dead / missing vine plants) — v10 label",
+      "_treatment": "Violet/purple hue, well clear of vineyard green (#22E06B), waste grey (#B4BDCA), row red (#FF2D2D) and inter-row cyan (#18E0E0). Solid stroke + low-alpha fill, same halo treatment as the other area classes.",
+      "stroke": "#A855F7",
+      "fill": "rgba(168, 85, 247, 0.20)",
+      "strokeWidth": 1.5,
+      "dashArray": null
+    }
+  },
+
+  "status": {
+    "_doc": "Verification-status colors for tile badges + navigator cells.",
+    "unchecked": {
+      "solid": "#8A93A6",
+      "bg": "rgba(138, 147, 166, 0.16)",
+      "text": "#C7CDD9",
+      "label": "Unchecked"
+    },
+    "inProgress": {
+      "solid": "#F5A623",
+      "bg": "rgba(245, 166, 35, 0.18)",
+      "text": "#F5C77E",
+      "label": "In progress"
+    },
+    "verified": {
+      "solid": "#22C55E",
+      "bg": "rgba(34, 197, 94, 0.18)",
+      "text": "#7EE0A6",
+      "label": "Verified"
+    }
+  },
+
+  "color": {
+    "_doc": "Neutral UI palette. dark = primary theme, light = secondary. WCAG AA checked for text pairs.",
+    "dark": {
+      "bg": "#0E1116",
+      "bgElevated": "#151A22",
+      "panel": "#1B222C",
+      "panelHover": "#222B37",
+      "border": "#2A333F",
+      "borderStrong": "#3A4553",
+      "textPrimary": "#EDF0F5",
+      "textSecondary": "#AEB6C4",
+      "textMuted": "#7B8494",
+      "overlayScrim": "rgba(8, 10, 14, 0.72)"
+    },
+    "light": {
+      "bg": "#F4F6FA",
+      "bgElevated": "#FFFFFF",
+      "panel": "#FFFFFF",
+      "panelHover": "#EEF1F6",
+      "border": "#D5DBE4",
+      "borderStrong": "#B4BDCA",
+      "textPrimary": "#131720",
+      "textSecondary": "#454F5E",
+      "textMuted": "#6B7686",
+      "overlayScrim": "rgba(20, 24, 32, 0.55)"
+    }
+  },
+
+  "semantic": {
+    "_doc": "Interactive-state accents. Values are theme-independent brand accents; pair with color.* backgrounds.",
+    "accent": "#4C8DFF",
+    "accentHover": "#6BA1FF",
+    "accentActive": "#3A78E6",
+    "selectedRing": "#4C8DFF",
+    "selectedBg": "rgba(76, 141, 255, 0.16)",
+    "hoverBg": "rgba(76, 141, 255, 0.10)",
+    "focusRing": "#8FB8FF",
+    "focusRingWidth": 2,
+    "disabledFg": "#5A6472",
+    "disabledBg": "rgba(90, 100, 114, 0.12)",
+    "danger": "#F0483E",
+    "dangerHover": "#FF6257",
+    "dangerBg": "rgba(240, 72, 62, 0.16)",
+    "success": "#22C55E",
+    "warning": "#F5A623"
+  },
+
+  "vertex": {
+    "_doc": "Polygon editor handle states. radius in CSS px, unaffected by map zoom.",
+    "default": { "fill": "#FFFFFF", "stroke": "#0E1116", "strokeWidth": 1.5, "radius": 4 },
+    "hover":   { "fill": "#8FB8FF", "stroke": "#0E1116", "strokeWidth": 1.5, "radius": 5 },
+    "selected":{ "fill": "#4C8DFF", "stroke": "#FFFFFF", "strokeWidth": 2,   "radius": 6 },
+    "edge": {
+      "_doc": "Active/highlighted edge segment when hovered for split/drag.",
+      "stroke": "#4C8DFF",
+      "strokeWidth": 2
+    },
+    "midpointAdd": {
+      "_doc": "Ghost handle shown at edge midpoints; click to insert a vertex.",
+      "fill": "rgba(255, 255, 255, 0.55)",
+      "stroke": "#4C8DFF",
+      "strokeWidth": 1.5,
+      "radius": 3.5
+    }
+  },
+
+  "spacing": {
+    "_doc": "8px base scale with a 4px half-step. Use these keys; no ad-hoc values.",
+    "0": "0px",
+    "half": "4px",
+    "1": "8px",
+    "2": "16px",
+    "3": "24px",
+    "4": "32px",
+    "5": "40px",
+    "6": "48px",
+    "8": "64px"
+  },
+
+  "radius": {
+    "sm": "3px",
+    "md": "6px",
+    "lg": "10px",
+    "pill": "999px"
+  },
+
+  "elevation": {
+    "panel": "0 1px 0 rgba(0,0,0,0.3)",
+    "popover": "0 6px 20px rgba(0,0,0,0.45)",
+    "modal": "0 12px 40px rgba(0,0,0,0.55)"
+  },
+
+  "typography": {
+    "_doc": "System + monospace mix for a dense functional tool. Monospace for tile IDs / coordinates / counts; sans for UI chrome.",
+    "fontFamily": {
+      "sans": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      "mono": "'JetBrains Mono', 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace"
+    },
+    "size": {
+      "xs": "11px",
+      "sm": "12px",
+      "base": "13px",
+      "md": "14px",
+      "lg": "16px",
+      "xl": "20px"
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeight": {
+      "tight": 1.2,
+      "normal": 1.45,
+      "relaxed": 1.6
+    }
+  },
+
+  "zoom": {
+    "_doc": "Leaflet Simple/pixel CRS guidance for 2048x2048 tiles.",
+    "tilePx": 2048,
+    "minZoomFit": "fit-to-viewport",
+    "maxZoom": 5,
+    "wheelPxPerZoomLevel": 120
+  },
+
+  "contrast": {
+    "_doc": "WCAG AA verification for the dark (primary) theme. Ratios approximate.",
+    "textPrimary_on_bg": "14.8:1 (AAA)",
+    "textPrimary_on_panel": "11.2:1 (AAA)",
+    "textSecondary_on_panel": "6.1:1 (AA)",
+    "textMuted_on_panel": "3.6:1 (AA large / UI only)",
+    "accent_on_bg": "4.9:1 (AA)",
+    "status_solids_on_bg": ">= 3.1:1 (AA for UI badges)",
+    "overlay_strokes": "bright saturated over aerial imagery; dark halo guarantees >=3:1 edge contrast regardless of background"
+  }
+}
