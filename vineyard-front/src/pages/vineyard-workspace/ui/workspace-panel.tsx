@@ -99,6 +99,26 @@ const RouteTab: FC<TabContentProps> = props => {
             <p>{routeCalculation.report.visited_count} of {routeCalculation.report.target_count} supplied targets covered.{routeCalculation.status === "ready" && (routeCalculation.report.path_mode === "demo_headlands"
               ? ` Includes ${routeCalculation.report.outside_supplied_length_m.toFixed(1)} m outside supplied walking areas, on inferred demo paths.`
               : ` Distance outside permitted areas: ${routeCalculation.report.outside_length_m.toFixed(2)} m.`)}</p>
+            {routeCalculation.status === "ready" && <div className="border-border grid gap-1.5 rounded-md border px-3 py-2.5">
+              <p className="text-foreground font-medium">Map validation evidence</p>
+              <p>
+                Block outlines show planting context, not the walking boundary. The route has{" "}
+                {routeCalculation.report.outside_blocks_length_m === null
+                  ? "no block comparison because block geometry was not supplied"
+                  : `${routeCalculation.report.outside_blocks_length_m.toFixed(1)} m outside block outlines`}.
+              </p>
+              <p>
+                The complete final polyline has {routeCalculation.report.outside_length_m.toFixed(3)} m outside the
+                selected permitted area
+                {routeCalculation.report.outside_study_area_length_m === null
+                  ? "."
+                  : ` and ${routeCalculation.report.outside_study_area_length_m.toFixed(3)} m outside the study area.`}
+              </p>
+              <p>
+                Use the map layers to compare passages, forbidden areas, the study boundary, inferred headlands and
+                classified route segments.
+              </p>
+            </div>}
             {routeCalculation.report.warnings.map(warning => <p key={warning}>{warning}</p>)}
           </>}
         </div>

@@ -87,6 +87,23 @@ def test_authorised_passage_connects_narrow_corridors():
     assert result["report"]["visited_count"] == 1
     assert walkable_geometry(req).covers(route_of(result))
     assert route_of(result).length > 15
+    assert result["map"]["supplied_passages"]["features"] == req.passages.features
+    assert result["report"]["outside_blocks_length_m"] is None
+
+
+def test_block_crossing_is_context_not_a_route_violation():
+    req = request(
+        start=[1, 1],
+        interrows=collection((box(0, 0, 5, 2), {})),
+        passages=collection((box(5, 0, 12, 2), {})),
+        blocks=collection((box(0, 0, 5, 2), {"vineyard_id": "v1"})),
+        inspection_points=collection((Point(11, 1), {"point_id": "on-passage"})),
+    )
+    result = plan_route(req)
+    assert result["report"]["outside_length_m"] == 0
+    assert result["report"]["outside_blocks_length_m"] > 0
+    evidence_kinds = {feature["properties"]["kind"] for feature in result["map"]["route_evidence"]["features"]}
+    assert evidence_kinds == {"outside_blocks"}
 
 
 def test_waste_mode_excludes_inspection_targets():
@@ -140,6 +157,7 @@ def test_api_contract_and_validation(monkeypatch, tmp_path):
     response = client.post("/plan", json=request().model_dump())
     assert response.status_code == 200
     assert response.json()["route"]["crs"]["properties"]["name"].endswith("32635")
+    assert response.json()["map"]["route_evidence"]["crs"]["properties"]["name"].endswith("32635")
     assert client.post("/plan", json={"crs": "EPSG:4326"}).status_code == 422
     assert client.post("/plan", json=request(start=[-1, 1]).model_dump()).status_code == 422
     monkeypatch.setenv("ROUTE_CONSTRAINTS_DIR", str(tmp_path))
@@ -186,6 +204,11 @@ def test_inferred_headlands_are_opt_in_and_measure_departure_from_supplied_areas
     assert demo["report"]["path_mode"] == "demo_headlands"
     assert demo["route"]["features"][0]["properties"]["path_mode"] == "demo_headlands"
     assert "not validated" in demo["report"]["warnings"][0]
+    assert demo["map"]["inferred_headlands"]["features"]
+    evidence_kinds = {feature["properties"]["kind"] for feature in demo["map"]["route_evidence"]["features"]}
+    assert "outside_supplied" in evidence_kinds
+    assert "outside_permitted" not in evidence_kinds
+    assert demo["report"]["outside_study_area_length_m"] is None
 
 
 def test_inferred_headlands_cannot_cross_forbidden_land():

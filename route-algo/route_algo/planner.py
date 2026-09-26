@@ -8,10 +8,45 @@ from shapely.ops import nearest_points, unary_union
 
 from .geometry import PlanningError, WalkingNetwork, geometries, walkable_geometry
 from .models import PlanRequest
-from .demo import with_demo_headlands
+from .demo import inferred_headland_features, with_demo_headlands
 
 VISIT_RADIUS_M = 2.0
 CRS_MEMBER = {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::32635"}}
+
+
+def feature_collection(features=()):
+    return {"type": "FeatureCollection", "crs": CRS_MEMBER, "features": list(features)}
+
+
+def input_collection(collection):
+    return feature_collection(collection.features if collection is not None else ())
+
+
+def traversed_length(line, operation):
+    """Measure every traversed segment, including repeated route sections."""
+    return sum(operation(LineString([a, b])).length for a, b in zip(line.coords, list(line.coords)[1:]))
+
+
+def evidence_features(line, area, kind):
+    """Return route pieces outside an area without collapsing repeated traversals."""
+    features = []
+    if area is None or area.is_empty:
+        return features
+    for segment_index, (a, b) in enumerate(zip(line.coords, list(line.coords)[1:])):
+        difference = LineString([a, b]).difference(area)
+        if difference.is_empty:
+            continue
+        parts = [difference] if difference.geom_type == "LineString" else [
+            part for part in getattr(difference, "geoms", ()) if part.geom_type == "LineString"
+        ]
+        for part in parts:
+            if part.length > 1e-9:
+                features.append({
+                    "type": "Feature",
+                    "geometry": mapping(part),
+                    "properties": {"kind": kind, "segment_index": segment_index, "length_m": part.length},
+                })
+    return features
 
 
 def targets_of(request):
@@ -67,10 +102,13 @@ def optimise(matrix, seconds):
 
 def plan_route(request: PlanRequest):
     started = perf_counter()
+    supplied_request = request
     targets = targets_of(request)
     supplied_walkable = walkable_geometry(request)
+    inferred_features = []
     if request.path_mode == "demo_headlands":
-        request = with_demo_headlands(request)
+        inferred_features = inferred_headland_features(request)
+        request = with_demo_headlands(request, inferred_features)
         walkable = walkable_geometry(request)
     else:
         walkable = supplied_walkable
@@ -127,16 +165,22 @@ def plan_route(request: PlanRequest):
         line = baseline_line
     # Count each traversed segment: a geometric difference of a whole retracing
     # LineString would otherwise discard multiplicity and undercount violations.
-    outside_m = sum(
-        LineString([a, b]).difference(walkable).length
-        for a, b in zip(line.coords, list(line.coords)[1:])
-    )
+    outside_m = traversed_length(line, lambda segment: segment.difference(walkable))
     if outside_m > 1e-6:
         raise PlanningError("Route validation failed: a path segment leaves permitted walking areas.")
-    outside_supplied_m = outside_m if request.path_mode == "supplied" else sum(
-        LineString([a, b]).difference(supplied_walkable).length
-        for a, b in zip(line.coords, list(line.coords)[1:])
+    outside_supplied_m = outside_m if request.path_mode == "supplied" else traversed_length(
+        line, lambda segment: segment.difference(supplied_walkable)
     )
+    block_area = unary_union([geometry for geometry, _ in geometries(supplied_request.blocks, {"Polygon"}, "blocks")])
+    outside_blocks_m = None if block_area.is_empty else traversed_length(
+        line, lambda segment: segment.difference(block_area)
+    )
+    outside_study_m = None
+    if supplied_request.study_area is not None:
+        study_area = unary_union([
+            geometry for geometry, _ in geometries(supplied_request.study_area, {"Polygon", "MultiPolygon"}, "study_area")
+        ])
+        outside_study_m = traversed_length(line, lambda segment: segment.difference(study_area))
     # First entrance into each target's 2 m neighbourhood, including incidental
     # visits en route to another target, determines the displayed stop order.
     stops = []
@@ -185,10 +229,22 @@ def plan_route(request: PlanRequest):
         )
     elif len(reachable_targets) < len(targets):
         warnings.append("Some targets cannot be reached within 2 m using the selected walking areas.")
+    route_evidence = evidence_features(line, walkable, "outside_permitted")
+    if request.path_mode == "demo_headlands":
+        route_evidence.extend(evidence_features(line, supplied_walkable, "outside_supplied"))
+    if not block_area.is_empty:
+        route_evidence.extend(evidence_features(line, block_area, "outside_blocks"))
     return {
         "route": {"type": "FeatureCollection", "crs": CRS_MEMBER, "features": [
             {"type": "Feature", "geometry": mapping(line), "properties": properties}
         ]} if stops else None,
+        "map": {
+            "supplied_passages": input_collection(supplied_request.passages),
+            "forbidden_areas": input_collection(supplied_request.forbidden),
+            "study_area": input_collection(supplied_request.study_area),
+            "inferred_headlands": feature_collection(inferred_features),
+            "route_evidence": feature_collection(route_evidence),
+        },
         "report": {
             "target_count": len(targets),
             "visited_count": len(stops),
@@ -198,6 +254,8 @@ def plan_route(request: PlanRequest):
             "path_mode": request.path_mode,
             "outside_supplied_length_m": outside_supplied_m,
             "outside_supplied_ratio": outside_supplied_m / line.length if line.length else 0,
+            "outside_blocks_length_m": outside_blocks_m,
+            "outside_study_area_length_m": outside_study_m,
             "closed": bool(stops) and line.coords[0] == line.coords[-1],
             "targets": reports,
             "warnings": warnings,

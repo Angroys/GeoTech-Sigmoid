@@ -56,7 +56,9 @@ export const assembleSurvey = (files: SurveyFiles): Survey => {
       inspection: toDisplayRoute(files.inspectionRoute),
       waste_collection: toDisplayRoute(files.wasteRoute),
     },
+    routeMap: null,
     start: { type: "Feature", geometry: reprojectPoint(startFeature.geometry), properties: startFeature.properties },
+    projectedStart: startFeature.geometry.coordinates,
   };
 };
 

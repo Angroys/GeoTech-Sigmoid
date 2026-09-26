@@ -1,7 +1,7 @@
-import type { FeatureCollection, LineString, Point, Polygon, Position } from "geojson";
+import type { FeatureCollection, LineString, MultiLineString, MultiPolygon, Point, Polygon, Position } from "geojson";
 import { z } from "zod";
 
-import { projectToSurveyCrs, reprojectLineString } from "@/shared/lib/geo";
+import { projectToSurveyCrs, reprojectFeatureCollection, reprojectLineString } from "@/shared/lib/geo";
 
 import type { RoutePurpose } from "../config/routes";
 import { surveyFileSchemas } from "../model/schema";
@@ -13,6 +13,8 @@ const reportSchema = z.object({
   coverage_ratio: z.number().nullable(),
   outside_length_m: z.number(),
   outside_supplied_length_m: z.number().default(0),
+  outside_blocks_length_m: z.number().nullable().default(null),
+  outside_study_area_length_m: z.number().nullable().default(null),
   path_mode: z.enum(["supplied", "demo_headlands"]).default("supplied"),
   closed: z.boolean(),
   warnings: z.array(z.string()),
@@ -22,7 +24,42 @@ const reportSchema = z.object({
 export type RouteReport = z.infer<typeof reportSchema>;
 export type RoutePathMode = RouteReport["path_mode"];
 
-const resultSchema = z.object({ route: surveyFileSchemas.inspectionRoute.nullable(), report: reportSchema });
+const positionSchema = z.tuple([z.number(), z.number()]);
+const polygonGeometrySchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("Polygon"), coordinates: z.array(z.array(positionSchema)) }),
+  z.object({ type: z.literal("MultiPolygon"), coordinates: z.array(z.array(z.array(positionSchema))) }),
+]);
+const lineGeometrySchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("LineString"), coordinates: z.array(positionSchema) }),
+  z.object({ type: z.literal("MultiLineString"), coordinates: z.array(z.array(positionSchema)) }),
+]);
+const featureCollectionSchema = <GeometrySchema extends z.ZodType, PropertiesSchema extends z.ZodType>(
+  geometry: GeometrySchema,
+  properties: PropertiesSchema,
+) => z.object({
+  type: z.literal("FeatureCollection"),
+  features: z.array(z.object({ type: z.literal("Feature"), geometry, properties })),
+});
+const areaCollectionSchema = featureCollectionSchema(polygonGeometrySchema, z.record(z.string(), z.unknown()));
+const routeEvidenceSchema = featureCollectionSchema(
+  lineGeometrySchema,
+  z.object({
+    kind: z.enum(["outside_blocks", "outside_supplied", "outside_permitted"]),
+    length_m: z.number().nonnegative(),
+  }),
+);
+const mapSchema = z.object({
+  supplied_passages: areaCollectionSchema,
+  forbidden_areas: areaCollectionSchema,
+  study_area: areaCollectionSchema,
+  inferred_headlands: areaCollectionSchema,
+  route_evidence: routeEvidenceSchema,
+});
+const resultSchema = z.object({
+  route: surveyFileSchemas.inspectionRoute.nullable(),
+  map: mapSchema,
+  report: reportSchema,
+});
 
 const projectCollection = (collection: FeatureCollection<Point | Polygon | LineString>) => ({
   type: "FeatureCollection",
@@ -44,7 +81,9 @@ export const planSurveyRoute = async (
   signal: AbortSignal,
   pathMode: RoutePathMode = "supplied",
 ) => {
-  const projectedStart = projectToSurveyCrs(start);
+  const suppliedStart = survey.start.geometry.coordinates;
+  const isSuppliedStart = start[0] === suppliedStart[0] && start[1] === suppliedStart[1];
+  const projectedStart = isSuppliedStart ? survey.projectedStart : projectToSurveyCrs(start);
   const response = await fetch("/api/routes/plan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -56,10 +95,11 @@ export const planSurveyRoute = async (
       start: projectedStart,
       constraint_set: surveyId === "siret3" ? "siret3" : null,
       interrows: projectCollection(survey.interrows),
+      blocks: projectCollection(survey.blocks),
       canopy: projectCollection(survey.canopy),
       inspection_points: projectCollection(survey.inspectionPoints),
       waste: projectCollection(survey.waste),
-      ...(pathMode === "demo_headlands" ? { blocks: projectCollection(survey.blocks), rows: projectCollection(survey.rows) } : {}),
+      ...(pathMode === "demo_headlands" ? { rows: projectCollection(survey.rows) } : {}),
     }),
   });
   const body: unknown = await response.json();
@@ -76,6 +116,22 @@ export const planSurveyRoute = async (
       inspection: null,
       waste_collection: null,
       [purpose]: feature ? { ...feature, geometry: reprojectLineString(feature.geometry) } : null,
+    },
+    routeMap: {
+      suppliedPassages: reprojectFeatureCollection(
+        result.map.supplied_passages as FeatureCollection<Polygon | MultiPolygon>,
+      ),
+      forbiddenAreas: reprojectFeatureCollection(result.map.forbidden_areas as FeatureCollection<Polygon | MultiPolygon>),
+      studyArea: reprojectFeatureCollection(result.map.study_area as FeatureCollection<Polygon | MultiPolygon>),
+      inferredHeadlands: reprojectFeatureCollection(
+        result.map.inferred_headlands as FeatureCollection<Polygon | MultiPolygon>,
+      ),
+      routeEvidence: reprojectFeatureCollection(
+        result.map.route_evidence as FeatureCollection<LineString | MultiLineString, {
+          kind: "outside_blocks" | "outside_supplied" | "outside_permitted";
+          length_m: number;
+        }>,
+      ),
     },
     inspectionPoints: {
       ...survey.inspectionPoints,

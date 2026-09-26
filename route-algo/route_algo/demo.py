@@ -6,7 +6,7 @@ from .geometry import PlanningError, geometries
 from .models import FeatureCollection, PlanRequest
 
 
-def with_demo_headlands(request: PlanRequest) -> PlanRequest:
+def inferred_headland_features(request: PlanRequest) -> list[dict]:
     blocks = geometries(request.blocks, {"Polygon"}, "blocks")
     rows = geometries(request.rows, {"LineString"}, "rows")
     if not blocks or not rows:
@@ -33,6 +33,11 @@ def with_demo_headlands(request: PlanRequest) -> PlanRequest:
             "type": "Feature", "geometry": mapping(headland),
             "properties": {"source": "inferred_demo_headland", "vineyard_id": vineyard_id},
         })
+    return additions
+
+
+def with_demo_headlands(request: PlanRequest, additions: list[dict] | None = None) -> PlanRequest:
+    additions = inferred_headland_features(request) if additions is None else additions
     return request.model_copy(update={
         "passages": FeatureCollection(features=[*request.passages.features, *additions], crs=request.passages.crs)
     })

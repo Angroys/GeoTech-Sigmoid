@@ -6,6 +6,7 @@ import { planSurveyRoute, type RoutePathMode, type RoutePurpose, type Survey } f
 type Result = Awaited<ReturnType<typeof planSurveyRoute>>;
 type Calculation = {
   key: string;
+  inputSurvey: Survey;
   status: "calculating" | "ready" | "no_route" | "error";
   result?: Result;
   error?: string;
@@ -30,18 +31,25 @@ export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: R
     controller.current?.abort();
     const active = new AbortController();
     controller.current = active;
-    setState({ key, status: "calculating" });
+    setState({ key, inputSurvey: survey, status: "calculating" });
     try {
       const result = await planSurveyRoute(survey, purpose, start, surveyId, active.signal, pathMode);
-      if (!active.signal.aborted) setState({ key, status: result.routeFile ? "ready" : "no_route", result });
+      if (!active.signal.aborted) {
+        setState({ key, inputSurvey: survey, status: result.routeFile ? "ready" : "no_route", result });
+      }
     } catch (error) {
       if (!active.signal.aborted) {
-        setState({ key, status: "error", error: error instanceof Error ? error.message : "Route calculation failed." });
+        setState({
+          key,
+          inputSurvey: survey,
+          status: "error",
+          error: error instanceof Error ? error.message : "Route calculation failed.",
+        });
       }
     }
   };
 
-  const current = state?.key === key ? state : null;
+  const current = state?.key === key && state.inputSurvey === survey ? state : null;
   const effectiveSurvey = useMemo(() => {
     if (current?.result) return current.result.survey;
     if (!requestedStart && !current) return survey;

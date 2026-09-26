@@ -24,6 +24,13 @@ stop distances and unreachable-target notices update from the response. Download
 exports the projected route. Calculated routes remain in memory until navigation
 or reload; the start preference is stored by the existing frontend.
 
+After calculation, the map can show the exact supplied passages, forbidden
+areas, study-area boundary and any inferred demo headlands. Route validation is
+also spatial: grey segments are outside vineyard block outlines for context,
+orange segments use ground outside supplied walking areas, and red segments
+would be outside the selected permitted geometry. A block outline is planting
+context, not a walking constraint; an authorised passage may legally leave it.
+
 The built-in Sireț3 **generated demo survey** defaults to **Demo paths — inferred
 access at row ends**. This mode derives headland areas from each block boundary
 and the extent of its row axes, connecting the generated aisles to the supplied
@@ -97,11 +104,14 @@ planner does not infer headlands or connections through unlabelled ground.
    Check the entire final polyline and each target's first entry into a 2 m disk.
 
 The response contains `route` (one-feature GeoJSON FeatureCollection with a closed
-LineString, or `null` when there are no reachable targets) and `report` (coverage, approaches, unreachable reasons, closure,
-length outside permitted areas, timing and warnings). Lengths and cumulative stop
-distances are computed from the final route. Validation allows only a 1e-6 m
-aggregate floating-point residual outside the geometry. Targets are counted only
-against the inputs, never the hidden challenge references.
+LineString, or `null` when there are no reachable targets), `map` (projected
+FeatureCollections for the supplied and inferred constraints plus classified
+route evidence), and `report` (coverage, approaches, unreachable reasons,
+closure, block/study comparisons, length outside permitted areas, timing and
+warnings). Lengths and cumulative stop distances are computed from the final
+route. Validation allows only a 1e-6 m aggregate floating-point residual outside
+the geometry. Targets are counted only against the inputs, never the hidden
+challenge references.
 In demo mode, `outside_length_m` measures departures from the augmented walking
 areas; `outside_supplied_length_m` and `outside_supplied_ratio` separately measure
 departures from the supplied inter-rows/passages, counting repeated traversals.

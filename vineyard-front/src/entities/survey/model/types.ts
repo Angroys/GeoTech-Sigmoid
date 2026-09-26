@@ -1,4 +1,13 @@
-import type { Feature, FeatureCollection, LineString, Point, Polygon } from "geojson";
+import type {
+  Feature,
+  FeatureCollection,
+  LineString,
+  MultiLineString,
+  MultiPolygon,
+  Point,
+  Polygon,
+  Position,
+} from "geojson";
 import type { z } from "zod";
 
 import type { RoutePurpose } from "../config/routes";
@@ -30,6 +39,15 @@ export type WasteProperties = z.infer<typeof wastePropertiesSchema>;
 type InspectionPointProperties = z.infer<typeof inspectionPointPropertiesSchema>;
 export type RouteProperties = z.infer<typeof routePropertiesSchema>;
 
+export type RouteEvidenceKind = "outside_blocks" | "outside_supplied" | "outside_permitted";
+export type RouteMap = {
+  suppliedPassages: FeatureCollection<Polygon | MultiPolygon>;
+  forbiddenAreas: FeatureCollection<Polygon | MultiPolygon>;
+  studyArea: FeatureCollection<Polygon | MultiPolygon>;
+  inferredHeadlands: FeatureCollection<Polygon | MultiPolygon>;
+  routeEvidence: FeatureCollection<LineString | MultiLineString, { kind: RouteEvidenceKind; length_m: number }>;
+};
+
 export type Survey = {
   blocks: FeatureCollection<Polygon, BlockProperties>;
   rows: FeatureCollection<LineString, RowProperties>;
@@ -38,7 +56,9 @@ export type Survey = {
   waste: FeatureCollection<Polygon, WasteProperties>;
   inspectionPoints: FeatureCollection<Point, InspectionPointProperties>;
   routes: Record<RoutePurpose, Feature<LineString, RouteProperties> | null>;
+  routeMap: RouteMap | null;
   start: Feature<Point>;
+  projectedStart: Position;
 };
 
 export type SurveySelection =

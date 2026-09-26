@@ -1,7 +1,11 @@
 export {
   projectToSurveyCrs,
+  reprojectFeatureCollection,
+  reprojectGeometry,
   SURVEY_CRS_LONGITUDES,
   reprojectLineString,
+  reprojectMultiLineString,
+  reprojectMultiPolygon,
   reprojectPoint,
   reprojectPolygon,
   reprojectPosition,
