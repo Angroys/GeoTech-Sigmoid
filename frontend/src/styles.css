@@ -1050,3 +1050,10 @@ a {
 .btn--danger { background: rgba(255,90,90,.14); color: #FF8A8A; border: 1px solid rgba(255,90,90,.4); }
 .btn--danger:hover { background: rgba(255,90,90,.25); }
 .map-info { max-width: 280px; }
+
+/* Map zoom / pan */
+.map-body { overflow: auto; cursor: grab; user-select: none; }
+.map-body:active { cursor: grabbing; }
+.map-zoom { display: inline-flex; align-items: center; gap: 4px; }
+.map-zoom__val { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+.map-info { position: fixed; right: 16px; top: 112px; z-index: 20; }
