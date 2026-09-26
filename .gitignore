@@ -28,3 +28,5 @@ venv/
 # Local worktrees / handoffs (orchestration)
 worktrees/
 .handoffs/
+
+assets_for_participants-*/
