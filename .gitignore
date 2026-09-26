@@ -28,3 +28,10 @@ venv/
 # Local worktrees / handoffs (orchestration)
 worktrees/
 .handoffs/
+
+# Data & model outputs (never commit)
+data/
+out/
+out_*/
+*.geojson
+!examples/*.geojson
