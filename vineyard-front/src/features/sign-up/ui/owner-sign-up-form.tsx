@@ -2,7 +2,7 @@ import { ROLE_COPY } from "@/entities/role";
 import { useForm } from "@/shared/lib/form";
 import { FormField, Input, PasswordInput, StatusMessage, SubmitButton } from "@/shared/ui";
 
-import { signUp } from "../api/sign-up";
+import { signUpOwner } from "../api/sign-up";
 import { SIGN_UP_SUCCESS } from "../config/messages";
 import type { OwnerSignUpValues } from "../model/types";
 import { FISCAL_CODE_LENGTH, MIN_PASSWORD_LENGTH, validateOwnerSignUp } from "../model/validation";
@@ -13,7 +13,7 @@ export const OwnerSignUpForm = () => {
   const { values, errors, status, setValue, handleSubmit } = useForm({
     initialValues: INITIAL_VALUES,
     validate: validateOwnerSignUp,
-    submit: owner => signUp({ role: "owner", ...owner }),
+    submit: signUpOwner,
     successMessage: SIGN_UP_SUCCESS.owner,
   });
 

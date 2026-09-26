@@ -5,7 +5,7 @@ import type { InspectorSignUpValues, OwnerSignUpValues } from "./types";
 export const MIN_PASSWORD_LENGTH = 8;
 export const FISCAL_CODE_LENGTH = 13;
 
-const FISCAL_CODE_PATTERN = new RegExp(`^\d{${FISCAL_CODE_LENGTH}}$`);
+const FISCAL_CODE_PATTERN = new RegExp(`^[0-9]{${FISCAL_CODE_LENGTH}}$`);
 const BADGE_NUMBER_PATTERN = /^[A-Z]{2,4}-\d{3,6}$/;
 
 const newPasswordRules = [

@@ -1,7 +1,13 @@
-import { postJson } from "@/shared/api";
+import { registerInspector, registerOwner } from "@/entities/session";
+import { ApiError } from "@/shared/api";
 
 import type { InspectorSignUpValues, OwnerSignUpValues } from "../model/types";
 
-type SignUpRequest = ({ role: "owner" } & OwnerSignUpValues) | ({ role: "inspector" } & InspectorSignUpValues);
+export const signUpOwner = async (values: OwnerSignUpValues) => {
+  await registerOwner(values);
+};
 
-export const signUp = (request: SignUpRequest) => postJson("/api/auth/sign-up", request);
+export const signUpInspector = async ({ agency, ...values }: InspectorSignUpValues) => {
+  if (agency === "") throw new ApiError("Choose the agency you work for.");
+  await registerInspector({ ...values, agency });
+};

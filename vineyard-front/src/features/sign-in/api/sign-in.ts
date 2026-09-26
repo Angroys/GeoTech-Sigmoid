@@ -1,8 +1,8 @@
 import type { Role } from "@/entities/role";
-import { postJson } from "@/shared/api";
+import { signInWithPassword } from "@/entities/session";
 
 import type { SignInValues } from "../model/types";
 
-type SignInRequest = SignInValues & { role: Role };
-
-export const signIn = (request: SignInRequest) => postJson("/api/auth/sign-in", request);
+export const signIn = async (values: SignInValues, role: Role) => {
+  await signInWithPassword({ ...values, role });
+};

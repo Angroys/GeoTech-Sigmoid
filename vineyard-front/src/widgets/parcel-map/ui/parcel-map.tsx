@@ -21,7 +21,6 @@ export const ParcelMap = ({ role }: ParcelMapProps) => {
   const container = useRef<HTMLDivElement>(null);
   const intro = useRef<gsap.core.Timeline | null>(null);
 
-  // The one orchestrated moment on the page: survey the plots, then plant the rows.
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
@@ -39,11 +38,9 @@ export const ParcelMap = ({ role }: ParcelMapProps) => {
     { scope: container },
   );
 
-  // Moves the highlight to the parcel that matters for the selected role.
   useGSAP(
     () => {
       const activeId = PARCEL_FOCUS[role].parcelId;
-      // isActive() is false before the intro's first tick, so measure the playhead instead.
       const introTimeLeft = intro.current ? intro.current.duration() - intro.current.time() : 0;
       const duration = prefersReducedMotion() ? 0 : HIGHLIGHT_FADE_SECONDS;
 

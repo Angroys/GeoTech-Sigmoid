@@ -1,42 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 
 import { isRole, type Role } from "@/entities/role";
+import { ROUTES } from "@/shared/config";
+import { navigate, useLocation } from "@/shared/lib/router";
 
 import type { AuthMode } from "./auth-mode";
 
-const PATH_BY_MODE = { "sign-in": "/sign-in", "sign-up": "/sign-up" } as const satisfies Record<AuthMode, string>;
+const PATH_BY_MODE = { "sign-in": ROUTES.signIn, "sign-up": ROUTES.signUp } as const satisfies Record<AuthMode, string>;
 
 type AuthLocation = { mode: AuthMode; role: Role };
 
-const readLocation = (): AuthLocation => {
-  const role = new URLSearchParams(window.location.search).get("role");
-  return {
-    mode: window.location.pathname === PATH_BY_MODE["sign-up"] ? "sign-up" : "sign-in",
-    role: isRole(role) ? role : "owner",
-  };
-};
-
 const toUrl = ({ mode, role }: AuthLocation) => `${PATH_BY_MODE[mode]}?role=${role}`;
 
-/** Keeps the auth screen and role in the URL so a link can open, say, inspector sign-up directly. */
 export const useAuthLocation = () => {
-  const [location, setLocation] = useState(readLocation);
+  const { pathname, searchParams } = useLocation();
+  const roleParam = searchParams.get("role");
+  const mode: AuthMode = pathname === ROUTES.signUp ? "sign-up" : "sign-in";
+  const role: Role = isRole(roleParam) ? roleParam : "owner";
 
-  useEffect(() => {
-    const syncFromHistory = () => setLocation(readLocation());
-    window.addEventListener("popstate", syncFromHistory);
-    return () => window.removeEventListener("popstate", syncFromHistory);
-  }, []);
+  const setMode = useCallback((nextMode: AuthMode) => navigate(toUrl({ mode: nextMode, role })), [role]);
+  const setRole = useCallback((nextRole: Role) => navigate(toUrl({ mode, role: nextRole }), { replace: true }), [mode]);
 
-  const navigate = useCallback((next: AuthLocation, historyMode: "push" | "replace") => {
-    const url = toUrl(next);
-    if (historyMode === "push") window.history.pushState(null, "", url);
-    else window.history.replaceState(null, "", url);
-    setLocation(next);
-  }, []);
-
-  const setMode = useCallback((mode: AuthMode) => navigate({ ...location, mode }, "push"), [location, navigate]);
-  const setRole = useCallback((role: Role) => navigate({ ...location, role }, "replace"), [location, navigate]);
-
-  return { ...location, setMode, setRole };
+  return { mode, role, setMode, setRole };
 };

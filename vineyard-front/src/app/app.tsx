@@ -1,3 +1,7 @@
-import { AuthPage } from "@/pages/auth";
+import type { FC } from "react";
 
-export const App = () => <AuthPage />;
+import { AppRouter } from "./routing/app-router";
+
+export const App: FC = () => {
+  return <AppRouter />;
+};

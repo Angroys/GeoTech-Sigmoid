@@ -14,8 +14,8 @@ export const SignInForm = ({ role }: SignInFormProps) => {
   const { values, errors, status, setValue, handleSubmit } = useForm({
     initialValues: INITIAL_VALUES,
     validate: validateSignIn,
-    submit: credentials => signIn({ ...credentials, role }),
-    successMessage: "Signed in.",
+    submit: credentials => signIn(credentials, role),
+    successMessage: "Signed in. Opening your survey.",
   });
 
   return (

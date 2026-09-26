@@ -10,17 +10,15 @@ type ControlProps = {
 
 type FormFieldProps = {
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
   children: (controlProps: ControlProps) => ReactNode;
 };
 
-/** Wires a label, hint and error message to whatever control it renders. */
 export const FormField = ({ label, hint, error, children }: FormFieldProps) => {
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
-  // The error replaces the hint, so only one of them describes the control at a time.
   const describedBy = error ? errorId : hint ? hintId : undefined;
 
   return (

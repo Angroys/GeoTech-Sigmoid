@@ -6,7 +6,6 @@ import type { SubmitStatus } from "@/shared/lib/form";
 
 type StatusMessageProps = { status: SubmitStatus };
 
-/** The live region stays mounted so screen readers announce the message when it appears. */
 export const StatusMessage = ({ status }: StatusMessageProps) => {
   const isError = status.kind === "error";
   const Icon = isError ? CircleAlert : CircleCheck;

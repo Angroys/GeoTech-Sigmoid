@@ -1,5 +1,7 @@
+import type { FC } from "react";
+
 import { RoleSwitch } from "@/features/select-role";
-import { SignInForm } from "@/features/sign-in";
+import { DemoSignInButton, SignInForm } from "@/features/sign-in";
 import { SignUpForm } from "@/features/sign-up";
 import { ParcelMap } from "@/widgets/parcel-map";
 
@@ -8,7 +10,7 @@ import { OTHER_MODE } from "../model/auth-mode";
 import { useAuthLocation } from "../model/use-auth-location";
 import { AuthLayout } from "./auth-layout";
 
-export const AuthPage = () => {
+export const AuthPage: FC = () => {
   const { mode, role, setMode, setRole } = useAuthLocation();
   const copy = MODE_COPY[mode];
 
@@ -24,6 +26,12 @@ export const AuthPage = () => {
       </div>
 
       <div className="mt-6">{mode === "sign-in" ? <SignInForm role={role} /> : <SignUpForm role={role} />}</div>
+
+      {mode === "sign-in" && (
+        <div className="border-border mt-6 border-t pt-6">
+          <DemoSignInButton role={role} />
+        </div>
+      )}
 
       <p className="text-muted-foreground mt-8 text-sm">
         {copy.switchPrompt}{" "}

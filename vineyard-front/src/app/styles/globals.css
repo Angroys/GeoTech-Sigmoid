@@ -47,12 +47,10 @@
   --accent-foreground: #1d2420;
   --destructive: #a3322b;
 
-  /* The primary colour follows the selected role; see [data-role] below. */
   --primary: var(--owner);
   --primary-foreground: #ffffff;
 }
 
-/* Re-declared on the role element so the ring picks up that element's --primary, not :root's. */
 :root,
 [data-role] {
   --ring: var(--primary);

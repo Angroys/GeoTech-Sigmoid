@@ -5,7 +5,6 @@ type Point = readonly [number, number];
 type ParcelSpec = {
   id: string;
   outline: readonly Point[];
-  /** Direction the vine rows run, in degrees; real plots are planted along slope and sun. */
   rowAngle: number;
   rowSpacing: number;
 };
@@ -113,10 +112,6 @@ const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
 
 const round = (value: number) => Math.round(value * 10) / 10;
 
-/**
- * Covers the parcel's bounding circle with evenly spaced parallel lines.
- * The SVG clips them to the parcel outline, so they only need to be long enough.
- */
 const buildRows = ({ outline, rowAngle, rowSpacing }: ParcelSpec): RowLine[] => {
   const xs = outline.map(([x]) => x);
   const ys = outline.map(([, y]) => y);

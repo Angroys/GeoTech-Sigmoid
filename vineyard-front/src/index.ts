@@ -1,37 +1,44 @@
 import { serve } from "bun";
+import path from "node:path";
+
 import index from "./index.html";
 
-// Stand-in for the register's auth service so the forms can be exercised end to end.
-// It accepts any well-formed request; swap these routes for the real backend.
-const MOCK_LATENCY_MS = 600;
+const PROJECT_ROOT = path.join(import.meta.dir, "..");
+const SURVEY_DATA_DIR = path.join(PROJECT_ROOT, "public", "data");
+const MAPLIBRE_DIST_DIR = path.join(PROJECT_ROOT, "node_modules", "maplibre-gl", "dist");
 
-const pause = () => new Promise(resolve => setTimeout(resolve, MOCK_LATENCY_MS));
+const SURVEY_NAME = /^[a-z0-9-]+$/;
+const SURVEY_FILE = /^[a-z0-9_-]+\.geojson$/;
+const MAPLIBRE_WORKER_FILES = new Set(["maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]);
+
+const notFound = () => new Response("Not found", { status: 404 });
+
+const serveFile = async (filePath: string, contentType: string) => {
+  const file = Bun.file(filePath);
+  if (!(await file.exists())) return notFound();
+  return new Response(file, { headers: { "Content-Type": contentType } });
+};
 
 const server = serve({
   routes: {
-    // Serve index.html for all unmatched routes.
     "/*": index,
 
-    "/api/auth/sign-in": {
-      async POST() {
-        await pause();
-        return Response.json({ ok: true });
-      },
+    "/data/:survey/:file": req => {
+      const { survey, file } = req.params;
+      if (!SURVEY_NAME.test(survey) || !SURVEY_FILE.test(file)) return notFound();
+      return serveFile(path.join(SURVEY_DATA_DIR, survey, file), "application/geo+json");
     },
 
-    "/api/auth/sign-up": {
-      async POST() {
-        await pause();
-        return Response.json({ ok: true }, { status: 201 });
-      },
+    "/vendor/maplibre/:file": req => {
+      const { file } = req.params;
+      if (!MAPLIBRE_WORKER_FILES.has(file)) return notFound();
+      return serveFile(path.join(MAPLIBRE_DIST_DIR, file), "text/javascript");
     },
   },
 
   development: process.env.NODE_ENV !== "production" && {
-    // Enable browser hot reloading in development
     hmr: true,
 
-    // Echo console logs from the browser to the server
     console: true,
   },
 });

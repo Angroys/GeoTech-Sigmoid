@@ -6,7 +6,7 @@ import { cn } from "@/shared/lib/cn";
 import { useForm } from "@/shared/lib/form";
 import { FormField, Input, PasswordInput, StatusMessage, SubmitButton } from "@/shared/ui";
 
-import { signUp } from "../api/sign-up";
+import { signUpInspector } from "../api/sign-up";
 import { SIGN_UP_SUCCESS } from "../config/messages";
 import type { InspectorSignUpValues } from "../model/types";
 import { MIN_PASSWORD_LENGTH, validateInspectorSignUp } from "../model/validation";
@@ -17,7 +17,7 @@ export const InspectorSignUpForm = () => {
   const { values, errors, status, setValue, handleSubmit } = useForm({
     initialValues: INITIAL_VALUES,
     validate: validateInspectorSignUp,
-    submit: inspector => signUp({ role: "inspector", ...inspector }),
+    submit: signUpInspector,
     successMessage: SIGN_UP_SUCCESS.inspector,
   });
 

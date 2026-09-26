@@ -1,10 +1,15 @@
-export const AGENCIES = [
-  { value: "ansa", label: "National Food Safety Agency (ANSA)" },
-  { value: "onvv", label: "National Office of Vine and Wine (ONVV)" },
-  { value: "maia", label: "Ministry of Agriculture and Food Industry" },
-] as const;
+export const AGENCY_VALUES = ["ansa", "onvv", "maia"] as const;
 
-export type Agency = (typeof AGENCIES)[number]["value"];
+export type Agency = (typeof AGENCY_VALUES)[number];
 
-/** Narrows raw input, such as a select's value, to a known agency or "" for none. */
-export const toAgency = (value: string): Agency | "" => AGENCIES.find(agency => agency.value === value)?.value ?? "";
+const AGENCY_LABEL = {
+  ansa: "National Food Safety Agency (ANSA)",
+  onvv: "National Office of Vine and Wine (ONVV)",
+  maia: "Ministry of Agriculture and Food Industry",
+} as const satisfies Record<Agency, string>;
+
+export const AGENCIES = AGENCY_VALUES.map(value => {
+  return { value, label: AGENCY_LABEL[value] };
+});
+
+export const toAgency = (value: string): Agency | "" => AGENCY_VALUES.find(agency => agency === value) ?? "";

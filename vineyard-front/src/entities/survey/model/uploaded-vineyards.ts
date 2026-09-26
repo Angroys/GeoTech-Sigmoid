@@ -1,0 +1,66 @@
+import { z } from "zod";
+
+import { createObjectStore } from "@/shared/lib/storage";
+
+import { lngLatBoundsSchema, surveyIdSchema, type SurveySource } from "../config/sources";
+import { surveyFilesSchema, type SurveyFiles } from "./schema";
+
+const store = createObjectStore("vineyard", "uploaded-vineyards");
+const UPLOADS_CHANGE_EVENT = "vineyard:uploads-change";
+
+const uploadedSourceSchema = z.object({
+  id: surveyIdSchema,
+  name: z.string().min(1),
+  location: z.string().min(1),
+  capturedOn: z.string().min(1),
+  groundSampleCm: z.number().positive().nullable(),
+  areaHectares: z.number().positive().nullable(),
+  imagery: z
+    .object({
+      tileUrl: z.url(),
+      thumbnailUrl: z.url(),
+      attribution: z.string(),
+      bounds: lngLatBoundsSchema,
+    })
+    .nullable(),
+  data: z.object({ kind: z.literal("uploaded") }),
+  uploadedBy: z.object({ accountId: z.string().min(1), fullName: z.string().min(1) }),
+});
+
+const uploadedVineyardSchema = z.object({
+  source: uploadedSourceSchema,
+  files: surveyFilesSchema,
+  uploadedAt: z.iso.datetime(),
+});
+
+export type UploadedVineyard = z.output<typeof uploadedVineyardSchema>;
+
+const announceChange = () => window.dispatchEvent(new Event(UPLOADS_CHANGE_EVENT));
+
+export const subscribeToUploads = (onChange: () => void) => {
+  window.addEventListener(UPLOADS_CHANGE_EVENT, onChange);
+  return () => window.removeEventListener(UPLOADS_CHANGE_EVENT, onChange);
+};
+
+export const listUploadedSources = async (): Promise<SurveySource[]> => {
+  const records = await store.getAll();
+  return records.flatMap(record => {
+    const result = uploadedVineyardSchema.safeParse(record);
+    return result.success ? [result.data.source] : [];
+  });
+};
+
+export const readUploadedFiles = async (id: string): Promise<SurveyFiles | null> => {
+  const result = uploadedVineyardSchema.safeParse(await store.get(id));
+  return result.success ? result.data.files : null;
+};
+
+export const saveUploadedVineyard = async (vineyard: UploadedVineyard) => {
+  await store.put(vineyard.source.id, vineyard);
+  announceChange();
+};
+
+export const removeUploadedVineyard = async (id: string) => {
+  await store.remove(id);
+  announceChange();
+};
