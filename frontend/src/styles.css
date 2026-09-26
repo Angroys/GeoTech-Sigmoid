@@ -1030,3 +1030,9 @@ a {
 .live-user.is-idle { opacity: .45; }
 .identity-chip { padding: 0 !important; background: transparent !important; border: 0 !important; margin-left: 10px; cursor: pointer; }
 .identity-chip__avatar { box-shadow: 0 0 0 2px #4C8DFF; }
+
+/* Parcels */
+.parcels-toggle { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; font-size: 13px; cursor: pointer; }
+.map-parcels { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; }
+.map-parcels polygon { fill: rgba(255, 210, 63, 0.06); stroke: #FFD23F; stroke-width: 1.6; stroke-dasharray: 5 4; }
+.map-legend__parcel { border: 2px dashed #FFD23F; background: transparent !important; }

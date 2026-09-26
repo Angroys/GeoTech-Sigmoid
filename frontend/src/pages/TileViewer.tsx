@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { api } from '../api';
-import type {
+import type { ParcelShape,
   Annotation,
   AnnotationIn,
   Label,
@@ -140,6 +140,8 @@ export function TileViewer() {
   const [width, setWidth] = useState(2048);
   // Overlay opacity multiplier (0..1); dim to peek at imagery under labels.
   const [overlayOpacity, setOverlayOpacity] = useState(1);
+  const [parcels, setParcels] = useState<ParcelShape[]>([]);
+  const [showParcels, setShowParcels] = useState(true);
   const [coord, setCoord] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -221,6 +223,7 @@ export function TileViewer() {
         api.getStatus(name).catch(() => null),
       ]);
       setAnnotations(normalizeAnnotations(ann.annotations));
+      api.tileParcels(name).then((r) => setParcels(r.parcels)).catch(() => setParcels([]));
       if (geo) {
         setHeight(geo.height || 2048);
         setWidth(geo.width || 2048);
@@ -364,6 +367,16 @@ export function TileViewer() {
     }
     setSelectedVertex(idx);
     setVertexGroup([idx]);
+  }, []);
+
+  // Ctrl/Cmd+click (and Space): add/remove a shape from the multi-selection.
+  const toggleAnnotation = useCallback((id: string) => {
+    const prev = stateRef.current.selectedIds;
+    const has = prev.includes(id);
+    const next = has ? prev.filter((x) => x !== id) : [...prev, id];
+    setSelectedIds(next);
+    setSelectedId(has ? (next.length ? next[next.length - 1] : null) : id);
+    setSelectedVertex(null);
   }, []);
 
   const moveVertices = useCallback(
@@ -583,6 +596,58 @@ export function TileViewer() {
   // Split a polyline at `splitPoint` (inserted after vertex `segIndex`) into two
   // new polylines that inherit the original's label/attributes/source. Ids are
   // generated OUTSIDE `commit` (like commitSegment) so the updater stays pure.
+  // Split a ROAD (inter-row polygon) along the infinite line through a–b: each
+  // side is the polygon clipped to one half-plane (Sutherland–Hodgman).
+  const cutPolygon = useCallback(
+    (id: string, a: Point, b: Point) => {
+      if (readOnlyRef.current) return;
+      const ann = stateRef.current.annotations.find((x) => x.id === id);
+      if (!ann || ann.points.length < 3) return;
+      const side = (q: Point) => (b[0] - a[0]) * (q[1] - a[1]) - (b[1] - a[1]) * (q[0] - a[0]);
+      const clip = (keepPositive: boolean): Point[] => {
+        const inside = (q: Point) => (keepPositive ? side(q) >= 0 : side(q) <= 0);
+        const out: Point[] = [];
+        const P = ann.points;
+        for (let i = 0; i < P.length; i++) {
+          const cur = P[i];
+          const prev = P[(i + P.length - 1) % P.length];
+          const cIn = inside(cur);
+          const pIn = inside(prev);
+          if (cIn !== pIn) {
+            const sp = side(prev);
+            const sc = side(cur);
+            const t = sp / (sp - sc);
+            out.push([prev[0] + (cur[0] - prev[0]) * t, prev[1] + (cur[1] - prev[1]) * t]);
+          }
+          if (cIn) out.push(cur);
+        }
+        return out;
+      };
+      const area = (pts: Point[]) => {
+        let s2 = 0;
+        for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) s2 += (pts[j][0] + pts[i][0]) * (pts[j][1] - pts[i][1]);
+        return Math.abs(s2 / 2);
+      };
+      const pieces = [clip(true), clip(false)].filter((pts) => pts.length >= 3 && area(pts) > 4);
+      if (pieces.length < 2) {
+        toast.push('The cut line must cross the road — click on both sides.', 'info');
+        return;
+      }
+      const made = pieces.map((pts) => ({ ...ann, id: newId(), points: pts, attributes: { ...ann.attributes } }));
+      commit((prev) => {
+        const idx = prev.findIndex((x) => x.id === id);
+        const rest = prev.filter((x) => x.id !== id);
+        rest.splice(idx === -1 ? rest.length : idx, 0, ...made);
+        return rest;
+      });
+      setSelectedIds(made.map((m) => m.id));
+      setSelectedId(made[0].id);
+      setSelectedVertex(null);
+      toast.push('Road cut in two', 'success');
+    },
+    [commit, toast],
+  );
+
   const cutLine = useCallback(
     (id: string, segIndex: number, splitPoint: Point) => {
       if (readOnlyRef.current) return;
@@ -1136,27 +1201,6 @@ export function TileViewer() {
           >
             ＋ Add polygon <span className="hotkey">D</span>
           </Button>
-          <div
-            className="segmented"
-            role="radiogroup"
-            aria-label="Magic draw class hint"
-            aria-disabled={!magicMode || readOnly}
-          >
-            {HINTS.map((h) => (
-              <button
-                key={h.key}
-                type="button"
-                role="radio"
-                aria-checked={magicHint === h.key}
-                className="segmented__item"
-                disabled={!magicMode || readOnly}
-                onClick={() => setMagicHint(h.key)}
-                title={`Force class: ${h.name}`}
-              >
-                {h.name}
-              </button>
-            ))}
-          </div>
           {detecting && (
             <span className="magic-detecting" role="status" aria-live="polite">
               detecting…
@@ -1275,6 +1319,8 @@ export function TileViewer() {
               selectedVertex={selectedVertex}
               visibility={visibility}
               overlayOpacity={overlayOpacity}
+              parcels={parcels}
+              showParcels={showParcels}
               readOnly={readOnly}
               tool={readOnly ? 'select' : tool}
               drawShape={LABEL_SHAPE[drawLabel]}
@@ -1286,7 +1332,9 @@ export function TileViewer() {
               onMagicCommit={commitSegment}
               onMagicError={magicError}
               onCutLine={cutLine}
-              onCutMiss={() => toast.push('Click on a line to split it.', 'info')}
+              onCutMiss={() => toast.push('Click a row line to split it, or click two points across a road.', 'info')}
+              onCutPolygon={cutPolygon}
+              onCutPending={() => toast.push('Now click the second point across the road.', 'info')}
               onJoinPick={handleJoinPick}
               pickRef={pickRef}
               onSelectAnnotation={(id) => {
@@ -1296,6 +1344,7 @@ export function TileViewer() {
                 setSelectedVertex(null);
               }}
               onSelectVertex={selectVertex}
+              onToggleAnnotation={toggleAnnotation}
               onEraseStart={eraseStart}
               onErasePreview={erasePreview}
               onEraseCommit={eraseCommit}
@@ -1501,6 +1550,18 @@ export function TileViewer() {
                 aria-label="Overlay opacity — dim to see the imagery under labels"
               />
               <span className="opacity-val">{Math.round(overlayOpacity * 100)}%</span>
+            </label>
+            <label className="check-row__label parcels-toggle">
+              <input
+                type="checkbox"
+                checked={showParcels}
+                onChange={(e) => {
+                  setShowParcels(e.target.checked);
+                  e.currentTarget.blur();
+                }}
+              />
+              <span className="swatch" style={{ background: '#FFD23F' }} />
+              Parcels{parcels.length ? ` (${parcels.length})` : ''}
             </label>
             <div className="layer-list">
               {ALL_LABELS.map((lbl) => (

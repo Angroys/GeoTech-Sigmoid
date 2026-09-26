@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import type { TileSummary } from '../types';
+import type { ParcelShape, TileSummary } from '../types';
 import { useCollab } from '../collab';
 import { CollabBar } from '../components/CollabBar';
 
@@ -39,6 +39,12 @@ export function MapView() {
   const [hover, setHover] = useState<TileSummary | null>(null);
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [showStatus, setShowStatus] = useState(true);
+  const [parcels, setParcels] = useState<ParcelShape[]>([]);
+  const [showParcels, setShowParcels] = useState(true);
+
+  useEffect(() => {
+    api.mapParcels().then((r) => setParcels(r.parcels)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -103,6 +109,10 @@ export function MapView() {
           <i className="map-legend__lock" /> being edited
         </span>
         <label className="map-legend__toggle">
+          <input type="checkbox" checked={showParcels} onChange={(e) => setShowParcels(e.target.checked)} />
+          <i className="map-legend__parcel" /> Parcels ({new Set(parcels.map((p) => p.id)).size})
+        </label>
+        <label className="map-legend__toggle">
           <input type="checkbox" checked={showStatus} onChange={(e) => setShowStatus(e.target.checked)} /> Status colours
         </label>
         <label className="map-legend__toggle">
@@ -154,6 +164,16 @@ export function MapView() {
                 </button>
               );
             })}
+            {showParcels && parcels.length > 0 && (
+              <svg className="map-parcels" width={nCols * cell} height={nRows * cell}>
+                {parcels.map((pc, k) => (
+                  <polygon
+                    key={k}
+                    points={pc.points.map(([x, y]) => `${x * cell},${y * cell}`).join(' ')}
+                  />
+                ))}
+              </svg>
+            )}
           </div>
         )}
         <div className="map-info">
