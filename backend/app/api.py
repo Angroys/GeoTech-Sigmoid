@@ -10,7 +10,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from . import config, collab, cvat, db, export, finish_export, geojson_import, segment, tiles
+from . import config, collab, cvat, db, export, finish_export, geojson_import, mosaic, segment, tiles
 
 router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
@@ -361,6 +361,18 @@ def export_download(job_id: str, filename: str) -> FileResponse:
     if art is None or not art.exists():
         raise HTTPException(status_code=404, detail="artifact not found")
     return FileResponse(str(art), media_type="application/zip", filename=filename)
+
+
+# --------------------------------------------------------------- map ----
+@router.get("/map/layout")
+def get_map_layout() -> dict[str, Any]:
+    return mosaic.layout()
+
+
+@router.get("/map/mosaic.jpg")
+def get_map_mosaic(cell: int = Query(48, ge=8, le=128)) -> FileResponse:
+    path = mosaic.build_mosaic(cell)
+    return FileResponse(str(path), media_type="image/jpeg", headers={"Cache-Control": "public, max-age=3600"})
 
 
 # ------------------------------------------------------------ progress ----

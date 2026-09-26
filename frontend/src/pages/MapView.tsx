@@ -13,6 +13,13 @@ const STATUS_COLOR: Record<string, string> = {
   unchecked: '#3A4254',
   invalid: '#FF5A5A',
 };
+// Translucent tints so the imagery stays visible under the status colour.
+const STATUS_TINT: Record<string, string> = {
+  verified: 'rgba(34, 197, 94, 0.38)',
+  in_progress: 'rgba(245, 166, 35, 0.30)',
+  unchecked: 'rgba(0, 0, 0, 0)',
+  invalid: 'rgba(255, 90, 90, 0.45)',
+};
 const STATUS_TEXT: Record<string, string> = {
   verified: 'Verified',
   in_progress: 'In progress',
@@ -31,6 +38,7 @@ export function MapView() {
   const [tiles, setTiles] = useState<TileSummary[]>([]);
   const [hover, setHover] = useState<TileSummary | null>(null);
   const [onlyVerified, setOnlyVerified] = useState(false);
+  const [showStatus, setShowStatus] = useState(true);
 
   useEffect(() => {
     let alive = true;
@@ -95,12 +103,24 @@ export function MapView() {
           <i className="map-legend__lock" /> being edited
         </span>
         <label className="map-legend__toggle">
+          <input type="checkbox" checked={showStatus} onChange={(e) => setShowStatus(e.target.checked)} /> Status colours
+        </label>
+        <label className="map-legend__toggle">
           <input type="checkbox" checked={onlyVerified} onChange={(e) => setOnlyVerified(e.target.checked)} /> Highlight verified only
         </label>
       </div>
       <div className="map-body">
         {grid && (
-          <div className="map-grid" style={{ width: nCols * cell, height: nRows * cell }}>
+          <div
+            className="map-grid"
+            style={{
+              width: nCols * cell,
+              height: nRows * cell,
+              // Real imagery mosaic of the whole area, stitched server-side.
+              backgroundImage: 'url(/api/map/mosaic.jpg?cell=48)',
+              backgroundSize: `${nCols * cell}px ${nRows * cell}px`,
+            }}
+          >
             {grid.placed.map(({ t, rc }) => {
               const st = t.verification_status;
               const dim = onlyVerified && st !== 'verified';
@@ -114,10 +134,16 @@ export function MapView() {
                   style={{
                     left: (rc[1] - grid.c0) * cell,
                     top: (rc[0] - grid.r0) * cell,
-                    width: cell - 2,
-                    height: cell - 2,
-                    background: STATUS_COLOR[st] ?? STATUS_COLOR.unchecked,
-                    opacity: dim ? 0.18 : 1,
+                    width: cell,
+                    height: cell,
+                    background: dim
+                      ? 'rgba(8, 10, 14, 0.62)'
+                      : showStatus
+                        ? STATUS_TINT[st] ?? 'transparent'
+                        : 'transparent',
+                    boxShadow: showStatus && st !== 'unchecked' && !dim
+                      ? `inset 0 0 0 2px ${STATUS_COLOR[st]}`
+                      : 'inset 0 0 0 1px rgba(255,255,255,0.06)',
                   }}
                   title={`${t.name} — ${STATUS_TEXT[st] ?? st}${lock ? ` — editing: ${lock.name}` : ''}${t.updated_by ? ` — by ${t.updated_by}` : ''} · ${t.annotation_count} shapes`}
                   onMouseEnter={() => setHover(t)}
