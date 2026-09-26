@@ -9,6 +9,21 @@ Hackathon project.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `docs:` …).
 - Changes land via pull request into `main`.
 
+## Running the app
+
+See [RUN.md](RUN.md) for the full operator guide. In short:
+
+```bash
+cd frontend && npm install && VITE_API_BASE= npm run build   # build the UI once
+PORT=8010 ./scripts/run-backend.sh                         # API + UI on one port
+```
+
+The backend serves both `/api` and the built UI from a single origin (no proxy
+needed); it binds `0.0.0.0` so Headscale mesh peers can reach it. Teammates open
+`http://<host>:8010` (or the `tailscale serve` URL). `data/` (tiles + DB) is
+gitignored and must be present locally; the published dataset lives in
+`dataset/` (Git LFS).
+
 ## FiftyOne dataset
 
 `scripts/build_fiftyone.py` indexes every image under `data/<dataset_name>/` into a

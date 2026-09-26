@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "Repo README & Workflow"
+    url: https://github.com/Angroys/GeoTech-Sigmoid#workflow
+    about: How we branch, commit (Conventional Commits), and open PRs.
+  - name: "GitHub Discussions"
+    url: https://github.com/Angroys/GeoTech-Sigmoid/discussions
+    about: Ask questions and discuss ideas with the team.
