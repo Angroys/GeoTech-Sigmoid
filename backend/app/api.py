@@ -369,6 +369,29 @@ def get_parcels_map() -> dict[str, Any]:
     return parcels.for_map()
 
 
+class ParcelIn(BaseModel):
+    points: list[list[float]]  # map grid units (x = col, y = row)
+
+
+@router.put("/parcels/{pid}")
+def put_parcel(pid: int, payload: ParcelIn) -> dict[str, Any]:
+    try:
+        return parcels.update_parcel(pid, payload.points)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="parcel not found")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.delete("/parcels/{pid}")
+def delete_parcel(pid: int) -> dict[str, Any]:
+    try:
+        parcels.delete_parcel(pid)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="parcel not found")
+    return {"ok": True, "id": pid}
+
+
 @router.get("/tiles/{name}/parcels")
 def get_tile_parcels(name: str) -> dict[str, Any]:
     try:
