@@ -41,6 +41,12 @@ export const api = {
   listTiles: () => request<TilesResponse>('/api/tiles'),
   tileParcels: (name: string) =>
     request<{ tile_name: string; parcels: ParcelShape[] }>(`/api/tiles/${encodeURIComponent(name)}/parcels`),
+  updateParcel: (id: number, points: [number, number][]) =>
+    request<{ id: number; area_m2: number }>(`/api/parcels/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ points }),
+    }),
+  deleteParcel: (id: number) => request<{ ok: boolean }>(`/api/parcels/${id}`, { method: 'DELETE' }),
   mapParcels: () =>
     request<{ layout: { r0: number; c0: number; rows: number; cols: number }; parcels: ParcelShape[] }>('/api/parcels/map'),
   tileGeo: (name: string) => request<TileGeo>(`/api/tiles/${encodeURIComponent(name)}/geo`),

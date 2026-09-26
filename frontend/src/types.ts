@@ -175,4 +175,5 @@ export interface ParcelShape {
   id: number;
   points: [number, number][];
   area_m2?: number | null;
+  rings?: number;
 }
