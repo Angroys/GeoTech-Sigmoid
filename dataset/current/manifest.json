@@ -288,7 +288,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T19:54:20.244039+00:00",
-   "annotations": 8
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r012_c006.tif",
@@ -1296,7 +1297,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:40:50.013004+00:00",
-   "annotations": 73
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r028_c021.tif",
@@ -1618,7 +1620,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:34:13.826419+00:00",
-   "annotations": 17
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r030_c030.tif",
@@ -1653,7 +1656,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:36:59.830320+00:00",
-   "annotations": 44
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r031_c019.tif",
@@ -1667,7 +1671,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:36:35.649815+00:00",
-   "annotations": 62
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r031_c021.tif",
@@ -1751,7 +1756,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:37:23.198939+00:00",
-   "annotations": 97
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r032_c019.tif",
@@ -1870,7 +1876,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:46:56.018355+00:00",
-   "annotations": 178
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r033_c023.tif",
@@ -1933,7 +1940,8 @@
    "status": "invalid",
    "updated_by": null,
    "updated_at": "2026-09-26T20:36:03.938199+00:00",
-   "annotations": 13
+   "annotations": 0,
+   "labels_included": false
   },
   {
    "tile": "siret3_r034_c020.tif",
@@ -2187,5 +2195,6 @@
    "updated_at": "2026-09-26T20:33:39.460590+00:00",
    "annotations": 74
   }
- ]
+ ],
+ "note": "Invalid tiles are included with no labels (empty GeoJSON, all-background mask)."
 }

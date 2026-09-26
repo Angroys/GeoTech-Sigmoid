@@ -89,7 +89,7 @@ def build_mask_array(annotations: Iterable[dict[str, Any]], width: int, height: 
 def write_mask_geotiff(tile_name: str, out_path: str | Path) -> Path:
     """Rasterize a tile's stored annotations and write a georeferenced mask."""
     src_path = tiles.tile_path(tile_name)
-    annotations = db.list_annotations(tile_name)
+    annotations = db.export_annotations(tile_name)
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 

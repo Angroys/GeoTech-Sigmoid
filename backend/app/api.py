@@ -162,9 +162,8 @@ def put_annotations(name: str, payload: AnnotationsReplace) -> dict[str, Any]:
     # georeferenced outputs into the ``finish`` dataset. Guard it so a failed
     # export (e.g. a missing tile raster) never fails the save.
     try:
-        # Invalidated tiles never enter the finish dataset.
-        if (db.get_tile_status(name) or {}).get("verification_status") != "invalid":
-            finish_export.write_finish_outputs(name)
+        # Invalid tiles are written too, but empty (db.export_annotations).
+        finish_export.write_finish_outputs(name)
     except Exception as exc:  # noqa: BLE001 - export is best-effort; never fail the save
         logger.warning("finish export skipped for %s: %s", name, exc)
     return {"tile_name": name, "annotations": anns}
@@ -230,12 +229,13 @@ def put_status(name: str, payload: StatusIn) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc))
     # A finished ("verified") or rejected ("invalid") tile frees up:
     # auto-release any edit lock on it.
-    if payload.status == "invalid":
-        # Rejected image: remove it from the finish dataset too.
+    if payload.status == "invalid" or result.get("verification_status") != "invalid":
+        # Keep the finish dataset in sync: an invalid tile stays in it with no
+        # labels; restoring it writes its labels back.
         try:
-            finish_export.remove_finish_outputs(name)
+            finish_export.write_finish_outputs(name)
         except Exception:  # noqa: BLE001 - never fail the status change
-            logger.warning("could not remove finish outputs for %s", name, exc_info=True)
+            logger.warning("could not refresh finish outputs for %s", name, exc_info=True)
     if payload.status in ("verified", "invalid"):
         collab.release_any(name)
     return result
@@ -321,13 +321,12 @@ def import_geojson(payload: GeojsonImportRequest | None = None) -> dict[str, Any
 
 # -------------------------------------------------------------- export ----
 def _export_tiles(requested: list[str] | None) -> list[str] | None:
-    """Invalidated tiles are never exported. None = all tiles minus invalid."""
-    invalid = db.tiles_with_status("invalid")
+    """Tiles to export. Invalid tiles are INCLUDED, but with no labels
+    (see db.export_annotations). None = every tile that has an entry."""
     if requested is None:
-        if not invalid:
-            return None
-        return [n for n in db.all_tiles_with_annotations() if n not in invalid]
-    return [n for n in requested if n not in invalid]
+        names = set(db.all_tiles_with_annotations()) | db.tiles_with_status("invalid")
+        return sorted(names)
+    return requested
 
 
 @router.post("/export/cvat")

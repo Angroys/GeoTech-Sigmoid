@@ -83,7 +83,7 @@ def _store_to_images(tile_names: list[str]) -> list[dict[str, Any]]:
                 "name": name,
                 "width": width,
                 "height": height,
-                "shapes": db.list_annotations(name),
+                "shapes": db.export_annotations(name),
             }
         )
     return images

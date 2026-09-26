@@ -129,6 +129,18 @@ def status_counts() -> dict[str, int]:
     return out
 
 
+def export_annotations(tile_name: str) -> list[dict[str, Any]]:
+    """Annotations as they should appear in any export/dataset output.
+
+    Invalid tiles stay in the dataset (image + georeferencing) but with NO
+    labels: an empty GeoJSON and an all-background mask.
+    """
+    st = get_tile_status(tile_name) or {}
+    if st.get("verification_status") == "invalid":
+        return []
+    return list_annotations(tile_name)
+
+
 def tiles_with_status(status: str) -> set[str]:
     """Names of tiles currently in the given verification status."""
     with get_conn() as conn:
