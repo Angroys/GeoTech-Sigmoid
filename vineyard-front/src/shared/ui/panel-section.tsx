@@ -10,7 +10,7 @@ export const PanelSection: FC<PanelSectionProps> = ({ title, description, childr
   const headingId = useId();
 
   return (
-    <section aria-labelledby={headingId} className="border-border border-t px-6 py-6">
+    <section aria-labelledby={headingId} className="border-border border-t px-6 py-6 first:border-t-0">
       <h2 id={headingId} className="text-[0.9375rem] font-semibold tracking-[-0.01em]">
         {title}
       </h2>

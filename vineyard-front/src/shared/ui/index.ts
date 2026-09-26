@@ -9,6 +9,7 @@ export { Input } from "./input";
 export { Label } from "./label";
 export { LinkButton } from "./link-button";
 export { PageLoading } from "./page-loading";
+export { PanelTabs, type PanelTab } from "./panel-tabs";
 export { PanelSection } from "./panel-section";
 export { PasswordInput } from "./password-input";
 export { StatusMessage } from "./status-message";

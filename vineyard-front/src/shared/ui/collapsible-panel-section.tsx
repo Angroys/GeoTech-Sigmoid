@@ -26,7 +26,7 @@ export const CollapsiblePanelSection: FC<CollapsiblePanelSectionProps> = ({
     <details
       open={isOpen}
       onToggle={event => setIsOpen(event.currentTarget.open)}
-      className="group border-border border-t"
+      className="group border-border border-t first:border-t-0"
     >
       <summary className="hover:bg-muted/60 focus-visible:ring-ring/50 flex cursor-pointer list-none items-start justify-between gap-4 px-6 py-5 outline-none focus-visible:ring-[3px] focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
         <span>

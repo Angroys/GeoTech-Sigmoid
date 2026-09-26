@@ -2,6 +2,7 @@ import type { FC } from "react";
 
 import type { Role } from "@/entities/role";
 import { SurveyLoader, useSurvey, type Survey, type SurveySource } from "@/entities/survey";
+import { MapLayersControl } from "@/features/toggle-map-layers";
 import { useLocation } from "@/shared/lib/router";
 import { WorkspaceLayout } from "@/shared/ui";
 import { VineyardMap } from "@/widgets/vineyard-map";
@@ -27,7 +28,16 @@ const VineyardWorkspace: FC<VineyardWorkspaceProps> = props => {
             requestedStart={workspace.routeStart.request?.lngLat ?? null}
             visibility={workspace.layers.visibility}
             selection={workspace.selection.selection}
-            onSelect={workspace.selection.selectFromMap}
+            onSelect={workspace.selectOnMap}
+            layersControl={
+              <MapLayersControl
+                visibility={workspace.layers.visibility}
+                allLayers={workspace.layers.allLayers}
+                hasRequestedStart={workspace.routeStart.request !== null}
+                onToggle={workspace.layers.toggleLayer}
+                onToggleAll={workspace.layers.toggleAllLayers}
+              />
+            }
             className="h-full"
           />
         }

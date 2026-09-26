@@ -1,7 +1,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import type { Position } from "geojson";
-import { useRef, type FC } from "react";
+import { useRef, type FC, type ReactNode } from "react";
 
 import type { LayerVisibility, RoutePurpose, Survey, SurveySelection, SurveySource } from "@/entities/survey";
 import { cn } from "@/shared/lib/cn";
@@ -12,7 +12,6 @@ import { useMapInstance } from "../model/use-map-instance";
 import { useRequestedStartSync } from "../model/use-requested-start-sync";
 import { useSelectionSync } from "../model/use-selection-sync";
 import { useSurveyLayers } from "../model/use-survey-layers";
-import { MapLegend } from "./map-legend";
 
 type VineyardMapProps = {
   source: SurveySource;
@@ -22,6 +21,7 @@ type VineyardMapProps = {
   visibility: LayerVisibility;
   selection: SurveySelection;
   onSelect: (selection: SurveySelection) => void;
+  layersControl: ReactNode;
   className?: string;
 };
 
@@ -33,6 +33,7 @@ export const VineyardMap: FC<VineyardMapProps> = ({
   visibility,
   selection,
   onSelect,
+  layersControl,
   className,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,8 +55,8 @@ export const VineyardMap: FC<VineyardMapProps> = ({
           aria-label={`Map of the ${source.name} survey, captured ${source.capturedOn}`}
         />
       </div>
-      <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-md:hidden">
-        <MapLegend visibility={visibility} hasRequestedStart={requestedStart !== null} />
+      <div className="pointer-events-none absolute top-3 bottom-3 left-3 z-10 flex flex-col justify-end">
+        <div className="pointer-events-auto flex min-h-0 flex-col">{layersControl}</div>
       </div>
     </div>
   );

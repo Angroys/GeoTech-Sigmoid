@@ -42,3 +42,5 @@ export const useRouteProgress = (purpose: RoutePurpose, stopIds: readonly Target
 
   return { reached, setStopReached, resetProgress };
 };
+
+export type RouteProgressState = ReturnType<typeof useRouteProgress>;
