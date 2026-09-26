@@ -23,6 +23,32 @@ const server = serve({
   routes: {
     "/*": index,
 
+    "/api/routes/plan": {
+      POST: async req => {
+        try {
+          const body = await req.text();
+          if (body.length > 16 * 1024 * 1024) {
+            return Response.json({ detail: "Survey is too large for interactive routing." }, { status: 413 });
+          }
+          const response = await fetch(`${process.env.ROUTE_API_URL ?? "http://127.0.0.1:8001"}/plan`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body,
+            signal: AbortSignal.timeout(120_000),
+          });
+          return new Response(await response.text(), {
+            status: response.status,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch {
+          return Response.json(
+            { detail: "The route planner is unavailable or timed out. Start the routing service and try again." },
+            { status: 503 },
+          );
+        }
+      },
+    },
+
     "/data/:survey/:file": req => {
       const { survey, file } = req.params;
       if (!SURVEY_NAME.test(survey) || !SURVEY_FILE.test(file)) return notFound();

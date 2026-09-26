@@ -1,0 +1,62 @@
+{
+  ".github/ISSUE_TEMPLATE/config.yml": {
+    "mtime": 1790411907.6322117,
+    "seen": 1790420205.4337044,
+    "ast_hash": "1c40bc4890931e94bcbd1f5f4cb7fe67",
+    "semantic_hash": "1c40bc4890931e94bcbd1f5f4cb7fe67"
+  },
+  "README.md": {
+    "mtime": 1790411907.6322117,
+    "seen": 1790420205.4337082,
+    "ast_hash": "ba3008088fd597b45067436df505767b",
+    "semantic_hash": "ba3008088fd597b45067436df505767b"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/README.md": {
+    "mtime": 1790256102.0,
+    "seen": 1790420205.4337099,
+    "ast_hash": "d9b3abcb96db2d0b2220b1cd98486607",
+    "semantic_hash": "d9b3abcb96db2d0b2220b1cd98486607"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/03_docs/Marcaj_quick_start_for_teams.pdf": {
+    "mtime": 1790256102.0,
+    "seen": 1790420205.4337108,
+    "ast_hash": "ed38368790c166c921a9ad91cdb175f7",
+    "semantic_hash": "ed38368790c166c921a9ad91cdb175f7"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/03_docs/Vineyard_AI_Field_Challenge_description.pdf": {
+    "mtime": 1790253124.0,
+    "seen": 1790420205.4337115,
+    "ast_hash": "b07333913b7be2b96087782fac5dd4fe",
+    "semantic_hash": "b07333913b7be2b96087782fac5dd4fe"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/03_docs/Vineyard_AI_annotation_rules.pdf": {
+    "mtime": 1790253124.0,
+    "seen": 1790420205.4337125,
+    "ast_hash": "bbbdfa52fdecd326b1d6549fed5dde1c",
+    "semantic_hash": "bbbdfa52fdecd326b1d6549fed5dde1c"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/01_tiles/overview.png": {
+    "mtime": 1790253124.0,
+    "seen": 1790420205.4337134,
+    "ast_hash": "61d431f15c781ab1d4702dbce12b2cb7",
+    "semantic_hash": "61d431f15c781ab1d4702dbce12b2cb7"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/02_route/preview_passages_forbidden.png": {
+    "mtime": 1790253124.0,
+    "seen": 1790420205.4337144,
+    "ast_hash": "160e22b8b4d215da4c03e39edebfeed3",
+    "semantic_hash": "160e22b8b4d215da4c03e39edebfeed3"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/05_examples/preview_siret3_r006_c004.jpg": {
+    "mtime": 1790254254.0,
+    "seen": 1790420205.4337153,
+    "ast_hash": "4f75898bf19ae7e6ec4f311bc99d72cd",
+    "semantic_hash": "4f75898bf19ae7e6ec4f311bc99d72cd"
+  },
+  "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/05_examples/preview_siret3_r021_c012.jpg": {
+    "mtime": 1790254254.0,
+    "seen": 1790420205.433716,
+    "ast_hash": "d8b83d986d679f8e67c76e8b4692372b",
+    "semantic_hash": "d8b83d986d679f8e67c76e8b4692372b"
+  }
+}
