@@ -1,5 +1,5 @@
 import type { FeatureCollection, Position } from "geojson";
-import type { GeoJSONSource, Map as MaplibreMap } from "maplibre-gl";
+import type { Map as MaplibreMap } from "maplibre-gl";
 import { useEffect, useRef } from "react";
 
 import type { Survey } from "@/entities/survey";
@@ -7,7 +7,7 @@ import type { Survey } from "@/entities/survey";
 import { FIT_PADDING_PX } from "../config/map-style";
 import { SOURCE_IDS } from "../config/survey-layers";
 import { boundsOf } from "../lib/bounds";
-import { NO_FEATURES } from "./use-survey-layers";
+import { isGeoJsonSource, NO_FEATURES } from "../lib/geojson-source";
 
 const requestedStartData = (requestedStart: Position, vineyardStart: Position): FeatureCollection => ({
   type: "FeatureCollection",
@@ -20,9 +20,6 @@ const requestedStartData = (requestedStart: Position, vineyardStart: Position): 
     { type: "Feature", geometry: { type: "Point", coordinates: requestedStart }, properties: {} },
   ],
 });
-
-const isGeoJsonSource = (source: unknown): source is GeoJSONSource =>
-  typeof source === "object" && source !== null && "setData" in source && typeof source.setData === "function";
 
 export const useRequestedStartSync = (
   map: MaplibreMap | null,

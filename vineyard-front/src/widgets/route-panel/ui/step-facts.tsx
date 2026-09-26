@@ -36,7 +36,6 @@ export const StepFacts: FC<StepFactsProps> = ({ step, speedKmh, showTotal = true
       {showTotal && stop.order > 1 && (
         <Fact label="Total from the start" value={distanceWithTime(stop.distanceM, speedKmh)} />
       )}
-      <Fact label="Target" value={stop.targetId} />
     </dl>
   );
 };

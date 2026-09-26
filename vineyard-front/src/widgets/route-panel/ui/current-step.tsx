@@ -9,6 +9,7 @@ import { describeStop } from "../lib/describe-stop";
 import type { RouteStep } from "../model/use-route-stepper";
 import { StepFacts } from "./step-facts";
 import { StepMarker } from "./step-marker";
+import { StopLocation } from "./stop-location";
 
 type CurrentStepProps = {
   step: RouteStep;
@@ -27,7 +28,7 @@ export const CurrentStep: FC<CurrentStepProps> = ({
   onShow,
   onReachedChange,
 }) => {
-  const { title, location } = describeStop(step.stop);
+  const { title } = describeStop(step.stop);
 
   return (
     <li className="grid grid-cols-[2rem_1fr] gap-x-3" aria-current="step">
@@ -54,7 +55,7 @@ export const CurrentStep: FC<CurrentStepProps> = ({
             {title}
             <MapPin className="text-muted-foreground group-hover/stop:text-primary size-4" aria-hidden />
           </span>
-          <span className="text-muted-foreground block text-sm">{location}</span>
+          <StopLocation stop={step.stop} className="text-sm" />
         </button>
         <StepFacts step={step} speedKmh={speedKmh} showTotal={false} />
         <div>

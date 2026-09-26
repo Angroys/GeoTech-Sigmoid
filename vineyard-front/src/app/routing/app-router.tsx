@@ -5,8 +5,7 @@ import { useSession } from "@/entities/session";
 import { useSurveySource } from "@/entities/survey";
 import { AddVineyardPage } from "@/pages/add-vineyard";
 import { AuthPage } from "@/pages/auth";
-import { InspectorPage } from "@/pages/inspector";
-import { OwnerPage } from "@/pages/owner";
+import { VineyardWorkspacePage } from "@/pages/vineyard-workspace";
 import { VineyardsPage } from "@/pages/vineyards";
 import { Redirect, useLocation } from "@/shared/lib/router";
 import { assertNever } from "@/shared/lib/types";
@@ -22,7 +21,7 @@ const WorkspaceRoute: FC<WorkspaceRouteProps> = ({ role, surveyId }) => {
 
   if (isLoading) return <PageLoading label="Opening the vineyard" />;
   if (!source) return <Redirect to={WORKSPACE_ROUTE[role]} />;
-  return role === "owner" ? <OwnerPage source={source} /> : <InspectorPage source={source} />;
+  return <VineyardWorkspacePage role={role} source={source} />;
 };
 
 export const AppRouter: FC = () => {

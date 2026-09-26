@@ -11,6 +11,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-pending: var(--pending);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-primary: var(--primary);
@@ -46,6 +47,7 @@
   --accent: #eef1ec;
   --accent-foreground: #1d2420;
   --destructive: #a3322b;
+  --pending: #9a5b0c;
 
   --primary: var(--owner);
   --primary-foreground: #ffffff;

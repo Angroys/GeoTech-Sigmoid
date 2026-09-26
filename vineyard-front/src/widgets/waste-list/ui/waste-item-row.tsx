@@ -12,14 +12,15 @@ type WasteItemRowProps = {
   onSelect: (targetId: TargetId) => void;
 };
 
+const describeRouteNote = (item: WasteItem) => {
+  if (item.stopOrder !== null) return `Stop ${item.stopOrder}`;
+  if (item.status === "unreachable") return "Not reachable";
+  return "Route being planned";
+};
+
 export const WasteItemRow: FC<WasteItemRowProps> = ({ item, isSelected, onSelect }) => {
   const ref = useScrollIntoView<HTMLButtonElement>(isSelected);
-  const routeNote =
-    item.stopOrder !== null
-      ? `Stop ${item.stopOrder}`
-      : item.status === "unreachable"
-        ? "Not reachable"
-        : "Route being planned";
+  const routeNote = describeRouteNote(item);
 
   return (
     <li>

@@ -65,9 +65,6 @@ export const readCoordinates = (text: string): CoordinateReading => {
   return readUtm(first, second);
 };
 
-export const readLocation = (latitude: number, longitude: number): CoordinateReading =>
-  readLatLng(latitude, longitude);
-
 const DEGREES = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 5, maximumFractionDigits: 5 });
 const METRES = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 

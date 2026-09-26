@@ -75,20 +75,17 @@ export const RouteStartControl: FC<RouteStartControlProps> = ({ vineyardStart, r
     setIsEditing(false);
   };
 
-  return (
-    <div className="border-border mb-6 border-b pb-5">
-      {isEditing ? (
-        <RouteStartForm vineyardStart={vineyardStart} onPlan={plan} onCancel={() => setIsEditing(false)} />
-      ) : request ? (
-        <RequestedStart
-          vineyardStart={vineyardStart}
-          request={request}
-          onChange={() => setIsEditing(true)}
-          onClear={onClear}
-        />
-      ) : (
-        <VineyardStart vineyardStart={vineyardStart} onChange={() => setIsEditing(true)} />
-      )}
-    </div>
-  );
+  const edit = () => setIsEditing(true);
+
+  const renderContent = () => {
+    if (isEditing) {
+      return <RouteStartForm vineyardStart={vineyardStart} onPlan={plan} onCancel={() => setIsEditing(false)} />;
+    }
+    if (request) {
+      return <RequestedStart vineyardStart={vineyardStart} request={request} onChange={edit} onClear={onClear} />;
+    }
+    return <VineyardStart vineyardStart={vineyardStart} onChange={edit} />;
+  };
+
+  return <div className="border-border mb-6 border-b pb-5">{renderContent()}</div>;
 };

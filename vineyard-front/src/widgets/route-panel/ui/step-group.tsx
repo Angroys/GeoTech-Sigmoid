@@ -11,16 +11,16 @@ type StepGroupProps = {
   tone: MarkerTone;
   summary: StepGroupSummary;
   distanceLabel: string;
-  containsSelection: boolean;
+  containsRevealed: boolean;
   children: ReactNode;
 };
 
-export const StepGroup: FC<StepGroupProps> = ({ title, tone, summary, distanceLabel, containsSelection, children }) => {
+export const StepGroup: FC<StepGroupProps> = ({ title, tone, summary, distanceLabel, containsRevealed, children }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (containsSelection) setIsOpen(true);
-  }, [containsSelection]);
+    if (containsRevealed) setIsOpen(true);
+  }, [containsRevealed]);
 
   const stops = `${formatCount(summary.count)} ${summary.count === 1 ? "stop" : "stops"}`;
   const meta = `${stops}, ${formatDistance(summary.distanceM)} ${distanceLabel}, ${formatMinutes(summary.minutes)}`;

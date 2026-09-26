@@ -1,21 +1,18 @@
-import { useMemo, useRef, type FC } from "react";
+import { useRef, type FC } from "react";
 
 import { vineyardUrl } from "@/entities/role";
 import { useSession } from "@/entities/session";
 import { SURVEY_FILE_NAMES, type SurveyId } from "@/entities/survey";
 import { ApiError } from "@/shared/api";
 import { useForm } from "@/shared/lib/form";
-import { isReadCoordinates, readCoordinates } from "@/shared/lib/geo";
 import { navigate } from "@/shared/lib/router";
 import { FormField, Input, StatusMessage, SubmitButton } from "@/shared/ui";
 
 import { saveVineyard } from "../api/save-vineyard";
-import { routeOffsetFromStart, startFileFrom } from "../model/start-point";
 import { useImageryCheck } from "../model/use-imagery-check";
 import { useSurveyFiles } from "../model/use-survey-files";
-import { INITIAL_VALUES, usesPastedStart, validateAddVineyard, type AddVineyardValues } from "../model/validation";
+import { INITIAL_VALUES, validateAddVineyard } from "../model/validation";
 import { ImageryField } from "./imagery-field";
-import { StartPointField, type RouteCheck } from "./start-point-field";
 import { SurveyFilesField } from "./survey-files-field";
 
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -24,6 +21,7 @@ export const AddVineyardForm: FC = () => {
   const session = useSession();
   const imagery = useImageryCheck();
   const createdId = useRef<SurveyId | null>(null);
+  const files = useSurveyFiles();
 
   const { values, errors, status, setValue, handleSubmit } = useForm({
     initialValues: INITIAL_VALUES,
@@ -45,22 +43,6 @@ export const AddVineyardForm: FC = () => {
     },
   });
 
-  const isPasted = usesPastedStart(values);
-  const pastedRead = useMemo(() => readCoordinates(values.startText), [values.startText]);
-  const typedStart = isPasted && isReadCoordinates(pastedRead) ? pastedRead.utm : null;
-  const startOverride = useMemo(() => (typedStart ? startFileFrom(typedStart) : null), [typedStart]);
-  const files = useSurveyFiles(startOverride);
-
-  const completeFiles = files.toSurveyFiles();
-  const hasRouteFiles = Boolean(files.entries.inspectionRoute ?? files.entries.wasteRoute);
-  const routeCheck: RouteCheck = !hasRouteFiles
-    ? { kind: "server-plans" }
-    : typedStart && completeFiles
-      ? { kind: "offset", metres: routeOffsetFromStart(completeFiles, typedStart) ?? 0 }
-      : { kind: "waiting-for-files" };
-
-  const setText = (field: keyof AddVineyardValues) => (value: string) => setValue(field, value);
-
   return (
     <form noValidate onSubmit={handleSubmit} className="grid gap-10">
       <fieldset className="grid gap-5">
@@ -74,7 +56,7 @@ export const AddVineyardForm: FC = () => {
                 autoComplete="off"
                 required
                 value={values.name}
-                onChange={event => setText("name")(event.target.value)}
+                onChange={event => setValue("name", event.target.value)}
               />
             );
           }}
@@ -88,7 +70,7 @@ export const AddVineyardForm: FC = () => {
                 autoComplete="off"
                 required
                 value={values.location}
-                onChange={event => setText("location")(event.target.value)}
+                onChange={event => setValue("location", event.target.value)}
               />
             );
           }}
@@ -104,7 +86,7 @@ export const AddVineyardForm: FC = () => {
                   max={TODAY}
                   required
                   value={values.capturedOn}
-                  onChange={event => setText("capturedOn")(event.target.value)}
+                  onChange={event => setValue("capturedOn", event.target.value)}
                 />
               );
             }}
@@ -123,7 +105,7 @@ export const AddVineyardForm: FC = () => {
                   autoComplete="off"
                   className="tabular-nums"
                   value={values.groundSampleCm}
-                  onChange={event => setText("groundSampleCm")(event.target.value)}
+                  onChange={event => setValue("groundSampleCm", event.target.value)}
                 />
               );
             }}
@@ -135,21 +117,11 @@ export const AddVineyardForm: FC = () => {
         url={values.imageryUrl}
         error={errors.imageryUrl}
         state={imagery.state}
-        onChange={setText("imageryUrl")}
+        onChange={value => setValue("imageryUrl", value)}
         onCheck={() => void imagery.check(values.imageryUrl.trim()).catch(() => undefined)}
       />
 
-      <StartPointField
-        isPasted={isPasted}
-        text={values.startText}
-        error={errors.startText ?? (pastedRead.kind === "invalid" ? pastedRead.message : undefined)}
-        read={pastedRead}
-        routeCheck={routeCheck}
-        onSourceChange={source => setValue("startSource", source)}
-        onTextChange={text => setValue("startText", text)}
-      />
-
-      <SurveyFilesField files={files} hasTypedStart={startOverride !== null} />
+      <SurveyFilesField files={files} />
 
       <div className="grid gap-4">
         <StatusMessage status={status} />

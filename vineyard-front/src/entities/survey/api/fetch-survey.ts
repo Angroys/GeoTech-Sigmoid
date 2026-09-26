@@ -74,5 +74,3 @@ export const fetchSurvey = (source: SurveySource): Promise<Survey> => {
   request.catch(() => surveyCache.delete(source.id));
   return request;
 };
-
-export const forgetSurvey = (id: string) => surveyCache.delete(id);

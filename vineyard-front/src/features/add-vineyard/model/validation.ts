@@ -1,8 +1,5 @@
 import { firstError, matches, required, type FieldErrors, type Rule } from "@/shared/lib/form";
 
-import { readCoordinates } from "@/shared/lib/geo";
-
-import { START_SOURCES } from "./start-point";
 
 export type AddVineyardValues = {
   name: string;
@@ -10,8 +7,6 @@ export type AddVineyardValues = {
   capturedOn: string;
   groundSampleCm: string;
   imageryUrl: string;
-  startSource: string;
-  startText: string;
 };
 
 export const INITIAL_VALUES: AddVineyardValues = {
@@ -20,16 +15,6 @@ export const INITIAL_VALUES: AddVineyardValues = {
   capturedOn: "",
   groundSampleCm: "",
   imageryUrl: "",
-  startSource: "pasted",
-  startText: "",
-};
-
-export const usesPastedStart = (values: AddVineyardValues) => values.startSource === START_SOURCES[1];
-
-const pastedStartError = (text: string) => {
-  const read = readCoordinates(text);
-  if (read.kind === "empty") return "Paste the coordinates of the starting point.";
-  return read.kind === "invalid" ? read.message : undefined;
 };
 
 const DECIMAL = /^\d+([.,]\d+)?$/;
@@ -51,7 +36,6 @@ const isHttpsUrl: Rule = value => {
 };
 
 export const validateAddVineyard = (values: AddVineyardValues): FieldErrors<AddVineyardValues> => ({
-  startText: usesPastedStart(values) ? pastedStartError(values.startText) : undefined,
   name: firstError(values.name, [required("Name the vineyard.")]),
   location: firstError(values.location, [required("Say where the vineyard is.")]),
   capturedOn: firstError(values.capturedOn, [required("Enter the day the drone flew."), notInFuture]),

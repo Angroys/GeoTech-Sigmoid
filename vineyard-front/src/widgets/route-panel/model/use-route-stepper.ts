@@ -46,5 +46,3 @@ export const useRouteStepper = (plan: RoutePlan, reached: ReadonlySet<TargetId>)
     };
   }, [plan, reached]);
 };
-
-export type RouteStepper = ReturnType<typeof useRouteStepper>;

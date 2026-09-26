@@ -36,7 +36,7 @@ const readEntry = async (file: File): Promise<SurveyFileEntry & { key: SurveyFil
   return { key, fileName: file.name, json, check: checkSurveyFile(key, json) };
 };
 
-export const useSurveyFiles = (startOverride: SurveyFiles["start"] | null) => {
+export const useSurveyFiles = () => {
   const [entries, setEntries] = useState<Entries>({});
   const [ignored, setIgnored] = useState<string[]>([]);
   const [isReading, setIsReading] = useState(false);
@@ -77,19 +77,18 @@ export const useSurveyFiles = (startOverride: SurveyFiles["start"] | null) => {
   }, [addFiles]);
 
   const summary = useMemo(() => {
-    const needed = SURVEY_FILE_KEYS.filter(key => !(key === "start" && startOverride));
-    const missing = needed.filter(key => !entries[key] && !isServerPlanned(key));
-    const invalid = needed.filter(key => entries[key]?.check.status === "invalid");
+    const missing = SURVEY_FILE_KEYS.filter(key => !entries[key] && !isServerPlanned(key));
+    const invalid = SURVEY_FILE_KEYS.filter(key => entries[key]?.check.status === "invalid");
     return { missing, invalid, isComplete: missing.length === 0 && invalid.length === 0 };
-  }, [entries, startOverride]);
+  }, [entries]);
 
   const toSurveyFiles = useCallback((): SurveyFiles | null => {
     const raw = Object.fromEntries(
       SURVEY_FILE_KEYS.map(key => [key, entries[key]?.json ?? (isServerPlanned(key) ? null : undefined)]),
     );
-    const result = surveyFilesSchema.safeParse(startOverride ? { ...raw, start: startOverride } : raw);
+    const result = surveyFilesSchema.safeParse(raw);
     return result.success ? result.data : null;
-  }, [entries, startOverride]);
+  }, [entries]);
 
   return { entries, ignored, isReading, summary, addFiles, addSampleFiles, removeFile, toSurveyFiles };
 };

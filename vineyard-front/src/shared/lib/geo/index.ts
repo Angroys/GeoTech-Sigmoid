@@ -12,7 +12,6 @@ export {
   formatUtm,
   isReadCoordinates,
   readCoordinates,
-  readLocation,
   type CoordinateReading,
   type ReadCoordinates,
 } from "./read-coordinates";
