@@ -3,7 +3,7 @@ import { CircleAlert, LoaderCircle, LocateFixed } from "lucide-react";
 import type { FC } from "react";
 
 import { formatMetres } from "@/shared/lib/format";
-import { Button, CoordinateReadBack, FormField, Input } from "@/shared/ui";
+import { Button, CoordinateReadBack, TextField } from "@/shared/ui";
 
 import { FAR_FROM_VINEYARD_M } from "../model/distance-from-start";
 import type { LocationStatus } from "../model/use-current-location";
@@ -51,27 +51,19 @@ export const RouteStartForm: FC<RouteStartFormProps> = ({ vineyardStart, onPlan,
 
   return (
     <form noValidate onSubmit={draft.submit} className="grid gap-3">
-      <FormField
+      <TextField
         label="Where you start"
         hint="Latitude and longitude as a map app copies them, or easting and northing in EPSG:32635."
         error={draft.error}
-      >
-        {control => {
-          return (
-            <Input
-              {...control}
-              autoFocus
-              name="routeStart"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="47.12305, 28.70734"
-              className="h-11 text-base tabular-nums md:text-base"
-              value={draft.text}
-              onChange={event => draft.changeText(event.target.value)}
-            />
-          );
-        }}
-      </FormField>
+        autoFocus
+        name="routeStart"
+        autoComplete="off"
+        spellCheck={false}
+        placeholder="47.12305, 28.70734"
+        className="h-11 text-base tabular-nums md:text-base"
+        value={draft.text}
+        onValueChange={draft.changeText}
+      />
 
       <Button
         type="button"

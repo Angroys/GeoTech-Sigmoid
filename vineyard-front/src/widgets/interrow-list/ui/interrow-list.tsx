@@ -1,17 +1,17 @@
 import { useMemo, type FC } from "react";
 
 import {
+  blockOfSelection,
   INTERROW_COVER_STYLE,
   INTERROW_COVERS,
   type InterrowCover,
   type InterrowId,
   type Survey,
   type SurveySelection,
-  type VineyardId,
 } from "@/entities/survey";
-import { formatCount, formatHectares, formatWidth } from "@/shared/lib/format";
-import { useExpandedKeys, useToggleSet } from "@/shared/lib/react";
-import { CollapsibleGroup, FilterChips, LinkButton } from "@/shared/ui";
+import { formatCount, formatHectares, formatQuantity, formatWidth } from "@/shared/lib/format";
+import { useExpandableGroups, useToggleSet } from "@/shared/lib/react";
+import { CollapsibleGroup, ExpandAllToggle, FilterChips } from "@/shared/ui";
 
 import { useInterrowGroups, type InterrowGroup } from "../model/use-interrow-groups";
 import { InterrowItem } from "./interrow-item";
@@ -20,15 +20,7 @@ const describeGroup = (group: InterrowGroup) => {
   const covers = INTERROW_COVERS.filter(cover => group.coverCounts[cover] > 0)
     .map(cover => `${formatCount(group.coverCounts[cover])} ${INTERROW_COVER_STYLE[cover].label.toLowerCase()}`)
     .join(", ");
-  return `${formatCount(group.interrows.length)} inter-rows, ${formatWidth(group.averageWidthM)} wide on average, ${formatHectares(group.areaM2)}: ${covers}`;
-};
-
-const blockOfSelection = (survey: Survey, selection: SurveySelection): VineyardId | null => {
-  if (selection.kind !== "interrow") return null;
-  return (
-    survey.interrows.features.find(({ properties }) => properties.interrow_id === selection.interrowId)?.properties
-      .vineyard_id ?? null
-  );
+  return `${formatQuantity(group.interrows.length, "inter-row", "inter-rows")}, ${formatWidth(group.averageWidthM)} wide on average, ${formatHectares(group.areaM2)}: ${covers}`;
 };
 
 type InterrowListProps = {
@@ -41,12 +33,11 @@ export const InterrowList: FC<InterrowListProps> = ({ survey, selection, onSelec
   const { active: visibleCovers, toggle: toggleCover } = useToggleSet<InterrowCover>(INTERROW_COVERS);
   const { groups, coverCounts } = useInterrowGroups(survey, visibleCovers);
   const focusedBlock = useMemo(() => blockOfSelection(survey, selection), [survey, selection]);
-  const { expanded, toggle, expandAll, collapseAll } = useExpandedKeys(focusedBlock);
+  const blockIds = useMemo(() => groups.map(group => group.vineyardId), [groups]);
+  const { isExpanded, toggle, areAllExpanded, toggleAll } = useExpandableGroups(blockIds, focusedBlock);
 
   const selectedInterrowId = selection.kind === "interrow" ? selection.interrowId : null;
   const selectInterrow = (interrowId: InterrowId) => onSelect({ kind: "interrow", interrowId });
-  const areAllExpanded = groups.length > 0 && groups.every(group => expanded.has(group.vineyardId));
-  const toggleAll = () => (areAllExpanded ? collapseAll() : expandAll(groups.map(group => group.vineyardId)));
 
   const chipOptions = coverCounts.map(({ cover, count }) => {
     return { value: cover, label: INTERROW_COVER_STYLE[cover].label, count, color: INTERROW_COVER_STYLE[cover].color };
@@ -61,9 +52,7 @@ export const InterrowList: FC<InterrowListProps> = ({ survey, selection, onSelec
           active={visibleCovers}
           onToggle={toggleCover}
         />
-        {groups.length > 0 && (
-          <LinkButton onClick={toggleAll}>{areAllExpanded ? "Collapse all" : "Expand all"}</LinkButton>
-        )}
+        {groups.length > 0 && <ExpandAllToggle areAllExpanded={areAllExpanded} onToggle={toggleAll} />}
       </div>
 
       {groups.length === 0 ? (
@@ -76,7 +65,7 @@ export const InterrowList: FC<InterrowListProps> = ({ survey, selection, onSelec
                 key={group.vineyardId}
                 title={`Block ${group.vineyardId}`}
                 summary={describeGroup(group)}
-                isExpanded={expanded.has(group.vineyardId)}
+                isExpanded={isExpanded(group.vineyardId)}
                 onToggle={() => toggle(group.vineyardId)}
               >
                 <ul className="grid">

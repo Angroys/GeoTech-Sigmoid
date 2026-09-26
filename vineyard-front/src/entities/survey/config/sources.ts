@@ -12,11 +12,12 @@ export type SurveyId = z.infer<typeof surveyIdSchema>;
 export type SurveyImagery = {
   tileUrl: string;
   thumbnailUrl: string;
+  cogUrl: string | null;
   attribution: string;
   bounds: LngLatBounds;
 };
 
-export type SurveyDataLocation = { kind: "remote"; url: string } | { kind: "uploaded" };
+type SurveyDataLocation = { kind: "remote"; url: string } | { kind: "uploaded" };
 
 export type SurveySource = {
   id: SurveyId;
@@ -42,9 +43,15 @@ export const imageryFromCog = (
   return {
     tileUrl: `${TITILER}/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=${url}`,
     thumbnailUrl: `${TITILER}/bbox/${formatBbox(focus)}/640x400.jpg?url=${url}`,
+    cogUrl,
     attribution,
     bounds,
   };
+};
+
+export const imageryCropUrl = (imagery: SurveyImagery, bounds: LngLatBounds, sizePx: number): string | null => {
+  if (!imagery.cogUrl) return null;
+  return `${TITILER}/bbox/${formatBbox(bounds)}/${sizePx}x${sizePx}.jpg?url=${encodeURIComponent(imagery.cogUrl)}`;
 };
 
 export const COG_INFO_URL = (cogUrl: string) => `${TITILER}/info.geojson?url=${encodeURIComponent(cogUrl)}`;

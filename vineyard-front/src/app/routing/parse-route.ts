@@ -1,7 +1,7 @@
 import { isRole, type Role } from "@/entities/role";
 import { ADD_VINEYARD_SEGMENT } from "@/shared/config";
 
-export type AppRouteMatch =
+type AppRouteMatch =
   | { kind: "auth" }
   | { kind: "vineyards"; role: Role }
   | { kind: "add-vineyard" }

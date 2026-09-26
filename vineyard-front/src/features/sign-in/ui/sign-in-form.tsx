@@ -1,6 +1,8 @@
+import type { FC } from "react";
+
 import { ROLE_COPY, type Role } from "@/entities/role";
 import { useForm } from "@/shared/lib/form";
-import { FormField, Input, PasswordInput, StatusMessage, SubmitButton } from "@/shared/ui";
+import { PasswordField, StatusMessage, SubmitButton, TextField } from "@/shared/ui";
 
 import { signIn } from "../api/sign-in";
 import type { SignInValues } from "../model/types";
@@ -10,7 +12,7 @@ const INITIAL_VALUES: SignInValues = { email: "", password: "" };
 
 type SignInFormProps = { role: Role };
 
-export const SignInForm = ({ role }: SignInFormProps) => {
+export const SignInForm: FC<SignInFormProps> = ({ role }) => {
   const { values, errors, status, setValue, handleSubmit } = useForm({
     initialValues: INITIAL_VALUES,
     validate: validateSignIn,
@@ -20,30 +22,23 @@ export const SignInForm = ({ role }: SignInFormProps) => {
 
   return (
     <form noValidate onSubmit={handleSubmit} className="grid gap-5">
-      <FormField label={ROLE_COPY[role].emailLabel} error={errors.email}>
-        {control => (
-          <Input
-            {...control}
-            name="email"
-            type="email"
-            autoComplete="username"
-            value={values.email}
-            onChange={event => setValue("email", event.target.value)}
-          />
-        )}
-      </FormField>
-
-      <FormField label="Password" error={errors.password}>
-        {control => (
-          <PasswordInput
-            {...control}
-            name="password"
-            autoComplete="current-password"
-            value={values.password}
-            onChange={event => setValue("password", event.target.value)}
-          />
-        )}
-      </FormField>
+      <TextField
+        label={ROLE_COPY[role].emailLabel}
+        error={errors.email}
+        name="email"
+        type="email"
+        autoComplete="username"
+        value={values.email}
+        onValueChange={value => setValue("email", value)}
+      />
+      <PasswordField
+        label="Password"
+        error={errors.password}
+        name="password"
+        autoComplete="current-password"
+        value={values.password}
+        onValueChange={value => setValue("password", value)}
+      />
 
       <StatusMessage status={status} />
       <SubmitButton label="Sign in" isSubmitting={status.kind === "submitting"} />

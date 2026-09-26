@@ -1,6 +1,8 @@
+import type { FC } from "react";
+
 import { ROLE_COPY } from "@/entities/role";
 import { useForm } from "@/shared/lib/form";
-import { FormField, Input, PasswordInput, StatusMessage, SubmitButton } from "@/shared/ui";
+import { PasswordField, StatusMessage, SubmitButton, TextField } from "@/shared/ui";
 
 import { signUpOwner } from "../api/sign-up";
 import { SIGN_UP_SUCCESS } from "../config/messages";
@@ -9,7 +11,9 @@ import { FISCAL_CODE_LENGTH, MIN_PASSWORD_LENGTH, validateOwnerSignUp } from "..
 
 const INITIAL_VALUES: OwnerSignUpValues = { fullName: "", fiscalCode: "", email: "", password: "" };
 
-export const OwnerSignUpForm = () => {
+const digitsOnly = (value: string) => value.replace(/\D/g, "");
+
+export const OwnerSignUpForm: FC = () => {
   const { values, errors, status, setValue, handleSubmit } = useForm({
     initialValues: INITIAL_VALUES,
     validate: validateOwnerSignUp,
@@ -19,60 +23,43 @@ export const OwnerSignUpForm = () => {
 
   return (
     <form noValidate onSubmit={handleSubmit} className="grid gap-5">
-      <FormField label="Full name" error={errors.fullName}>
-        {control => (
-          <Input
-            {...control}
-            name="fullName"
-            autoComplete="name"
-            value={values.fullName}
-            onChange={event => setValue("fullName", event.target.value)}
-          />
-        )}
-      </FormField>
-
-      <FormField
+      <TextField
+        label="Full name"
+        error={errors.fullName}
+        name="fullName"
+        autoComplete="name"
+        value={values.fullName}
+        onValueChange={value => setValue("fullName", value)}
+      />
+      <TextField
         label="IDNO or IDNP"
         hint="The 13-digit fiscal code of your company or your personal code. We use it to find your parcels."
         error={errors.fiscalCode}
-      >
-        {control => (
-          <Input
-            {...control}
-            name="fiscalCode"
-            inputMode="numeric"
-            maxLength={FISCAL_CODE_LENGTH}
-            className="tabular-nums"
-            value={values.fiscalCode}
-            onChange={event => setValue("fiscalCode", event.target.value.replace(/\D/g, ""))}
-          />
-        )}
-      </FormField>
-
-      <FormField label={ROLE_COPY.owner.emailLabel} error={errors.email}>
-        {control => (
-          <Input
-            {...control}
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={values.email}
-            onChange={event => setValue("email", event.target.value)}
-          />
-        )}
-      </FormField>
-
-      <FormField label="Password" hint={`At least ${MIN_PASSWORD_LENGTH} characters.`} error={errors.password}>
-        {control => (
-          <PasswordInput
-            {...control}
-            name="password"
-            autoComplete="new-password"
-            value={values.password}
-            onChange={event => setValue("password", event.target.value)}
-          />
-        )}
-      </FormField>
+        name="fiscalCode"
+        inputMode="numeric"
+        maxLength={FISCAL_CODE_LENGTH}
+        className="tabular-nums"
+        value={values.fiscalCode}
+        onValueChange={value => setValue("fiscalCode", digitsOnly(value))}
+      />
+      <TextField
+        label={ROLE_COPY.owner.emailLabel}
+        error={errors.email}
+        name="email"
+        type="email"
+        autoComplete="email"
+        value={values.email}
+        onValueChange={value => setValue("email", value)}
+      />
+      <PasswordField
+        label="Password"
+        hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}
+        error={errors.password}
+        name="password"
+        autoComplete="new-password"
+        value={values.password}
+        onValueChange={value => setValue("password", value)}
+      />
 
       <StatusMessage status={status} />
       <SubmitButton label="Create account" isSubmitting={status.kind === "submitting"} />

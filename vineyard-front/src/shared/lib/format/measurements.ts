@@ -21,6 +21,9 @@ export const formatDistance = (metres: number) =>
 
 export const formatCount = (count: number) => wholeNumber.format(count);
 
+export const formatQuantity = (count: number, one: string, many: string) =>
+  `${formatCount(count)} ${count === 1 ? one : many}`;
+
 export const formatPercent = (ratio: number) => `${oneDecimal.format(ratio * 100)}%`;
 
 export const formatMinutes = (minutes: number) => {

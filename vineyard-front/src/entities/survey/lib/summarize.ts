@@ -4,6 +4,7 @@ export type BlockSummary = {
   vineyardId: VineyardId;
   rowCount: number;
   rowLengthM: number;
+  canopyCount: number;
   canopyAreaM2: number;
   interrowAreaM2: number;
 };
@@ -12,6 +13,7 @@ export type SurveySummary = {
   blockCount: number;
   rowCount: number;
   rowLengthM: number;
+  canopyCount: number;
   canopyAreaM2: number;
   interrowAreaM2: number;
   blocks: BlockSummary[];
@@ -20,7 +22,7 @@ export type SurveySummary = {
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 
 const emptyBlock = (vineyardId: VineyardId): BlockSummary => {
-  return { vineyardId, rowCount: 0, rowLengthM: 0, canopyAreaM2: 0, interrowAreaM2: 0 };
+  return { vineyardId, rowCount: 0, rowLengthM: 0, canopyCount: 0, canopyAreaM2: 0, interrowAreaM2: 0 };
 };
 
 export const summarizeSurvey = (survey: Survey): SurveySummary => {
@@ -40,8 +42,11 @@ export const summarizeSurvey = (survey: Survey): SurveySummary => {
     block.rowCount += 1;
     block.rowLengthM += properties.length_m;
   }
-  for (const { properties } of survey.canopy.features)
-    blockFor(properties.vineyard_id).canopyAreaM2 += properties.area_m2;
+  for (const { properties } of survey.canopy.features) {
+    const block = blockFor(properties.vineyard_id);
+    block.canopyCount += 1;
+    block.canopyAreaM2 += properties.area_m2;
+  }
   for (const { properties } of survey.interrows.features) {
     blockFor(properties.vineyard_id).interrowAreaM2 += properties.area_m2;
   }
@@ -51,6 +56,7 @@ export const summarizeSurvey = (survey: Survey): SurveySummary => {
     blockCount: blockList.length,
     rowCount: survey.rows.features.length,
     rowLengthM: sum(blockList.map(block => block.rowLengthM)),
+    canopyCount: survey.canopy.features.length,
     canopyAreaM2: sum(blockList.map(block => block.canopyAreaM2)),
     interrowAreaM2: sum(blockList.map(block => block.interrowAreaM2)),
     blocks: blockList,

@@ -22,12 +22,12 @@ export type RowId = z.infer<typeof rowIdSchema>;
 export type TargetId = z.infer<typeof targetIdSchema>;
 export type InterrowId = z.infer<typeof interrowIdSchema>;
 
-export type BlockProperties = z.infer<typeof blockPropertiesSchema>;
+type BlockProperties = z.infer<typeof blockPropertiesSchema>;
 export type RowProperties = z.infer<typeof rowPropertiesSchema>;
-export type CanopyProperties = z.infer<typeof canopyPropertiesSchema>;
+type CanopyProperties = z.infer<typeof canopyPropertiesSchema>;
 export type InterrowProperties = z.infer<typeof interrowPropertiesSchema> & { width_m: number };
 export type WasteProperties = z.infer<typeof wastePropertiesSchema>;
-export type InspectionPointProperties = z.infer<typeof inspectionPointPropertiesSchema>;
+type InspectionPointProperties = z.infer<typeof inspectionPointPropertiesSchema>;
 export type RouteProperties = z.infer<typeof routePropertiesSchema>;
 
 export type Survey = {
