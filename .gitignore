@@ -33,3 +33,9 @@ backend/exports/
 # Local worktrees / handoffs (orchestration)
 worktrees/
 .handoffs/
+
+# Downloaded datasets (not tracked)
+/data/
+
+# FiftyOne generated TIF previews
+.fiftyone_previews/
