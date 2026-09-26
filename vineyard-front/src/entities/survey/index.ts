@@ -32,7 +32,7 @@ export {
   walkingMinutes,
   type RouteStop,
 } from "./lib/route-stops";
-export { groupRowsByBlock, summarizeSurvey, type BlockSummary } from "./lib/summarize";
+export { groupRowsByBlock, summarizeSurvey, type SurveySummary } from "./lib/summarize";
 export {
   isServerPlanned,
   SURVEY_FILE_KEYS,

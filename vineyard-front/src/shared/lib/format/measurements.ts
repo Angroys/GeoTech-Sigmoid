@@ -1,5 +1,4 @@
 const SQUARE_METRES_PER_HECTARE = 10_000;
-const METRES_PER_KILOMETRE = 1_000;
 
 const wholeNumber = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
 const twoDecimals = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -13,11 +12,6 @@ export const formatHectares = (squareMetres: number) =>
 export const formatMetres = (metres: number) => `${wholeNumber.format(metres)} m`;
 
 export const formatWidth = (metres: number) => `${twoDecimals.format(metres)} m`;
-
-export const formatKilometres = (metres: number) => `${twoDecimals.format(metres / METRES_PER_KILOMETRE)} km`;
-
-export const formatDistance = (metres: number) =>
-  metres < METRES_PER_KILOMETRE ? formatMetres(metres) : formatKilometres(metres);
 
 export const formatCount = (count: number) => wholeNumber.format(count);
 

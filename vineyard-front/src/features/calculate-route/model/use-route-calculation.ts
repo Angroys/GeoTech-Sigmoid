@@ -12,12 +12,14 @@ type Calculation = {
   error?: string;
 };
 
+const DEMO_SURVEY_ID = "siret3";
+
+const pathModeFor = (surveyId: string): RoutePathMode =>
+  surveyId === DEMO_SURVEY_ID ? "demo_headlands" : "supplied";
+
 export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: RoutePurpose, requestedStart: Position | null) => {
   const start = requestedStart ?? survey.start.geometry.coordinates;
-  const [modeChoice, setModeChoice] = useState<{ surveyId: string; mode: RoutePathMode } | null>(null);
-  const supportsDemoPaths = surveyId === "siret3";
-  const pathMode = modeChoice?.surveyId === surveyId ? modeChoice.mode : supportsDemoPaths ? "demo_headlands" : "supplied";
-  const setPathMode = (mode: RoutePathMode) => setModeChoice({ surveyId, mode });
+  const pathMode = pathModeFor(surveyId);
   const key = JSON.stringify([surveyId, purpose, start, pathMode]);
   const [state, setState] = useState<Calculation | null>(null);
   const controller = useRef<AbortController | null>(null);
@@ -53,8 +55,6 @@ export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: R
   const effectiveSurvey = useMemo(() => {
     if (current?.result) return current.result.survey;
     if (!requestedStart && !current) return survey;
-    // A saved route must not masquerade as a result for a different start or
-    // as the result of a failed/in-progress calculation.
     return { ...survey, routes: { ...survey.routes, [purpose]: null } };
   }, [survey, purpose, requestedStart, current]);
 
@@ -71,9 +71,7 @@ export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: R
 
   return {
     survey: effectiveSurvey,
-    supportsDemoPaths,
     pathMode,
-    setPathMode,
     status: current?.status ?? "idle",
     error: current?.error,
     report: current?.result?.report,

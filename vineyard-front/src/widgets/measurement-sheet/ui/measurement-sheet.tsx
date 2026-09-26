@@ -1,6 +1,6 @@
 import { useMemo, type FC, type ReactNode } from "react";
 
-import { summarizeSurvey, type BlockSummary, type Survey } from "@/entities/survey";
+import { summarizeSurvey, type Survey, type SurveySummary } from "@/entities/survey";
 import { formatCount, formatHectares, formatMetres, formatSquareMetres } from "@/shared/lib/format";
 
 type MeasurementRowProps = {
@@ -24,12 +24,12 @@ const MeasurementRow: FC<MeasurementRowProps> = ({ label, value, detail }) => {
 type NumericCellProps = { children: ReactNode };
 
 const NumericCell: FC<NumericCellProps> = ({ children }) => {
-  return <td className="py-1.5 pl-3 text-right tabular-nums">{children}</td>;
+  return <td className="py-1.5 pl-3 text-right align-top tabular-nums">{children}</td>;
 };
 
-type BlockTableProps = { blocks: BlockSummary[] };
+type BlockTableProps = { summary: SurveySummary };
 
-const BlockTable: FC<BlockTableProps> = ({ blocks }) => {
+const BlockTable: FC<BlockTableProps> = ({ summary }) => {
   return (
     <table className="mt-4 w-full text-sm">
       <caption className="sr-only">Measurements by vineyard block</caption>
@@ -53,7 +53,7 @@ const BlockTable: FC<BlockTableProps> = ({ blocks }) => {
         </tr>
       </thead>
       <tbody>
-        {blocks.map(block => {
+        {summary.blocks.map(block => {
           return (
             <tr key={block.vineyardId} className="border-border border-b last:border-b-0">
               <th scope="row" className="py-1.5 text-left font-medium">
@@ -67,6 +67,22 @@ const BlockTable: FC<BlockTableProps> = ({ blocks }) => {
           );
         })}
       </tbody>
+      <tfoot>
+        <tr className="border-foreground/20 border-t font-semibold">
+          <th scope="row" className="py-1.5 text-left align-top">
+            Total
+          </th>
+          <NumericCell>{formatCount(summary.rowCount)}</NumericCell>
+          <NumericCell>{formatMetres(summary.rowLengthM)}</NumericCell>
+          <NumericCell>{formatCount(summary.canopyCount)}</NumericCell>
+          <NumericCell>
+            {formatHectares(summary.interrowAreaM2)}
+            <span className="text-muted-foreground block text-xs font-normal">
+              {formatSquareMetres(summary.interrowAreaM2)}
+            </span>
+          </NumericCell>
+        </tr>
+      </tfoot>
     </table>
   );
 };
@@ -80,16 +96,13 @@ export const MeasurementSheet: FC<MeasurementSheetProps> = ({ survey }) => {
     <div>
       <dl className="divide-border divide-y">
         <MeasurementRow label="Vineyard blocks" value={formatCount(summary.blockCount)} />
-        <MeasurementRow label="Rows" value={formatCount(summary.rowCount)} />
-        <MeasurementRow label="Total row length" value={formatMetres(summary.rowLengthM)} />
-        <MeasurementRow label="Vine canopies" value={formatCount(summary.canopyCount)} />
         <MeasurementRow
-          label="Inter-row area"
-          value={formatHectares(summary.interrowAreaM2)}
-          detail={formatSquareMetres(summary.interrowAreaM2)}
+          label="Canopy area"
+          value={formatHectares(summary.canopyAreaM2)}
+          detail={formatSquareMetres(summary.canopyAreaM2)}
         />
       </dl>
-      <BlockTable blocks={summary.blocks} />
+      <BlockTable summary={summary} />
     </div>
   );
 };

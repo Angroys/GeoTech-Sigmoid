@@ -71,15 +71,12 @@ const RouteTab: FC<TabContentProps> = props => {
         onClear={routeStart.clearStart}
       />
       <div className="mb-5 grid gap-3">
-        {routeCalculation.supportsDemoPaths && <label className="grid gap-1.5 text-sm">
-          <span className="font-medium">Route paths</span>
-          <select aria-label="Route paths" className="border-input bg-background rounded-md border px-2 py-2" value={routeCalculation.pathMode}
-            onChange={event => routeCalculation.setPathMode(event.target.value === "demo_headlands" ? "demo_headlands" : "supplied")}>
-            <option value="demo_headlands">Demo paths — inferred access at row ends</option>
-            <option value="supplied">Supplied passages only</option>
-          </select>
-          {routeCalculation.pathMode === "demo_headlands" && <span className="text-muted-foreground">This generated survey uses inferred access paths to connect the aisles. Demo routes are not validated for challenge submission.</span>}
-        </label>}
+        {routeCalculation.pathMode === "demo_headlands" && (
+          <p className="text-muted-foreground text-sm">
+            This demo survey connects its aisles with inferred paths at the row ends, so its routes are not validated for
+            the challenge submission.
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" disabled={routeCalculation.status === "calculating"} onClick={routeCalculation.calculate}>
             {routeCalculation.status === "calculating" ? "Calculating route…" : "Calculate route"}

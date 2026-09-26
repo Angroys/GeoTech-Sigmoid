@@ -1,7 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type FC, type ReactNode } from "react";
 
-import { formatCount, formatDistance, formatMinutes, formatQuantity } from "@/shared/lib/format";
+import { formatCount, formatMetres, formatMinutes, formatQuantity } from "@/shared/lib/format";
 
 import type { StepGroupSummary } from "../model/use-route-stepper";
 import { StepMarker, type MarkerTone } from "./step-marker";
@@ -23,7 +23,7 @@ export const StepGroup: FC<StepGroupProps> = ({ title, tone, summary, distanceLa
   }, [containsRevealed]);
 
   const stops = formatQuantity(summary.count, "stop", "stops");
-  const meta = `${stops}, ${formatDistance(summary.distanceM)} ${distanceLabel}, ${formatMinutes(summary.minutes)}`;
+  const meta = `${stops}, ${formatMetres(summary.distanceM)} ${distanceLabel}, ${formatMinutes(summary.minutes)}`;
 
   return (
     <li className="grid grid-cols-[2rem_1fr] gap-x-3">

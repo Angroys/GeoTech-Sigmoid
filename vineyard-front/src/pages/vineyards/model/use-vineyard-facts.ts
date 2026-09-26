@@ -2,12 +2,12 @@ import { useMemo } from "react";
 
 import type { Role } from "@/entities/role";
 import { summarizeSurvey, type Survey, type VineyardId } from "@/entities/survey";
-import { formatCount, formatHectares, formatKilometres } from "@/shared/lib/format";
+import { formatCount, formatHectares, formatMetres } from "@/shared/lib/format";
 
 export type VineyardFact = { label: string; value: string };
 
 const routeLength = (route: Survey["routes"][keyof Survey["routes"]]) =>
-  route ? formatKilometres(route.properties.length_m) : "Being planned";
+  route ? formatMetres(route.properties.length_m) : "Being planned";
 
 export const useVineyardFacts = (survey: Survey, role: Role) => {
   return useMemo(() => {

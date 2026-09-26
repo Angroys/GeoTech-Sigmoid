@@ -4,7 +4,7 @@ import type { TargetId } from "@/entities/survey";
 import { ReachedToggle } from "@/features/track-route-progress";
 import { cn } from "@/shared/lib/cn";
 import { useScrollIntoView } from "@/shared/lib/dom";
-import { formatDistance } from "@/shared/lib/format";
+import { formatMetres } from "@/shared/lib/format";
 
 import { describeStop } from "../lib/describe-stop";
 import type { RouteStep } from "../model/use-route-stepper";
@@ -59,7 +59,7 @@ export const CompactStep: FC<CompactStepProps> = ({
             <span className="block text-sm font-medium">{title}</span>
             <StopLocation stop={step.stop} className="text-xs" />
           </span>
-          <span className="text-muted-foreground text-xs tabular-nums">{formatDistance(step.stop.distanceM)}</span>
+          <span className="text-muted-foreground text-xs tabular-nums">{formatMetres(step.stop.distanceM)}</span>
         </summary>
         <div className="grid gap-3 px-2 pt-1 pb-3 pl-10">
           <StepFacts step={step} speedKmh={speedKmh} />

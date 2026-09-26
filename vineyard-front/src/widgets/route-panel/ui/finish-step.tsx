@@ -2,7 +2,7 @@ import { Flag } from "lucide-react";
 import type { FC } from "react";
 
 import { cn } from "@/shared/lib/cn";
-import { formatDistance, formatMinutes } from "@/shared/lib/format";
+import { formatMetres, formatMinutes } from "@/shared/lib/format";
 
 import type { StepGroupSummary } from "../model/use-route-stepper";
 import { StepMarker } from "./step-marker";
@@ -25,7 +25,7 @@ export const FinishStep: FC<FinishStepProps> = ({ isCurrent, returnLeg }) => {
           {isCurrent ? "All stops reached. Walk back to the start" : "Back to the starting point"}
         </p>
         <p className="text-muted-foreground text-xs tabular-nums">
-          {formatDistance(returnLeg.distanceM)}, {formatMinutes(returnLeg.minutes)} from the last stop
+          {formatMetres(returnLeg.distanceM)}, {formatMinutes(returnLeg.minutes)} from the last stop
         </p>
       </div>
     </li>

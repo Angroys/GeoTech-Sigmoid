@@ -1,7 +1,7 @@
 import { CircleAlert } from "lucide-react";
 import type { FC } from "react";
 
-import { formatKilometres, formatMetres, formatMinutes, formatPercent } from "@/shared/lib/format";
+import { formatMetres, formatMinutes, formatPercent } from "@/shared/lib/format";
 
 import type { RoutePlan } from "../model/use-route-plan";
 
@@ -11,7 +11,7 @@ export const RouteSummary: FC<RouteSummaryProps> = ({ plan }) => {
   return (
     <p>
       <span className="block text-[2.25rem] leading-none font-semibold tracking-[-0.03em] whitespace-nowrap tabular-nums">
-        {formatKilometres(plan.lengthM)}
+        {formatMetres(plan.lengthM)}
       </span>
       <span className="text-muted-foreground mt-1.5 block text-sm">
         About {formatMinutes(plan.minutes)} on foot at {plan.speedKmh} km/h, {plan.stops.length} stops
