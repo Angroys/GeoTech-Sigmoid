@@ -1,0 +1,57 @@
+{
+ "blocks": 82,
+ "physical_rows": 626,
+ "rows": 1792,
+ "vineyard": 18061,
+ "interrow_area": 1726,
+ "vineyard_dropped_no_row": 27,
+ "waste": 207,
+ "dead_vine": 60,
+ "parts": [
+  {
+   "part": 1,
+   "tiles": 63,
+   "first": "siret3_r005_c004",
+   "last": "siret3_r015_c008",
+   "objects": 7076,
+   "empty_tiles": 24,
+   "zip_mb": 76.8
+  },
+  {
+   "part": 2,
+   "tiles": 62,
+   "first": "siret3_r015_c009",
+   "last": "siret3_r023_c016",
+   "objects": 7284,
+   "empty_tiles": 25,
+   "zip_mb": 79.1
+  },
+  {
+   "part": 3,
+   "tiles": 62,
+   "first": "siret3_r023_c017",
+   "last": "siret3_r028_c023",
+   "objects": 1381,
+   "empty_tiles": 37,
+   "zip_mb": 72.4
+  },
+  {
+   "part": 4,
+   "tiles": 62,
+   "first": "siret3_r028_c024",
+   "last": "siret3_r032_c018",
+   "objects": 1584,
+   "empty_tiles": 32,
+   "zip_mb": 69.3
+  },
+  {
+   "part": 5,
+   "tiles": 62,
+   "first": "siret3_r032_c019",
+   "last": "siret3_r039_c023",
+   "objects": 4461,
+   "empty_tiles": 23,
+   "zip_mb": 71.4
+  }
+ ]
+}
