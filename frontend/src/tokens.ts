@@ -18,7 +18,8 @@ export interface OverlayStyle {
  */
 export function overlayKeyFor(label: Label, attr: AnnotationAttributes = {}): string {
   if (label === 'row') {
-    return attr.row_structure === 'disrupted' ? 'rowsDisrupted' : 'rows';
+    // All rows share one colour; `row_structure` is still stored/editable.
+    return 'rows';
   }
   if (label === 'interrow_area') {
     return attr.interrow_cover === 'mixed' ? 'interRowMixed' : 'interRowBareSoil';
