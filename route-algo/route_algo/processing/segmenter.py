@@ -24,7 +24,9 @@ from typing import Any, Protocol, runtime_checkable
 
 log = logging.getLogger(__name__)
 
-RUN3C_DIR = Path("/home/minimax/GeoTech-Sigmoid/data/tested-on-vm/sam3_ft/run3c")
+# Repo-relative default; scripts/start-all.sh exports SAM3_* env vars (incl. worktree fallback to the main checkout).
+REPO_ROOT = Path(__file__).resolve().parents[3]
+RUN3C_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft/run3c"
 # Baked weights are self-contained; the raw best.pth also needs SAM3_BASE_WEIGHTS (sam3.pt).
 BAKED_WEIGHTS = RUN3C_DIR / "best_effective.pth"
 RAW_WEIGHTS = RUN3C_DIR / "best.pth"
