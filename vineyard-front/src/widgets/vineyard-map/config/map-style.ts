@@ -15,8 +15,33 @@ const BACKGROUND_LAYER = {
   paint: { "background-color": OUTSIDE_SURVEY_COLOR },
 } as const;
 
-export const createBaseStyle = ({ imagery }: SurveySource): StyleSpecification => {
-  if (!imagery) return { version: 8, sources: {}, layers: [BACKGROUND_LAYER] };
+const PROCESSING_RESULTS = /^\/api\/surveys\/([a-z0-9-]+)\/results$/;
+
+/** Uploaded tiles are the survey's orthomosaic: the processing service renders them as map tiles. */
+export const uploadedImageryTileUrl = ({ data }: SurveySource, origin: string): string | null => {
+  const match = data.kind === "remote" ? PROCESSING_RESULTS.exec(data.url) : null;
+  return match ? `${origin}/api/surveys/${match[1]}/imagery/{z}/{x}/{y}.png` : null;
+};
+
+export const createBaseStyle = (source: SurveySource): StyleSpecification => {
+  const { imagery } = source;
+  if (!imagery) {
+    const tileUrl = typeof window === "undefined" ? null : uploadedImageryTileUrl(source, window.location.origin);
+    if (!tileUrl) return { version: 8, sources: {}, layers: [BACKGROUND_LAYER] };
+    return {
+      version: 8,
+      sources: {
+        imagery: {
+          type: "raster",
+          tiles: [tileUrl],
+          tileSize: 256,
+          maxzoom: IMAGERY_MAX_ZOOM,
+          attribution: `${source.name} uploaded tiles`,
+        },
+      },
+      layers: [BACKGROUND_LAYER, { id: "imagery", type: "raster", source: "imagery" }],
+    };
+  }
 
   return {
     version: 8,

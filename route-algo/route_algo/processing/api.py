@@ -73,6 +73,25 @@ def survey_result(survey_id: str, file_name: str) -> FileResponse:
     return FileResponse(service.result_path(survey_id, file_name), media_type="application/geo+json")
 
 
+@router.get("/{survey_id}/imagery.json")
+def survey_imagery(survey_id: str) -> dict[str, Any]:
+    from . import imagery
+
+    service.load(survey_id)
+    return {"bounds": imagery.lnglat_bounds(survey_id)}
+
+
+@router.get("/{survey_id}/imagery/{z}/{x}/{y}.png")
+def survey_imagery_tile(survey_id: str, z: int, x: int, y: int) -> Response:
+    from . import imagery
+
+    service.load(survey_id)
+    png = imagery.render_tile(survey_id, z, x, y)
+    if png is None:
+        return Response(status_code=204)
+    return Response(png, media_type="image/png", headers={"Cache-Control": "public, max-age=3600"})
+
+
 def _is_api(request: Request) -> bool:
     return request.url.path.startswith("/api/")
 
