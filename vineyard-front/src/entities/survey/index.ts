@@ -14,6 +14,7 @@ export {
   imageryFromCog,
   isProcessing,
   SIRET3,
+  SAM3_MOCK_ID,
   type ProcessingJob,
   type LngLatBounds,
   type SurveyId,

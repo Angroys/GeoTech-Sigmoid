@@ -1,7 +1,7 @@
 import type { RowProperties, Survey, VineyardId } from "../model/types";
 
 export type BlockSummary = {
-  vineyardId: VineyardId;
+  vineyardId: VineyardId | null;
   rowCount: number;
   rowLengthM: number;
   canopyCount: number;
@@ -21,15 +21,15 @@ export type SurveySummary = {
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 
-const emptyBlock = (vineyardId: VineyardId): BlockSummary => {
+const emptyBlock = (vineyardId: VineyardId | null): BlockSummary => {
   return { vineyardId, rowCount: 0, rowLengthM: 0, canopyCount: 0, canopyAreaM2: 0, interrowAreaM2: 0 };
 };
 
 export const summarizeSurvey = (survey: Survey): SurveySummary => {
-  const blocks = new Map(
+  const blocks = new Map<VineyardId | null, BlockSummary>(
     survey.blocks.features.map(({ properties }) => [properties.vineyard_id, emptyBlock(properties.vineyard_id)]),
   );
-  const blockFor = (vineyardId: VineyardId) => {
+  const blockFor = (vineyardId: VineyardId | null) => {
     const existing = blocks.get(vineyardId);
     if (existing) return existing;
     const created = emptyBlock(vineyardId);
@@ -51,9 +51,9 @@ export const summarizeSurvey = (survey: Survey): SurveySummary => {
     blockFor(properties.vineyard_id).interrowAreaM2 += properties.area_m2;
   }
 
-  const blockList = [...blocks.values()].sort((a, b) => a.vineyardId.localeCompare(b.vineyardId));
+  const blockList = [...blocks.values()].sort((a, b) => (a.vineyardId ?? "~").localeCompare(b.vineyardId ?? "~"));
   return {
-    blockCount: blockList.length,
+    blockCount: blockList.filter(block => block.vineyardId !== null).length,
     rowCount: survey.rows.features.length,
     rowLengthM: sum(blockList.map(block => block.rowLengthM)),
     canopyCount: survey.canopy.features.length,

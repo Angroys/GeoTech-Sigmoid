@@ -5,11 +5,10 @@ import {
   type InterrowCover,
   type InterrowProperties,
   type Survey,
-  type VineyardId,
 } from "@/entities/survey";
 
 export type InterrowGroup = {
-  vineyardId: VineyardId;
+  vineyardId: string;
   interrows: InterrowProperties[];
   areaM2: number;
   averageWidthM: number;
@@ -24,9 +23,10 @@ const countCovers = (interrows: InterrowProperties[]): Record<InterrowCover, num
 
 export const useInterrowGroups = (survey: Survey, visibleCovers: ReadonlySet<InterrowCover>) => {
   const byBlock = useMemo(() => {
-    const groups = new Map<VineyardId, InterrowProperties[]>();
+    const groups = new Map<string, InterrowProperties[]>();
     for (const { properties } of survey.interrows.features) {
-      groups.set(properties.vineyard_id, [...(groups.get(properties.vineyard_id) ?? []), properties]);
+      const key = properties.vineyard_id ?? "unassigned";
+      groups.set(key, [...(groups.get(key) ?? []), properties]);
     }
     return [...groups].sort(([a], [b]) => a.localeCompare(b));
   }, [survey]);

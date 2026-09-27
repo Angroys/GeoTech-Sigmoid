@@ -30,9 +30,9 @@ export const useVineyardFacts = (survey: Survey, role: Role) => {
             { label: "Inspection route", value: routeLength(survey.routes.inspection) },
           ];
 
-    const blocks: { vineyardId: VineyardId; rowCount: number }[] = summary.blocks.map(block => {
-      return { vineyardId: block.vineyardId, rowCount: block.rowCount };
-    });
+    const blocks: { vineyardId: VineyardId; rowCount: number }[] = summary.blocks.flatMap(block =>
+      block.vineyardId === null ? [] : [{ vineyardId: block.vineyardId, rowCount: block.rowCount }],
+    );
     return { facts: [...shared, ...byRole], blocks };
   }, [survey, role]);
 };
