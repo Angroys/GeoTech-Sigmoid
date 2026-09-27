@@ -1,9 +1,18 @@
 import type { Position } from "geojson";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { planSurveyRoute, type RoutePathMode, type RoutePurpose, type Survey } from "@/entities/survey";
+import {
+  applyRoutePlan,
+  requestRoutePlan,
+  type RoutePathMode,
+  type RoutePlanResponse,
+  type RoutePurpose,
+  type Survey,
+} from "@/entities/survey";
 
-type Result = Awaited<ReturnType<typeof planSurveyRoute>>;
+import { loadSavedPlan, savePlan } from "./saved-route-plan";
+
+type Result = ReturnType<typeof applyRoutePlan>;
 type Calculation = {
   key: string;
   inputSurvey: Survey;
@@ -17,17 +26,27 @@ const DEMO_SURVEY_ID = "siret3";
 const pathModeFor = (surveyId: string): RoutePathMode =>
   surveyId === DEMO_SURVEY_ID ? "demo_headlands" : "supplied";
 
+const finishedCalculation = (key: string, survey: Survey, purpose: RoutePurpose, plan: RoutePlanResponse): Calculation => {
+  const result = applyRoutePlan(survey, purpose, plan);
+  return { key, inputSurvey: survey, status: result.routeFile ? "ready" : "no_route", result };
+};
+
+const restoredCalculation = (key: string, survey: Survey, purpose: RoutePurpose): Calculation | null => {
+  const saved = loadSavedPlan(key);
+  return saved ? finishedCalculation(key, survey, purpose, saved) : null;
+};
+
 export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: RoutePurpose, requestedStart: Position | null) => {
   const start = requestedStart ?? survey.start.geometry.coordinates;
   const pathMode = pathModeFor(surveyId);
   const key = JSON.stringify([surveyId, purpose, start, pathMode]);
-  const [state, setState] = useState<Calculation | null>(null);
+  const [state, setState] = useState<Calculation | null>(() => restoredCalculation(key, survey, purpose));
   const controller = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    setState(null);
+    setState(restoredCalculation(key, survey, purpose));
     return () => controller.current?.abort();
-  }, [key, survey]);
+  }, [key, survey, purpose]);
 
   const calculate = async () => {
     controller.current?.abort();
@@ -35,10 +54,10 @@ export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: R
     controller.current = active;
     setState({ key, inputSurvey: survey, status: "calculating" });
     try {
-      const result = await planSurveyRoute(survey, purpose, start, surveyId, active.signal, pathMode);
-      if (!active.signal.aborted) {
-        setState({ key, inputSurvey: survey, status: result.routeFile ? "ready" : "no_route", result });
-      }
+      const plan = await requestRoutePlan(survey, purpose, start, surveyId, active.signal, pathMode);
+      if (active.signal.aborted) return;
+      savePlan(key, plan);
+      setState(finishedCalculation(key, survey, purpose, plan));
     } catch (error) {
       if (!active.signal.aborted) {
         setState({

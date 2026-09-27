@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { DEMO_PARCEL_OF_BLOCK } from "@/entities/parcel/@x/survey";
+
 export const lngLatBoundsSchema = z.tuple([z.number(), z.number(), z.number(), z.number()]);
 export type LngLatBounds = [west: number, south: number, east: number, north: number];
 
@@ -37,6 +39,7 @@ export type SurveySource = {
   imagery: SurveyImagery | null;
   data: SurveyDataLocation;
   uploadedBy: { accountId: string; fullName: string } | null;
+  parcelNumbers: readonly string[];
 };
 
 const TITILER = "https://titiler.hotosm.org/cog";
@@ -85,6 +88,7 @@ export const SIRET3: SurveySource = {
   }),
   data: { kind: "remote", url: "/data/siret3" },
   uploadedBy: null,
+  parcelNumbers: Object.values(DEMO_PARCEL_OF_BLOCK),
 };
 
 export const BUILT_IN_SOURCES: readonly SurveySource[] = [SIRET3];

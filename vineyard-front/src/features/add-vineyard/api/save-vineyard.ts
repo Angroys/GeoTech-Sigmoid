@@ -19,11 +19,12 @@ type NewVineyard = {
   values: AddVineyardValues;
   imagery: Imagery;
   session: Session;
+  parcelNumbers: readonly string[];
 };
 
 const STORAGE_REFUSED = "This browser refused to store the vineyard. Allow site data, or free some space, and try again.";
 
-const baseSource = ({ id, values, imagery, session }: NewVineyard): Omit<StoredSource, "data"> => {
+const baseSource = ({ id, values, imagery, session, parcelNumbers }: NewVineyard): Omit<StoredSource, "data"> => {
   const name = values.name.trim();
   return {
     id,
@@ -40,6 +41,7 @@ const baseSource = ({ id, values, imagery, session }: NewVineyard): Omit<StoredS
         })
       : null,
     uploadedBy: { accountId: session.accountId, fullName: session.fullName },
+    parcelNumbers: [...parcelNumbers],
   };
 };
 
