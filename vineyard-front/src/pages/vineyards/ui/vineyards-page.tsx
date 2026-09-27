@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import type { FC } from "react";
 
 import type { Role } from "@/entities/role";
@@ -85,11 +86,22 @@ export const VineyardsPage: FC<VineyardsPageProps> = ({ role }) => {
       <AppHeader role={role} />
 
       <main className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 pb-16 sm:px-8">
-        <div>
-          <h1 className="text-[2rem] leading-tight font-semibold tracking-[-0.02em]">Vineyards</h1>
-          <p className="text-muted-foreground mt-2 max-w-[60ch] text-[0.9375rem] leading-relaxed">
-            Choose a vineyard to open its map, measurements and {routeName}.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-[2rem] leading-tight font-semibold tracking-[-0.02em]">Vineyards</h1>
+            <p className="text-muted-foreground mt-2 max-w-[60ch] text-[0.9375rem] leading-relaxed">
+              Choose a vineyard to open its map, measurements and {routeName}.
+            </p>
+          </div>
+          {role === "owner" && (
+            <AppLink
+              href={ROUTES.addVineyard}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring/50 inline-flex h-11 items-center gap-2 rounded-lg px-5 text-[0.9375rem] font-semibold shadow-sm outline-none focus-visible:ring-[3px]"
+            >
+              <Plus className="size-5" aria-hidden />
+              Add survey
+            </AppLink>
+          )}
         </div>
         {role === "owner" ? <OwnerContent sources={sources} /> : <InspectorContent sources={sources} />}
       </main>
