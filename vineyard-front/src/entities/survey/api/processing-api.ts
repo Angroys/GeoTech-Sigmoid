@@ -8,10 +8,16 @@ const createdSchema = z.object({ id: z.string().min(1) });
 const statusSchema = z.object({
   status: z.enum(["uploading", "processing", "ready", "failed"]),
   message: z.string().nullable().optional(),
+  source: z.enum(["model", "fallback"]).nullable().optional().catch(null),
 });
 const errorSchema = z.object({ message: z.string() });
 
 export type ProcessingStatus = z.output<typeof statusSchema>;
+
+export const parseProcessingStatus = (body: unknown): ProcessingStatus | null => {
+  const status = statusSchema.safeParse(body);
+  return status.success ? status.data : null;
+};
 
 export type NewSurvey = { id: string; name: string; location: string; capturedOn: string; imageryUrl: string | null };
 
@@ -58,7 +64,7 @@ export const startProcessing = async (surveyId: string, signal: AbortSignal) => 
 
 export const getProcessingStatus = async (surveyId: string): Promise<ProcessingStatus> => {
   const response = await request(`/${encodeURIComponent(surveyId)}`, { method: "GET" });
-  const status = statusSchema.safeParse(await response.json());
-  if (!status.success) throw new ApiError("The processing service returned an unexpected status.");
-  return status.data;
+  const status = parseProcessingStatus(await response.json().catch(() => null));
+  if (!status) throw new ApiError("The processing service returned an unexpected status.");
+  return status;
 };

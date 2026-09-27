@@ -8,7 +8,7 @@ import { surveyFilesSchema, type SurveyFiles } from "./schema";
 const store = createObjectStore("vineyard", "uploaded-vineyards");
 const UPLOADS_CHANGE_EVENT = "vineyard:uploads-change";
 
-const uploadedSourceSchema = z.object({
+export const uploadedSourceSchema = z.object({
   id: surveyIdSchema,
   name: z.string().min(1),
   location: z.string().min(1),
@@ -26,7 +26,13 @@ const uploadedSourceSchema = z.object({
     .nullable(),
   data: z.discriminatedUnion("kind", [
     z.object({ kind: z.literal("uploaded") }),
-    z.object({ kind: z.literal("remote"), url: z.string().startsWith("/") }),
+    z.object({
+      kind: z.literal("remote"),
+      url: z.string().startsWith("/"),
+      results: z
+        .object({ origin: z.enum(["model", "fallback"]).nullable(), message: z.string().nullable() })
+        .optional(),
+    }),
     z.object({
       kind: z.literal("processing"),
       state: z.enum(["processing", "failed"]),

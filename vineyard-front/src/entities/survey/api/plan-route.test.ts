@@ -109,3 +109,23 @@ test("demo mode sends row and block inputs and preserves inference metadata in e
   expect(output.routeFile?.features[0].properties.outside_supplied_length_m).toBe(4);
   expect(output.survey.routeMap?.inferredHeadlands.features).toHaveLength(1);
 });
+
+test("a processed survey is planned from its own layers, without the Sireț3 constraints", async () => {
+  let sent: any;
+  globalThis.fetch = (async (_url, options) => {
+    sent = JSON.parse(String(options?.body));
+    return Response.json({
+      route: null,
+      map: emptyMap,
+      report: { target_count: 1, visited_count: 0, coverage_ratio: 0, outside_length_m: 0, closed: false,
+        warnings: [], targets: [{ target_id: "p1", reachable: false, approach_distance_m: 8 }] },
+    });
+  }) as typeof fetch;
+  const input = survey();
+  await planSurveyRoute(input, "inspection", input.start.geometry.coordinates, "e2e-t4", new AbortController().signal, "supplied");
+  expect(sent.constraint_set).toBeNull();
+  expect(sent.path_mode).toBe("supplied");
+  expect(sent.rows).toBeUndefined();
+  expect(sent.inspection_points.features[0].properties.point_id).toBe("p1");
+  expect(sent.start).toEqual([629504.7, 5220250.75]);
+});

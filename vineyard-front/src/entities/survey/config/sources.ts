@@ -25,7 +25,14 @@ export type ProcessingJob = {
   message: string | null;
 };
 
-type SurveyDataLocation = { kind: "remote"; url: string } | { kind: "uploaded" } | ProcessingJob;
+/** Where the processing service's results came from: the live model, or precomputed fallback labels. */
+export type ResultsOrigin = "model" | "fallback";
+export type ProcessingResults = { origin: ResultsOrigin | null; message: string | null };
+
+type SurveyDataLocation =
+  | { kind: "remote"; url: string; results?: ProcessingResults | undefined }
+  | { kind: "uploaded" }
+  | ProcessingJob;
 
 export type SurveySource = {
   id: SurveyId;
@@ -65,6 +72,9 @@ export const imageryCropUrl = (imagery: SurveyImagery, bounds: LngLatBounds, siz
 export const processingResultsUrl = (id: SurveyId) => `/api/surveys/${encodeURIComponent(id)}/results`;
 
 export const isProcessing = (source: SurveySource) => source.data.kind === "processing";
+
+export const processingResultsOf = (source: SurveySource): ProcessingResults | null =>
+  source.data.kind === "remote" ? (source.data.results ?? null) : null;
 
 export const COG_INFO_URL = (cogUrl: string) => `${TITILER}/info.geojson?url=${encodeURIComponent(cogUrl)}`;
 

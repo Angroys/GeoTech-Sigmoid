@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import type { FC } from "react";
 
 import { vineyardUrl, type Role } from "@/entities/role";
-import { describeCapture, isProcessing, type SurveySource } from "@/entities/survey";
+import { describeCapture, isProcessing, ResultsOriginNote, type SurveySource } from "@/entities/survey";
 import { AppLink } from "@/shared/ui";
 
 import { SurveyFacts } from "./survey-facts";
@@ -47,6 +47,7 @@ export const VineyardEntry: FC<VineyardEntryProps> = ({ source, role }) => {
               {source.location}. {describeCapture(source)}
             </p>
             {source.uploadedBy && <UploadNote source={source} uploadedBy={source.uploadedBy} />}
+            <ResultsOriginNote source={source} className="mt-2" />
           </header>
           <SurveyFacts source={source} role={role} />
         </div>

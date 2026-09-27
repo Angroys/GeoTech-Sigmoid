@@ -13,8 +13,11 @@ export {
   imageryCropUrl,
   imageryFromCog,
   isProcessing,
+  processingResultsOf,
   SIRET3,
   type ProcessingJob,
+  type ProcessingResults,
+  type ResultsOrigin,
   type LngLatBounds,
   type SurveyId,
   type SurveyImagery,
@@ -60,4 +63,5 @@ export { removeUploadedVineyard, saveUploadedVineyard } from "./model/uploaded-v
 export { useSurvey } from "./model/use-survey";
 export { useSurveySelection } from "./model/use-survey-selection";
 export { useSurveySource, useSurveySources } from "./model/use-survey-sources";
+export { ResultsOriginNote } from "./ui/results-origin-note";
 export { SurveyLoader } from "./ui/survey-loader";

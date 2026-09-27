@@ -27,7 +27,9 @@ export const useSurveySources = () => {
   }, []);
 
   useEffect(() => {
-    const pending = (uploaded ?? []).filter(isProcessing);
+    const pending = (uploaded ?? []).filter(
+      source => isProcessing(source) && source.data.kind === "processing" && source.data.state === "processing",
+    );
     if (pending.length === 0) return;
     void syncProcessingSources(pending);
     const timer = window.setInterval(() => void syncProcessingSources(pending), PROCESSING_POLL_MS);

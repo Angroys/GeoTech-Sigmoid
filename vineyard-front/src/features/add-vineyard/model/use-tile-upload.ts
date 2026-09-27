@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createProcessingSurvey, startProcessing, uploadTile, type SurveyId } from "@/entities/survey";
+import { ApiError } from "@/shared/api";
 
 const PARALLEL_UPLOADS = 3;
 const ATTEMPTS_PER_TILE = 2;
@@ -20,13 +21,17 @@ type UploadRequest = {
   tiles: readonly File[];
 };
 
+/** A 4xx answer (for example 422 for a tile the service rejects) will not change on retry. */
+export const isRetryable = (error: unknown) =>
+  !(error instanceof ApiError && error.status !== null && error.status >= 400 && error.status < 500);
+
 const uploadWithRetry = async (surveyId: SurveyId, tile: File, signal: AbortSignal) => {
   for (let attempt = 1; ; attempt += 1) {
     try {
       await uploadTile(surveyId, tile, signal);
       return;
     } catch (error) {
-      if (signal.aborted || attempt >= ATTEMPTS_PER_TILE) throw error;
+      if (signal.aborted || attempt >= ATTEMPTS_PER_TILE || !isRetryable(error)) throw error;
     }
   }
 };
