@@ -83,6 +83,28 @@ def resample_to_grid(
     return dst
 
 
+def crop_raster(
+    arr: npt.NDArray[np.generic],
+    transform: Affine,
+    rows: slice,
+    cols: slice,
+    margin: int = 0,
+) -> tuple[npt.NDArray[np.generic], Affine]:
+    """Crop ``arr[rows, cols]`` grown by ``margin`` px (clamped to the array) and return its affine.
+
+    Used to hand :func:`resample_to_grid` only the neighbourhood of one tile
+    instead of the whole field mosaic.
+    """
+    h, w = arr.shape[:2]
+    r0 = max(0, (rows.start or 0) - margin)
+    r1 = min(h, (rows.stop if rows.stop is not None else h) + margin)
+    c0 = max(0, (cols.start or 0) - margin)
+    c1 = min(w, (cols.stop if cols.stop is not None else w) + margin)
+    if r1 <= r0 or c1 <= c0:
+        raise ValueError("crop is empty")
+    return arr[r0:r1, c0:c1], transform @ Affine.translation(c0, r0)
+
+
 def resample_mask_to_tile(
     mask: npt.NDArray[np.generic],
     mosaic_transform: Affine,

@@ -154,6 +154,32 @@ def mask_to_graph(
     return prune_spurs(g, min_spur_px)
 
 
+def edges_to_graph(points: npt.ArrayLike, edges: npt.ArrayLike, order: Literal["rc", "xy"] = "rc") -> nx.MultiGraph:
+    """SAM-Road nodes ``(N, 2)`` + edges ``(M, 2)`` -> :class:`networkx.MultiGraph` in this module's layout.
+
+    Lets the native TopoNet graph go through :func:`prune_spurs` /
+    :func:`contract_degree2` / :func:`graph_to_lines` like the skeleton graph.
+    Duplicate undirected edges and self-loops are dropped; unused nodes are not added.
+    """
+    pts = np.asarray(points, dtype=np.float64).reshape(-1, 2)
+    if order == "xy":
+        pts = pts[:, ::-1]
+    e = np.asarray(edges, dtype=np.int64).reshape(-1, 2)
+    g = nx.MultiGraph()
+    seen: set[tuple[int, int]] = set()
+    for i, j in e.tolist():
+        key = (min(i, j), max(i, j))
+        if i == j or key in seen or np.allclose(pts[i], pts[j]):
+            continue
+        seen.add(key)
+        for n in (i, j):
+            if n not in g:
+                g.add_node(n, o=(float(pts[n, 0]), float(pts[n, 1])))
+        seg = pts[[i, j]]
+        g.add_edge(i, j, pts=seg, length=_polyline_length(seg))
+    return g
+
+
 # --------------------------------------------------------------------------- cleanup
 
 
