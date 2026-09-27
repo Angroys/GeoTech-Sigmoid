@@ -53,9 +53,18 @@ const store = async (source: StoredSource) => {
   }
 };
 
-export const saveProcessingVineyard = async (vineyard: NewVineyard, tileCount: number) => {
+const SIRET3_TILE = /^siret3_r\d{3}_c\d{3}\.tiff?$/i;
+
+/** Uploaded Sireț3 challenge tiles lie inside the published Sireț3 orthomosaic: reuse it as the map background. */
+export const imageryForTiles = (tileNames: readonly string[]) =>
+  tileNames.length > 0 && tileNames.every(name => SIRET3_TILE.test(name)) ? SIRET3.imagery : null;
+
+export const saveProcessingVineyard = async (vineyard: NewVineyard, tileNames: readonly string[]) => {
+  const tileCount = tileNames.length;
+  const source = baseSource(vineyard);
   await store({
-    ...baseSource(vineyard),
+    ...source,
+    imagery: source.imagery ?? imageryForTiles(tileNames),
     data: { kind: "processing", state: "processing", tileCount, submittedAt: new Date().toISOString(), message: null },
   });
 };
