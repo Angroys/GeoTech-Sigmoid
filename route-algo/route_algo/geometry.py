@@ -1,8 +1,8 @@
 import math
 
 import networkx as nx
-from shapely import STRtree, constrained_delaunay_triangles, get_coordinates
-from shapely.geometry import LineString, shape
+from shapely import STRtree, constrained_delaunay_triangles, get_coordinates, prepare
+from shapely.geometry import LineString, Point, shape
 from shapely.ops import unary_union
 
 from .models import FeatureCollection
@@ -69,6 +69,7 @@ class WalkingNetwork:
 
     def __init__(self, walkable):
         self.walkable = walkable
+        prepare(self.walkable)
         self.triangles = list(constrained_delaunay_triangles(walkable).geoms)
         if not self.triangles or len(self.triangles) > 100000:
             raise PlanningError("Walkable geometry is empty or too complex (limit: 100,000 triangles).")
@@ -99,7 +100,7 @@ class WalkingNetwork:
     def connect(self, a, b):
         self.graph.add_edge(a, b, weight=math.dist(self.positions[a], self.positions[b]))
 
-    def attach(self, point):
+    def attach(self, point, *, allow_boundary_nudge=False):
         containing = [int(i) for i in self.tree.query(point, predicate="intersects")]
         if not containing:
             # GEOS nearest-point projection at UTM magnitudes can land a few
@@ -109,13 +110,35 @@ class WalkingNetwork:
                           if self.triangles[int(i)].distance(point) <= 1e-7]
         if not containing:
             raise PlanningError("Could not connect an approach point to the walking network.")
-        node = len(self.positions)
-        self.add_node(node, tuple(point.coords[0]))
-        for i in containing:
-            for other in self.triangle_nodes[i]:
+        candidates = [point]
+        if allow_boundary_nudge:
+            # A nearest-point projection in UTM can round nanometres outside a
+            # sloping boundary. Move that target approach one micrometre toward
+            # a triangle interior, then validate actual edges against the
+            # ORIGINAL permitted geometry. Never move the requested start.
+            for i in containing:
+                interior = self.triangles[i].representative_point()
+                distance = point.distance(interior)
+                if distance:
+                    fraction = min(1, 1e-6 / distance)
+                    candidates.append(Point(point.x + (interior.x - point.x) * fraction,
+                                            point.y + (interior.y - point.y) * fraction))
+        for candidate in candidates:
+            if not self.walkable.covers(candidate):
+                continue
+            neighbours = {other for i in containing for other in self.triangle_nodes[i]
+                          if self.walkable.covers(LineString([candidate.coords[0], self.positions[other]]))}
+            if not neighbours:
+                continue
+            node = len(self.positions)
+            self.add_node(node, tuple(candidate.coords[0]))
+            for other in neighbours:
                 self.connect(node, other)
-            self.triangle_nodes[i].append(node)
-        return node
+            for i in containing:
+                if self.triangles[i].covers(candidate):
+                    self.triangle_nodes[i].append(node)
+            return node
+        raise PlanningError("Could not connect an approach without leaving permitted walking areas.")
 
     def reachable_area(self, start_node):
         component = nx.node_connected_component(self.graph, start_node)

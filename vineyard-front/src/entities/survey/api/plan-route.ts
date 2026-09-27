@@ -4,6 +4,7 @@ import { z } from "zod";
 import { projectToSurveyCrs, reprojectFeatureCollection, reprojectLineString } from "@/shared/lib/geo";
 
 import type { RoutePurpose } from "../config/routes";
+import { SAM3_MOCK_ID } from "../config/sources";
 import { surveyFileSchemas } from "../model/schema";
 import type { Survey } from "../model/types";
 
@@ -88,7 +89,13 @@ export const planSurveyRoute = async (
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
-    body: JSON.stringify({
+    body: JSON.stringify(surveyId === SAM3_MOCK_ID ? {
+      dataset: SAM3_MOCK_ID,
+      crs: "EPSG:32635",
+      purpose,
+      path_mode: "supplied",
+      start: projectedStart,
+    } : {
       crs: "EPSG:32635",
       purpose,
       path_mode: pathMode,

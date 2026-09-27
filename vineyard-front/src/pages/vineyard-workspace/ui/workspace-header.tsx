@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { ROLE_COPY, WORKSPACE_ROUTE, type Role } from "@/entities/role";
 import { useSession } from "@/entities/session";
-import { describeCapture, type SurveySource } from "@/entities/survey";
+import { describeCapture, SAM3_MOCK_ID, type SurveySource } from "@/entities/survey";
 import { SignOutButton } from "@/features/sign-out";
 import { navigate } from "@/shared/lib/router";
 import { LinkButton, Wordmark } from "@/shared/ui";
@@ -35,6 +35,10 @@ export const WorkspaceHeader: FC<WorkspaceHeaderProps> = ({ role, source }) => {
       </p>
       <h1 className="mt-1 text-[1.625rem] leading-tight font-semibold tracking-[-0.02em]">{source.name} survey</h1>
       <p className="text-muted-foreground mt-1.5 text-sm leading-snug">{describeCapture(source)}</p>
+      {source.id === SAM3_MOCK_ID && <p className="text-muted-foreground mt-3 text-sm">
+        All 311 tiles of SAM3 predictions. Rows are shown as tile segments; block outlines are approximate.
+        Routes visit waste detections using the supplied paths. Missing-vine inspection points are not included.
+      </p>}
     </header>
   );
 };

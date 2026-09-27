@@ -132,6 +132,12 @@ def plan_route(request: PlanRequest):
         approach = nearest_points(point, reachable)[1]
         distance = point.distance(approach)
         accessible = distance <= VISIT_RADIUS_M
+        terminal = None
+        if accessible:
+            terminal = network.attach(approach, allow_boundary_nudge=True)
+            approach = Point(network.positions[terminal])
+            distance = point.distance(approach)
+            accessible = distance <= VISIT_RADIUS_M
         reports.append({
             "target_id": target_id,
             "reachable": accessible,
@@ -140,7 +146,7 @@ def plan_route(request: PlanRequest):
             "reason": None if accessible else "No approach within 2 m in the start's connected walking area.",
         })
         if accessible:
-            terminals.append(network.attach(approach))
+            terminals.append(terminal)
             reachable_targets.append((target_id, point))
 
     matrix = []

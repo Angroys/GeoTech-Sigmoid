@@ -87,4 +87,13 @@ export const SIRET3: SurveySource = {
   uploadedBy: null,
 };
 
-export const BUILT_IN_SOURCES: readonly SurveySource[] = [SIRET3];
+export const SAM3_MOCK_ID = "siret3-sam3c";
+
+export const SIRET3_SAM3C: SurveySource = {
+  ...SIRET3,
+  id: surveyIdSchema.parse(SAM3_MOCK_ID),
+  name: "Sireț3 SAM3 mock — full map",
+  data: { kind: "remote", url: `/data/${SAM3_MOCK_ID}` },
+};
+
+export const BUILT_IN_SOURCES: readonly SurveySource[] = [SIRET3, SIRET3_SAM3C];
