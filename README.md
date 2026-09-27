@@ -103,3 +103,19 @@ python -c "import fiftyone as fo; s=fo.launch_app(fo.load_dataset('geotech')); s
 ```
 
 The notebook `scripts/build_fiftyone.ipynb` wraps the same steps and launches the app inline.
+
+## Submission files (`route.geojson`, `measurements.csv`)
+
+Both root files are generated from the per-tile SAM 3 annotations (run5 labels, waste boxes from run3c) and the organizer route assets:
+
+```bash
+uv run --project route-algo python scripts/make_submission.py \
+  --labels data/tested-on-vm/sam3_ft/run5/labels \
+  --waste-labels data/tested-on-vm/sam3_ft/run3c/labels \
+  --route-assets data/marcaj-data/assets_for_participants/02_route \
+  --clearance 0
+```
+
+- `measurements.csv` — one `total` line, one `block` line per `vineyard_id` and one `row` line per `row_id`: row counts and lengths (m), canopy area from the union of canopy polygons and inter-row area without canopy overlap (m² and ha), EPSG:32635, horizontal.
+- `route.geojson` — one closed `LineString` (EPSG:32635) from the supplied start, with `length_m`. Targets (`route_targets.geojson`) are waste boxes plus visible row gaps ≥ 1.5 m (max 200); the route uses only inter-row areas and supplied passages (0 m outside) and visits every target reachable from the start's connected walking area. Coverage of the hidden reference targets is unknown.
+- Runtime: ~80 s on CPU (the machine's RTX 5080 is not needed for this step).
