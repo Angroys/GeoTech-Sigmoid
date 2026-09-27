@@ -33,3 +33,6 @@ worktrees/
 assets_for_participants-*/
 .pytest_cache/
 *.egg-info/
+
+# Local processing API storage (uploads, job results)
+.processing-data/
