@@ -13,15 +13,17 @@ installing uv / bun and project dependencies on first run.
 Model mode is on when an NVIDIA GPU is detected (nvidia-smi -L succeeds):
 the backend is synced with the optional `model` extra (torch cu128 + sam3,
 several GB on the first run) and processes uploaded tiles with the newest
-fine-tuned SAM 3 run present (run5, else run3c). Without a GPU, or with
---no-model / --fallback, only that run's precomputed labels are served.
+fine-tuned SAM 3 run present (run5, else run3c). Precomputed labels are never
+used unless asked for: with --no-model / --fallback (or
+PROCESSING_ALLOW_FALLBACK=1) that run's precomputed labels are served;
+otherwise a model failure makes processing fail with the reason.
 
 The web server binds $HOST (default 0.0.0.0, i.e. reachable from the LAN);
 the backend stays on 127.0.0.1 behind the web server's /api proxy.
 
 Options:
   --no-install  Skip installing uv/bun and running uv sync / bun install.
-  --no-model    Do not install or use the SAM 3 model (fallback labels only).
+  --no-model    Do not install or use the SAM 3 model (precomputed labels only).
   --fallback    Set PROCESSING_FORCE_FALLBACK=1 (serve precomputed labels
                 instead of running the SAM 3 model). Implies --no-model.
   -h, --help    Show this help.
@@ -50,8 +52,8 @@ USE_MODEL=auto
 for arg in "$@"; do
   case "$arg" in
     --no-install) INSTALL=0 ;;
-    --no-model) USE_MODEL=0 ;;
-    --fallback) export PROCESSING_FORCE_FALLBACK=1; USE_MODEL=0 ;;
+    --no-model) export PROCESSING_ALLOW_FALLBACK=1; USE_MODEL=0 ;;
+    --fallback) export PROCESSING_FORCE_FALLBACK=1 PROCESSING_ALLOW_FALLBACK=1; USE_MODEL=0 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $arg" >&2; usage >&2; exit 2 ;;
   esac
@@ -246,7 +248,7 @@ start_prefixed() {
 
 run_label() { local d; d="$(basename "$(dirname "${1:-x/unknown/x}")")"; printf '%s' "$d"; }
 if [[ $USE_MODEL -eq 1 ]]; then
-  MODE="live model (SAM 3 $(run_label "${SAM3_FT_WEIGHTS:-}"), weights: ${SAM3_FT_WEIGHTS:-missing}); falls back to precomputed labels on failure"
+  MODE="live model (SAM 3 $(run_label "${SAM3_FT_WEIGHTS:-}"), weights: ${SAM3_FT_WEIGHTS:-missing}); no fallback labels (set PROCESSING_ALLOW_FALLBACK=1 to allow)"
 else
   MODE="fallback only (precomputed $(run_label "${SAM3_FALLBACK_LABELS_DIR:-}") labels: ${SAM3_FALLBACK_LABELS_DIR:-missing})"
 fi

@@ -132,9 +132,11 @@ def _segment(tile_paths: list[Path]) -> tuple[list[dict[str, Any]], str, str]:
             for tile in tile_paths:
                 features.extend(model.segment_tile(tile))
             return features, "model", _model_note(model, len(tile_paths), time.monotonic() - started)
-        except Exception as exc:  # inference failure must degrade to fallback, not crash the job
+        except Exception as exc:  # inference failure fails the job, or degrades to fallback when allowed
             log.exception("SAM 3 inference failed")
             reason = f"live inference failed ({exc})"
+    if not seg.fallback_allowed():
+        raise ProcessingError(f"The segmentation model is unavailable: {reason}. Precomputed fallback labels are disabled.")
     try:
         return seg.fallback_features(tile_paths), "fallback", reason
     except seg.SegmenterUnavailable as exc:

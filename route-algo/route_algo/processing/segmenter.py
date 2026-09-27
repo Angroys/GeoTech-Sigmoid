@@ -93,6 +93,12 @@ def force_fallback() -> bool:
     return os.environ.get("PROCESSING_FORCE_FALLBACK", "").strip().lower() in {"1", "true", "yes"}
 
 
+def fallback_allowed() -> bool:
+    """Precomputed labels are opt-in: live inference only unless explicitly allowed or forced."""
+    allowed = os.environ.get("PROCESSING_ALLOW_FALLBACK", "").strip().lower() in {"1", "true", "yes"}
+    return allowed or force_fallback()
+
+
 def unavailable_reason() -> str:
     return _last_reason
 
