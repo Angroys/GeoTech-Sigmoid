@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC, type SyntheticEvent } from "react";
+import { useEffect, useState, type FC, type ReactNode, type SyntheticEvent } from "react";
 
 import type { TargetId } from "@/entities/survey";
 import { ReachedToggle } from "@/features/track-route-progress";
@@ -17,6 +17,7 @@ type CompactStepProps = {
   speedKmh: number;
   isSelected: boolean;
   isRevealed: boolean;
+  findings: ReactNode;
   onShow: (targetId: TargetId) => void;
   onReachedChange: (targetId: TargetId, isReached: boolean) => void;
 };
@@ -26,6 +27,7 @@ export const CompactStep: FC<CompactStepProps> = ({
   speedKmh,
   isSelected,
   isRevealed,
+  findings,
   onShow,
   onReachedChange,
 }) => {
@@ -63,6 +65,7 @@ export const CompactStep: FC<CompactStepProps> = ({
         </summary>
         <div className="grid gap-3 px-2 pt-1 pb-3 pl-10">
           <StepFacts step={step} speedKmh={speedKmh} />
+          {findings}
           <div>
             <ReachedToggle
               isReached={step.isReached}

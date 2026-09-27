@@ -120,7 +120,14 @@ const RouteTab: FC<TabContentProps> = props => {
           </>}
         </div>
       </div>
-      {survey.routes[routePurpose] && <RoutePanel {...listPropsOf(props)} purpose={routePurpose} progress={workspace.progress} />}
+      {survey.routes[routePurpose] && (
+        <RoutePanel
+          {...listPropsOf(props)}
+          purpose={routePurpose}
+          progress={workspace.progress}
+          onOpenReport={workspace.report.canReport ? workspace.report.openReport : undefined}
+        />
+      )}
     </PanelSection>
   );
 };

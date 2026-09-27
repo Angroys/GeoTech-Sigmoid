@@ -12,4 +12,6 @@ export const AGENCIES = AGENCY_VALUES.map(value => {
   return { value, label: AGENCY_LABEL[value] };
 });
 
+export const agencyLabel = (agency: Agency) => AGENCY_LABEL[agency];
+
 export const toAgency = (value: string): Agency | "" => AGENCY_VALUES.find(agency => agency === value) ?? "";

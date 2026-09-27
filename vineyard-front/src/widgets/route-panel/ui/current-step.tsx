@@ -1,5 +1,5 @@
 import { MapPin } from "lucide-react";
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 
 import type { TargetId } from "@/entities/survey";
 import { ReachedToggle } from "@/features/track-route-progress";
@@ -16,6 +16,7 @@ type CurrentStepProps = {
   totalStops: number;
   speedKmh: number;
   isSelected: boolean;
+  findings: ReactNode;
   onShow: (targetId: TargetId) => void;
   onReachedChange: (targetId: TargetId, isReached: boolean) => void;
 };
@@ -25,6 +26,7 @@ export const CurrentStep: FC<CurrentStepProps> = ({
   totalStops,
   speedKmh,
   isSelected,
+  findings,
   onShow,
   onReachedChange,
 }) => {
@@ -58,6 +60,7 @@ export const CurrentStep: FC<CurrentStepProps> = ({
           <StopLocation stop={step.stop} className="text-sm" />
         </button>
         <StepFacts step={step} speedKmh={speedKmh} showTotal={false} />
+        {findings}
         <div>
           <ReachedToggle
             isReached={step.isReached}

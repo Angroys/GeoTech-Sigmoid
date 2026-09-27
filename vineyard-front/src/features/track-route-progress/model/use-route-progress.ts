@@ -1,46 +1,72 @@
-import { useCallback, useEffect, useState } from "react";
-import { z } from "zod";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useSession } from "@/entities/session";
 import type { RoutePurpose, TargetId } from "@/entities/survey";
-import { readItem, removeItem, writeItem } from "@/shared/lib/storage";
+import { removeItem } from "@/shared/lib/storage";
 
-const storedProgressSchema = z.object({ reached: z.array(z.string()) });
+import { NOTE_MAX_LENGTH, type Finding } from "../config/findings";
+import {
+  EMPTY_RECORD,
+  loadRecords,
+  recordsStorageKey,
+  saveRecords,
+  type StopRecord,
+  type StopRecords,
+} from "./stop-records";
 
-const storageKey = (accountId: string, purpose: RoutePurpose) => `vineyard:route-progress:v1:${accountId}:${purpose}`;
-
-const loadReached = (key: string, stopIds: readonly TargetId[]): ReadonlySet<TargetId> => {
-  const stored = readItem(key, storedProgressSchema);
-  if (!stored) return new Set();
-  return new Set(stopIds.filter(stopId => stored.reached.includes(stopId)));
-};
-
-export const useRouteProgress = (purpose: RoutePurpose, stopIds: readonly TargetId[]) => {
+export const useRouteProgress = (surveyId: string, purpose: RoutePurpose, stopIds: readonly TargetId[]) => {
   const session = useSession();
-  const key = storageKey(session?.accountId ?? "guest", purpose);
-  const [reached, setReached] = useState<ReadonlySet<TargetId>>(() => loadReached(key, stopIds));
+  const accountId = session?.accountId ?? "guest";
+  const key = useMemo(() => ({ accountId, surveyId, purpose }), [accountId, surveyId, purpose]);
+  const [records, setRecords] = useState<StopRecords>(() => loadRecords(key, stopIds));
 
   useEffect(() => {
-    setReached(loadReached(key, stopIds));
+    setRecords(loadRecords(key, stopIds));
   }, [key, stopIds]);
 
-  const setStopReached = useCallback(
-    (targetId: TargetId, isReached: boolean) => {
-      const next = new Set(reached);
-      if (isReached) next.add(targetId);
-      else next.delete(targetId);
-      writeItem(key, { reached: [...next] });
-      setReached(next);
+  const updateRecord = useCallback(
+    (targetId: TargetId, change: (record: StopRecord) => StopRecord) => {
+      const next = new Map(records);
+      next.set(targetId, change(records.get(targetId) ?? EMPTY_RECORD));
+      saveRecords(key, next);
+      setRecords(next);
     },
-    [key, reached],
+    [key, records],
+  );
+
+  const setStopReached = useCallback(
+    (targetId: TargetId, isReached: boolean) =>
+      updateRecord(targetId, record => ({
+        ...record,
+        isReached,
+        reachedAt: isReached ? new Date().toISOString() : null,
+      })),
+    [updateRecord],
+  );
+
+  const setFinding = useCallback(
+    (targetId: TargetId, finding: Finding | null) => updateRecord(targetId, record => ({ ...record, finding })),
+    [updateRecord],
+  );
+
+  const setNote = useCallback(
+    (targetId: TargetId, note: string) =>
+      updateRecord(targetId, record => ({ ...record, note: note.slice(0, NOTE_MAX_LENGTH) })),
+    [updateRecord],
   );
 
   const resetProgress = useCallback(() => {
-    removeItem(key);
-    setReached(new Set());
+    removeItem(recordsStorageKey(key));
+    setRecords(new Map());
   }, [key]);
 
-  return { reached, setStopReached, resetProgress };
+  const reached = useMemo(
+    () => new Set([...records].filter(([, record]) => record.isReached).map(([targetId]) => targetId)),
+    [records],
+  );
+  const recordOf = useCallback((targetId: TargetId) => records.get(targetId) ?? EMPTY_RECORD, [records]);
+
+  return { reached, recordOf, setStopReached, setFinding, setNote, resetProgress };
 };
 
 export type RouteProgressState = ReturnType<typeof useRouteProgress>;

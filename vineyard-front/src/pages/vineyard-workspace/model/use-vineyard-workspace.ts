@@ -16,6 +16,7 @@ import { useLayerVisibility } from "@/features/toggle-map-layers";
 import { useRouteProgress } from "@/features/track-route-progress";
 
 import { WORKSPACE_CONFIG } from "../config/workspace-config";
+import { useReportView } from "./use-report-view";
 import { useWorkspaceTab } from "./use-workspace-tab";
 
 const isVineyardOnly = (selection: SurveySelection) =>
@@ -31,12 +32,13 @@ export const useVineyardWorkspace = ({ role, source, survey: originalSurvey, ini
   const survey = routeCalculation.survey;
   const selection = useSurveySelection(blockSelection(survey, initialBlockId));
   const tab = useWorkspaceTab();
+  const report = useReportView(role);
 
   const stopIds = useMemo(
     () => getRouteStops(survey, routePurpose).map(stop => stop.targetId),
     [survey, routePurpose],
   );
-  const progress = useRouteProgress(routePurpose, stopIds);
+  const progress = useRouteProgress(source.id, routePurpose, stopIds);
 
   const { selectFromMap } = selection;
   const { selectTab } = tab;
@@ -61,6 +63,7 @@ export const useVineyardWorkspace = ({ role, source, survey: originalSurvey, ini
     selectOnMap,
     routeStart,
     tab,
+    report,
     progress,
     stopCount: stopIds.length,
     isRoutePlanned,

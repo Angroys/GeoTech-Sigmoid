@@ -2,6 +2,7 @@ import type { FC } from "react";
 
 import type { RoutePurpose, Survey, SurveySelection, TargetId } from "@/entities/survey";
 import type { RouteProgressState } from "@/features/track-route-progress";
+import { LinkButton } from "@/shared/ui";
 
 import { useRevealedStop } from "../model/use-revealed-stop";
 import { useRoutePlan, type PlannedRoute } from "../model/use-route-plan";
@@ -14,6 +15,7 @@ import { RoutePlanNotes } from "./route-plan-notes";
 import { RouteProgress } from "./route-progress";
 import { RouteSavings, RouteSummary, UnreachableNotice } from "./route-summary";
 import { StepGroup } from "./step-group";
+import { StopFindings } from "./stop-findings";
 
 type RoutePanelProps = {
   survey: Survey;
@@ -21,11 +23,20 @@ type RoutePanelProps = {
   selection: SurveySelection;
   progress: RouteProgressState;
   onSelect: (selection: SurveySelection) => void;
+  onOpenReport?: (() => void) | undefined;
 };
 
 type PlannedRoutePanelProps = RoutePanelProps & { route: PlannedRoute };
 
-const PlannedRoutePanel: FC<PlannedRoutePanelProps> = ({ survey, purpose, route, selection, progress, onSelect }) => {
+const PlannedRoutePanel: FC<PlannedRoutePanelProps> = ({
+  survey,
+  purpose,
+  route,
+  selection,
+  progress,
+  onSelect,
+  onOpenReport,
+}) => {
   const plan = useRoutePlan(survey, purpose, route);
   const { reached, setStopReached, resetProgress } = progress;
   const stepper = useRouteStepper(plan, reached);
@@ -48,6 +59,7 @@ const PlannedRoutePanel: FC<PlannedRoutePanelProps> = ({ survey, purpose, route,
         speedKmh={plan.speedKmh}
         isSelected={step.stop.targetId === selectedTargetId}
         isRevealed={step.stop.targetId === revealedId}
+        findings={<StopFindings stop={step.stop} progress={progress} />}
         onShow={showStop}
         onReachedChange={changeReached}
       />
@@ -69,6 +81,11 @@ const PlannedRoutePanel: FC<PlannedRoutePanelProps> = ({ survey, purpose, route,
           total={plan.stops.length}
           onStartOver={resetProgress}
         />
+        {onOpenReport && stepper.reachedSummary.count > 0 && !stepper.isComplete && (
+          <LinkButton onClick={onOpenReport} className="mt-2 text-xs">
+            Report so far
+          </LinkButton>
+        )}
       </div>
 
       <ol
@@ -93,6 +110,7 @@ const PlannedRoutePanel: FC<PlannedRoutePanelProps> = ({ survey, purpose, route,
             totalStops={plan.stops.length}
             speedKmh={plan.speedKmh}
             isSelected={stepper.current.stop.targetId === selectedTargetId}
+            findings={<StopFindings stop={stepper.current.stop} progress={progress} />}
             onShow={showStop}
             onReachedChange={changeReached}
           />
@@ -110,7 +128,11 @@ const PlannedRoutePanel: FC<PlannedRoutePanelProps> = ({ survey, purpose, route,
           </StepGroup>
         )}
 
-        <FinishStep isCurrent={stepper.isComplete} returnLeg={stepper.returnLeg} />
+        <FinishStep
+          isCurrent={stepper.isComplete}
+          returnLeg={stepper.returnLeg}
+          onOpenReport={onOpenReport}
+        />
       </ol>
     </div>
   );

@@ -5,6 +5,7 @@ import { SurveyLoader, useSurvey, type Survey, type SurveySource } from "@/entit
 import { MapLayersControl } from "@/features/toggle-map-layers";
 import { useLocation } from "@/shared/lib/router";
 import { WorkspaceLayout } from "@/shared/ui";
+import { InspectionReport } from "@/widgets/inspection-report";
 import { VineyardMap } from "@/widgets/vineyard-map";
 
 import { useVineyardWorkspace } from "../model/use-vineyard-workspace";
@@ -16,6 +17,20 @@ const VineyardWorkspace: FC<VineyardWorkspaceProps> = props => {
   const { role, source } = props;
   const workspace = useVineyardWorkspace(props);
   const survey = workspace.survey;
+
+  if (workspace.report.isReportOpen) {
+    return (
+      <div data-role={role}>
+        <InspectionReport
+          source={source}
+          survey={survey}
+          purpose={workspace.routePurpose}
+          progress={workspace.progress}
+          onClose={workspace.report.closeReport}
+        />
+      </div>
+    );
+  }
 
   return (
     <div data-role={role}>

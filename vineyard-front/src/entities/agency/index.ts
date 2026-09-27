@@ -1,1 +1,1 @@
-export { AGENCIES, AGENCY_VALUES, toAgency, type Agency } from "./model/agency";
+export { AGENCIES, AGENCY_VALUES, agencyLabel, toAgency, type Agency } from "./model/agency";
