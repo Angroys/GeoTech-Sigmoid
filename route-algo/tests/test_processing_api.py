@@ -344,3 +344,15 @@ def test_factory_passes_parcels_and_prefers_baked_weights(monkeypatch, tmp_path)
     assert seg.weights_path() == raw
     baked.write_bytes(b"")
     assert seg.weights_path() == baked
+
+
+def test_fallback_disabled_by_default(client, monkeypatch, good_tile):
+    monkeypatch.delenv("PROCESSING_ALLOW_FALLBACK", raising=False)
+    monkeypatch.delenv("PROCESSING_FORCE_FALLBACK", raising=False)
+    monkeypatch.setattr(seg, "get_segmenter", lambda: None)
+    survey_id = create(client)
+    client.put(f"/api/surveys/{survey_id}/tiles/{FIXTURE_TILE}", content=good_tile)
+    client.post(f"/api/surveys/{survey_id}/process")
+    status = wait_done(client, survey_id)
+    assert status["status"] == "failed" and "fallback labels are disabled" in status["message"]
+    assert "source" not in status
