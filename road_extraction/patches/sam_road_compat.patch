@@ -1,0 +1,45 @@
+GeoTech compatibility patch for htcr/sam_road @ 04b67c503f120ecff2b2dc5a2041ea6d300e306a
+Applied by road_extraction/setup_sam_road.sh via 'git apply'. Keep minimal.
+  - model.py: make 'wandb' import optional (training-only logging dependency).
+  - model.py: load the SAM ViT-B checkpoint with map_location='cpu'.
+  - inferencer.py: torch>=2.6 defaults torch.load(weights_only=True); Lightning
+    checkpoints need weights_only=False.
+
+diff --git a/inferencer.py b/inferencer.py
+index 6c3b3a1..4e5f97a 100644
+--- a/inferencer.py
++++ b/inferencer.py
+@@ -247,7 +247,7 @@ if __name__ == "__main__":
+     net = SAMRoad(config)
+ 
+     # load checkpoint
+-    checkpoint = torch.load(args.checkpoint, map_location="cpu")
++    checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=False)  # [geotech-compat] torch>=2.6 default
+     print(f'##### Loading Trained CKPT {args.checkpoint} #####')
+     net.load_state_dict(checkpoint["state_dict"], strict=True)
+     net.eval()
+diff --git a/model.py b/model.py
+index 97ab920..68d6e95 100644
+--- a/model.py
++++ b/model.py
+@@ -17,7 +17,10 @@ from sam.segment_anything.modeling.prompt_encoder import PromptEncoder
+ from sam.segment_anything.modeling.transformer import TwoWayTransformer
+ from sam.segment_anything.modeling.common import LayerNorm2d
+ 
+-import wandb
++try:  # [geotech-compat] wandb only needed for training-time image logging
++    import wandb
++except ImportError:  # pragma: no cover
++    wandb = None
+ import pprint
+ import torchvision
+ 
+@@ -365,7 +368,7 @@ class SAMRoad(pl.LightningModule):
+         if self.config.NO_SAM:
+             return
+         with open(config.SAM_CKPT_PATH, "rb") as f:
+-            ckpt_state_dict = torch.load(f)
++            ckpt_state_dict = torch.load(f, map_location="cpu")  # [geotech-compat] load on CPU
+ 
+             ## Resize pos embeddings, if needed
+             if image_size != 1024:
