@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vineyard-front",
+      "runtimeExecutable": "C:/Users/Lenovo/.bun/bin/bun.exe",
+      "runtimeArgs": ["--hot", "src/index.ts"],
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}
