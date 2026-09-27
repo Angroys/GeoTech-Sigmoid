@@ -8,8 +8,10 @@ from shapely.errors import GEOSException
 from .geometry import PlanningError
 from .models import FeatureCollection, PlanRequest
 from .planner import plan_route
+from .processing.api import install as install_processing_api
 
 app = FastAPI(title="Vineyard Route Planner", version="0.1.0")
+install_processing_api(app)
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONSTRAINTS = ROOT / "assets_for_participants-20260926T100006Z-1-001/assets_for_participants/02_route"
 
