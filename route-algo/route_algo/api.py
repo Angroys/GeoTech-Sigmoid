@@ -5,10 +5,10 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from shapely.errors import GEOSException
-from shapely.geometry import LineString, mapping, shape
-from shapely.ops import unary_union
+from shapely.geometry import LineString, Point, mapping, shape
+from shapely.ops import nearest_points, unary_union
 
-from .geometry import PlanningError
+from .geometry import PlanningError, walkable_geometry
 from .models import FeatureCollection, PlanRequest, StoredPlanRequest
 from .planner import plan_route
 from .processing.api import install as install_processing_api
@@ -135,6 +135,50 @@ def health():
     return {"status": "ok"}
 
 
+# The challenge accepts a route that starts/ends within 5 m of the supplied start.
+START_SNAP_M = float(os.environ.get("ROUTE_START_SNAP_M", 5.0))
+
+
+def plan_route_snapped(request):
+    """Plan; if the start lies just outside the walkable area, start from the nearest walkable point.
+
+    The returned route still begins and ends at the requested start: the short connector is prepended
+    and appended, and its length is reported.
+    """
+    try:
+        return plan_route(request)
+    except PlanningError as exc:
+        if not str(exc).startswith("The starting point is outside"):
+            raise
+        walkable = walkable_geometry(request)
+        start = Point(request.start)
+        distance = start.distance(walkable)
+        if distance > START_SNAP_M:
+            raise
+        nearest = nearest_points(start, walkable)[1]
+        inside = walkable.intersection(nearest.buffer(0.25)).representative_point()
+        result = plan_route(request.model_copy(update={"start": (inside.x, inside.y)}))
+        connector = start.distance(inside)
+        route = result.get("route")
+        if route:
+            feature = route["features"][0]
+            coords = [tuple(request.start), *feature["geometry"]["coordinates"], tuple(request.start)]
+            line = LineString(coords)
+            feature["geometry"] = mapping(line)
+            props = feature["properties"]
+            props["length_m"] = line.length
+            props["start"] = list(request.start)
+            props["start_connector_m"] = connector
+            props["stop_distances_m"] = [d + connector for d in props.get("stop_distances_m", [])]
+        result["report"]["closed"] = bool(route)
+        result["report"]["start_connector_m"] = connector
+        result["report"]["warnings"].append(
+            f"The start was {distance:.2f} m outside the walking areas; the route walks {connector:.2f} m "
+            "from the start to the nearest walkable point and back."
+        )
+        return result
+
+
 @app.post("/plan")
 def plan(request: PlanRequest | StoredPlanRequest):
     dataset = request.dataset if isinstance(request, StoredPlanRequest) else None
@@ -148,13 +192,13 @@ def plan(request: PlanRequest | StoredPlanRequest):
         # The full-map dataset always exceeds the triangulation limit with extensions: go straight to roads only.
         request, roads, roads_warning = with_roads(constrained, extend=not dataset)
         try:
-            result = plan_route(request)
+            result = plan_route_snapped(request)
         except PlanningError:
             if roads is None or not interrow_extend_m() or dataset:
                 raise
             # Very large surveys can exceed the triangulation limit; retry with roads only.
             request, roads, roads_warning = with_roads(constrained, extend=False)
-            result = plan_route(request)
+            result = plan_route_snapped(request)
             result["report"]["warnings"].append(
                 "Inter-row extensions made the walkable area too complex; planned with extracted roads only."
             )
