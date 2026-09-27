@@ -152,7 +152,7 @@ def load_image(path: str | None, size: int) -> np.ndarray:
         img = Image.fromarray(arr.astype(np.uint8))
     except Exception:
         img = Image.open(path).convert("RGB")
-    return np.asarray(img.resize((size, size), Image.BILINEAR), dtype=np.uint8)
+    return np.asarray(img.resize((size, size), Image.Resampling.BILINEAR), dtype=np.uint8)
 
 
 def smoke(name: str, image: str | None, device: torch.device) -> None:
