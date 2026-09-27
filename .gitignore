@@ -39,3 +39,7 @@ worktrees/
 
 # FiftyOne generated TIF previews
 .fiftyone_previews/
+
+# SAM-Road road extraction: cloned upstream code + downloaded weights (never committed)
+road_extraction/third_party/
+road_extraction/weights/

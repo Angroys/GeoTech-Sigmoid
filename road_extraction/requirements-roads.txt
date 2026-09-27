@@ -1,0 +1,30 @@
+# Python deps for SAM-Road road extraction (road_extraction/).
+# torch / torchvision are intentionally NOT listed: the GPU env already has
+# torch 2.11.0+cu128 / torchvision 0.26.0+cu128 and setup_sam_road.sh pins them
+# via a constraints file so pip can never replace them.
+
+# --- sam_road runtime (model.py, graph_extraction.py, graph_utils.py, inferencer.py)
+lightning>=2.4          # model.py: `import lightning.pytorch as pl`
+torchmetrics>=1.4       # model.py metrics (constructed in __init__)
+addict>=2.4             # utils.load_config -> addict.Dict
+PyYAML>=6.0
+rtree>=1.3              # inferencer: spatial index for graph points
+python-igraph>=0.11     # graph_utils: `import igraph`
+tcod>=16.0              # graph_extraction: A* path finder
+scikit-learn>=1.3       # graph_utils / graph_extraction
+opencv-python>=4.8
+matplotlib>=3.7
+imageio>=2.30
+numpy>=1.26
+
+# --- geo / pipeline helpers
+rasterio>=1.3
+pyproj>=3.6
+shapely>=2.0
+scikit-image>=0.22
+networkx>=3.0
+scipy>=1.11
+Pillow>=10.0
+
+# --- tests
+pytest>=8.0
