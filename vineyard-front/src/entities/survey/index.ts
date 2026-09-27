@@ -15,6 +15,7 @@ export {
   isProcessing,
   processingResultsOf,
   SIRET3,
+  SAM3_MOCK_ID,
   type ProcessingJob,
   type ProcessingResults,
   type ResultsOrigin,
@@ -25,7 +26,15 @@ export {
 } from "./config/sources";
 export { ImageryCheckError, inspectImagery } from "./api/inspect-imagery";
 export { createProcessingSurvey, startProcessing, uploadTile } from "./api/processing-api";
-export { planSurveyRoute, type RouteReport, type RoutePathMode } from "./api/plan-route";
+export {
+  applyRoutePlan,
+  EMPTY_ROUTE_MAP,
+  requestRoutePlan,
+  routePlanResponseSchema,
+  type RoutePathMode,
+  type RoutePlanResponse,
+  type RouteReport,
+} from "./api/plan-route";
 export { blockOfSelection, blockSelection } from "./lib/block-selection";
 export { createSurveyId } from "./lib/create-survey-id";
 export { describeCapture } from "./lib/describe-source";

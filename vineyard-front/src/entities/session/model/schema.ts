@@ -42,6 +42,7 @@ export const sessionSchema = z.object({
   email: z.email(),
   isDemo: z.boolean(),
   inspector: z.object({ agency: z.enum(AGENCY_VALUES), badgeNumber: z.string().min(1) }).nullable().default(null),
+  owner: z.object({ fiscalCode: z.string().regex(/^\d{13}$/) }).nullable().default(null),
   signedInAt: z.iso.datetime(),
   expiresAt: z.iso.datetime(),
 });

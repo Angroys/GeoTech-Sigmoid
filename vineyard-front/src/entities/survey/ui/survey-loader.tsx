@@ -47,7 +47,7 @@ export const SurveyLoader: FC<SurveyLoaderProps> = ({ state, children }) => {
             <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
               {state.job.state === "failed"
                 ? state.job.message
-                : `${formatQuantity(state.job.tileCount, "tile is", "tiles are")} being turned into canopies, rows, inter-rows, waste and measurements. The map opens once the results are ready.`}
+                : `${state.job.tileCount > 0 ? formatQuantity(state.job.tileCount, "tile is", "tiles are") : "The orthomosaic is"} being turned into canopies, rows, inter-rows, waste and measurements. The map opens once the results are ready.`}
             </p>
             <AppLink
               href="/"

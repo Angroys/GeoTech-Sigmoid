@@ -99,13 +99,26 @@ const PurposeAndMethods: FC<SectionProps> = ({ report }) => {
   );
 };
 
+const summaryOf = (report: InspectionReportData) => {
+  const visited = `${formatCount(report.reachedCount)} of ${formatCount(report.stops.length)} stops visited.`;
+  const totals = report.totals.map(total => `${total.label}: ${formatCount(total.count)}`).join("; ");
+  return totals ? `${visited} ${totals}.` : visited;
+};
+
 const Findings: FC<SectionProps> = ({ report }) => {
+  if (report.stops.length === 0) {
+    return (
+      <ReportSection number={6} titleRo="Lista de verificare și constatări" titleEn="Checklist and findings">
+        <p className="text-sm">
+          No route has been calculated for this vineyard yet. Go back to the route, calculate it and record the
+          findings at each stop; they appear here.
+        </p>
+      </ReportSection>
+    );
+  }
   return (
     <ReportSection number={6} titleRo="Lista de verificare și constatări" titleEn="Checklist and findings">
-      <p className="mb-3 text-sm">
-        {formatCount(report.reachedCount)} of {formatCount(report.stops.length)} stops visited.{" "}
-        {report.totals.map(total => `${total.label}: ${formatCount(total.count)}`).join("; ")}.
-      </p>
+      <p className="mb-3 text-sm">{summaryOf(report)}</p>
       <FindingsTable stops={report.stops} />
       {report.unreachable.length > 0 && (
         <p className="mt-3 text-sm">

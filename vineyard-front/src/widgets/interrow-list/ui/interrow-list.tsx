@@ -63,7 +63,7 @@ export const InterrowList: FC<InterrowListProps> = ({ survey, selection, onSelec
             return (
               <CollapsibleGroup
                 key={group.vineyardId}
-                title={`Block ${group.vineyardId}`}
+                title={group.vineyardId === "unassigned" ? "Unassigned to a block" : `Block ${group.vineyardId}`}
                 summary={describeGroup(group)}
                 isExpanded={isExpanded(group.vineyardId)}
                 onToggle={() => toggle(group.vineyardId)}

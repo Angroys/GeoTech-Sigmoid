@@ -69,7 +69,7 @@ export const TilesField: FC<TilesFieldProps> = ({ tiles }) => {
   return (
     <fieldset className="grid gap-4">
       <legend className="mb-1 text-[0.9375rem] font-semibold">
-        Image tiles <span className="text-muted-foreground font-normal">(required)</span>
+        Image tiles
       </legend>
       <p id={hintId} className="text-muted-foreground -mt-2 text-sm leading-relaxed">
         The drone survey&rsquo;s GeoTIFF tiles, unchanged and with their original names, for example

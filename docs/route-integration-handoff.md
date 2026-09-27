@@ -176,3 +176,19 @@ scripts/screenshots may help, but are not committed fixtures. Use the UI's demo
 sign-in, then `/inspector/siret3` or `/owner/siret3`, and the Route tab. Verify both
 path modes, custom/invalid starts, no stale results, map/stops, and exported CRS
 and demo metadata. Allow up to 90 seconds for a full demo calculation in tests.
+
+## Full-map SAM3 mock (27 September update)
+
+All 311 `sam3c/sam3_ft/run3c/labels` tiles are now available as a separate built-in
+survey at `/owner/siret3-sam3c` (also accessible in the inspector workspace).
+Generate the ignored local assets with
+`uv run --project route-algo python -m route_algo.sam3c` and restart the API after
+updating its code. See `route-algo/README.md` for the data contract and provenance.
+
+The browser renders all prediction layers but sends only the named dataset,
+purpose and start to `/api/routes/plan`. The API reads the geometry locally;
+the ordinary request-size limit remains unchanged. All 39 waste detections are
+targets; no missing-vine inspection points are synthesized. All routes use the
+original walking constraints with no inferred headlands. The old generated
+`siret3` survey remains available separately. Row segments get unique IDs;
+missing row/block associations remain explicitly unknown.

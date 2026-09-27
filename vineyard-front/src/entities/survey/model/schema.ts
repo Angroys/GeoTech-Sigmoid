@@ -45,15 +45,15 @@ export const rowPropertiesSchema = z.object({
 export const canopyPropertiesSchema = z.object({
   label: z.literal("vineyard"),
   vineyard_id: vineyardIdSchema,
-  row_id: rowIdSchema,
+  row_id: rowIdSchema.nullable(),
   area_m2: z.number().nonnegative(),
 });
 
 export const interrowPropertiesSchema = z.object({
   label: z.literal("interrow_area"),
-  vineyard_id: vineyardIdSchema,
+  vineyard_id: vineyardIdSchema.nullable(),
   interrow_id: interrowIdSchema,
-  row_ids: z.tuple([rowIdSchema, rowIdSchema]),
+  row_ids: z.tuple([rowIdSchema, rowIdSchema]).nullable(),
   interrow_cover: z.enum(INTERROW_COVERS),
   area_m2: z.number().nonnegative(),
 });
@@ -81,6 +81,8 @@ export const routePropertiesSchema = z
     baseline_kind: z.enum(["nearest_neighbour", "interrow_sweep"]).default("interrow_sweep"),
     path_mode: z.enum(["supplied", "demo_headlands"]).default("supplied"),
     outside_supplied_length_m: z.number().nonnegative().default(0),
+    dataset: z.string().optional(),
+    data_kind: z.literal("model_prediction_mock").optional(),
     walking_speed_kmh: z.number().positive(),
     stop_ids: z.array(targetIdSchema),
     stop_distances_m: z.array(z.number().nonnegative()),

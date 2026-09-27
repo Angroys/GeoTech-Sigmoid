@@ -52,11 +52,11 @@ export const ImageryField: FC<ImageryFieldProps> = ({ url, error, state, onChang
   return (
     <fieldset className="grid gap-4">
       <legend className="mb-1 text-[0.9375rem] font-semibold">
-        Aerial image <span className="text-muted-foreground font-normal">(optional)</span>
+        Orthomosaic link
       </legend>
       <FormField
         label="Link to the orthomosaic"
-        hint="A public Cloud Optimized GeoTIFF, such as the download link of an OpenAerialMap image. Without one, the layers are drawn on a plain background."
+        hint="A public Cloud Optimized GeoTIFF of the whole survey, such as the download link of an OpenAerialMap image. It is also shown as the map background."
         error={error}
       >
         {control => {

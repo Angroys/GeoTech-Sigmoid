@@ -42,6 +42,7 @@ const startSession = (account: Account): Session => {
     email: account.email,
     isDemo: account.isDemo,
     inspector: account.role === "inspector" ? { agency: account.agency, badgeNumber: account.badgeNumber } : null,
+    owner: account.role === "owner" ? { fiscalCode: account.fiscalCode } : null,
     signedInAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SESSION_DAYS * MS_PER_DAY).toISOString(),
   };

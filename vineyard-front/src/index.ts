@@ -19,16 +19,12 @@ const serveFile = async (filePath: string, contentType: string) => {
   return new Response(file, { headers: { "Content-Type": contentType } });
 };
 
-const PROCESSING_API_URL = process.env.PROCESSING_API_URL;
-
-const proxyToProcessing = async (req: Request) => {
-  if (!PROCESSING_API_URL) {
-    return Response.json({ message: "The tile processing service is not connected." }, { status: 503 });
-  }
+const proxyTo = (baseUrl: string | undefined, serviceName: string) => async (req: Request) => {
+  if (!baseUrl) return Response.json({ message: `The ${serviceName} service is not connected.` }, { status: 503 });
   const { pathname, search } = new URL(req.url);
   const hasBody = req.method !== "GET" && req.method !== "HEAD";
   try {
-    const response = await fetch(`${PROCESSING_API_URL}${pathname}${search}`, {
+    const response = await fetch(`${baseUrl}${pathname}${search}`, {
       method: req.method,
       headers: { "Content-Type": req.headers.get("Content-Type") ?? "application/octet-stream" },
       body: hasBody ? req.body : null,
@@ -38,9 +34,12 @@ const proxyToProcessing = async (req: Request) => {
       headers: { "Content-Type": response.headers.get("Content-Type") ?? "application/json" },
     });
   } catch {
-    return Response.json({ message: "The tile processing service did not answer. Try again later." }, { status: 502 });
+    return Response.json({ message: `The ${serviceName} service did not answer. Try again later.` }, { status: 502 });
   }
 };
+
+const proxyToProcessing = proxyTo(process.env.PROCESSING_API_URL, "tile processing");
+const proxyToCadastre = proxyTo(process.env.CADASTRE_API_URL, "cadastre");
 
 const server = serve({
   routes: {
@@ -72,6 +71,7 @@ const server = serve({
       },
     },
 
+    "/api/cadastre/*": proxyToCadastre,
     "/api/surveys": proxyToProcessing,
     "/api/surveys/*": proxyToProcessing,
 

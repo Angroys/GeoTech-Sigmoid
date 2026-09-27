@@ -36,12 +36,13 @@ export const uploadedSourceSchema = z.object({
     z.object({
       kind: z.literal("processing"),
       state: z.enum(["processing", "failed"]),
-      tileCount: z.number().int().positive(),
+      tileCount: z.number().int().nonnegative(),
       submittedAt: z.iso.datetime(),
       message: z.string().nullable(),
     }),
   ]),
   uploadedBy: z.object({ accountId: z.string().min(1), fullName: z.string().min(1) }),
+  parcelNumbers: z.array(z.string()).default([]),
 });
 
 const uploadedVineyardSchema = z.object({

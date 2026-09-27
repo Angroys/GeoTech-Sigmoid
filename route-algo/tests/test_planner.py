@@ -8,7 +8,7 @@ from shapely.affinity import rotate, translate
 from shapely.geometry import LineString, Point, box, mapping, shape
 
 from route_algo.api import app
-from route_algo.geometry import PlanningError, walkable_geometry
+from route_algo.geometry import PlanningError, WalkingNetwork, walkable_geometry
 from route_algo.models import PlanRequest
 from route_algo.planner import plan_route
 
@@ -32,6 +32,24 @@ def request(**changes):
 
 def route_of(result):
     return shape(result["route"]["features"][0]["geometry"])
+
+
+def test_utm_boundary_roundoff_is_repaired_inward_without_moving_start():
+    area = box(629000, 5220000, 629020, 5220010)
+    network = WalkingNetwork(area)
+    start = Point(629001, 5220001)
+    start_node = network.attach(start)
+    rounded_projection = Point(629010, 5220000 - 1e-9)
+    assert not area.covers(rounded_projection)
+    with pytest.raises(PlanningError):
+        network.attach(rounded_projection)  # An invalid requested start stays invalid.
+    target_node = network.attach(rounded_projection, allow_boundary_nudge=True)
+    repaired = Point(network.positions[target_node])
+    assert repaired.distance(rounded_projection) < 2e-6
+    assert network.positions[start_node] == tuple(start.coords[0])
+    assert area.covers(LineString(network.path(start_node, target_node)))
+    for neighbour in network.graph.neighbors(target_node):
+        assert area.covers(LineString([network.positions[target_node], network.positions[neighbour]]))
 
 
 def test_closed_detour_avoids_forbidden_and_canopies():

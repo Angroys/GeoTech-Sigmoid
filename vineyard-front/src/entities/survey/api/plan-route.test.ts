@@ -129,3 +129,26 @@ test("a processed survey is planned from its own layers, without the Sireț3 con
   expect(sent.inspection_points.features[0].properties.point_id).toBe("p1");
   expect(sent.start).toEqual([629504.7, 5220250.75]);
 });
+
+test("full-map SAM3 requests keep geometry on the server and preserve mock provenance", async () => {
+  let sent: any;
+  globalThis.fetch = (async (_url, options) => {
+    sent = JSON.parse(String(options?.body));
+    return Response.json({
+      route: { type: "FeatureCollection", features: [{ type: "Feature",
+        geometry: { type: "LineString", coordinates: [sent.start, [629510, 5220250], sent.start] },
+        properties: { purpose: "waste_collection", length_m: 11, baseline_length_m: 12, walking_speed_kmh: 4,
+          stop_ids: [], stop_distances_m: [], dataset: "siret3-sam3c", data_kind: "model_prediction_mock" } }] },
+      map: emptyMap,
+      report: { target_count: 0, visited_count: 0, coverage_ratio: null, outside_length_m: 0,
+        closed: true, warnings: [], targets: [] },
+    });
+  }) as typeof fetch;
+  const input = survey();
+  const output = await planSurveyRoute(input, "waste_collection", input.start.geometry.coordinates,
+    "siret3-sam3c", new AbortController().signal);
+  expect(sent).toEqual({ dataset: "siret3-sam3c", crs: "EPSG:32635", purpose: "waste_collection",
+    path_mode: "supplied", start: [629504.7, 5220250.75] });
+  expect(output.routeFile?.features[0].properties.data_kind).toBe("model_prediction_mock");
+  expect(output.routeFile?.features[0].properties.dataset).toBe("siret3-sam3c");
+});
