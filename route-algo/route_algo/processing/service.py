@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import threading
+import time
 from pathlib import Path
 from typing import Any
 
@@ -112,16 +113,25 @@ def start(survey_id: str) -> None:
     threading.Thread(target=run_job, args=(survey_id,), name=f"process-{survey_id}", daemon=True).start()
 
 
-def _segment(tile_paths: list[Path]) -> tuple[list[dict[str, Any]], str, str | None]:
-    """Return (features, source, fallback reason)."""
+def _model_note(model: seg.Segmenter, tile_count: int, seconds: float) -> str:
+    details = [d for d in (seg.device_label(model), f"{seconds:.0f} s") if d]
+    if seg.parcels_path() is not None:
+        details.append("restricted to vineyard parcels")
+    plural = "tile" if tile_count == 1 else "tiles"
+    return f"Live SAM 3 run3c inference on {tile_count} {plural} ({', '.join(details)})"
+
+
+def _segment(tile_paths: list[Path]) -> tuple[list[dict[str, Any]], str, str]:
+    """Return (features, source, message): a model note, or the fallback reason."""
     model = seg.get_segmenter()
     reason = seg.unavailable_reason()
     if model is not None:
         try:
+            started = time.monotonic()
             features: list[dict[str, Any]] = []
             for tile in tile_paths:
                 features.extend(model.segment_tile(tile))
-            return features, "model", None
+            return features, "model", _model_note(model, len(tile_paths), time.monotonic() - started)
         except Exception as exc:  # inference failure must degrade to fallback, not crash the job
             log.exception("SAM 3 inference failed")
             reason = f"live inference failed ({exc})"
@@ -134,13 +144,13 @@ def _segment(tile_paths: list[Path]) -> tuple[list[dict[str, Any]], str, str | N
 def run_job(survey_id: str) -> None:
     try:
         tile_paths = tiles(survey_id)
-        features, source, reason = _segment(tile_paths)
+        features, source, note = _segment(tile_paths)
         results = build_results(features)
         out = survey_dir(survey_id) / "results"
         out.mkdir(exist_ok=True)
         for name in RESULT_FILES:
             _write_json(out / f"{name}.geojson", feature_collection(results[name], source))
-        message = f"{FALLBACK_NOTE}: {reason}" if source == "fallback" else None
+        message = f"{FALLBACK_NOTE}: {note}" if source == "fallback" else note
         update(survey_id, status="ready", message=message, source=source)
     except ProcessingError as exc:
         update(survey_id, status="failed", message=str(exc), source=None)

@@ -149,7 +149,9 @@ def test_model_lifecycle_and_result_schema(client, monkeypatch, good_tile):
     assert client.get(f"/api/surveys/{survey_id}/results/blocks.geojson").status_code == 409
     assert client.post(f"/api/surveys/{survey_id}/process").status_code == 202
     status = wait_done(client, survey_id)
-    assert status == {"status": "ready", "source": "model"}
+    assert status["status"] == "ready" and status["source"] == "model"
+    assert status["message"].startswith("Live SAM 3 run3c inference on 1 tile (")
+    assert "fallback" not in status["message"]
     assert stub.calls == [FIXTURE_TILE]
 
     files = {}
@@ -272,3 +274,35 @@ def test_factory_uses_adapter_availability(monkeypatch):
     segmenter = seg.get_segmenter()
     assert isinstance(segmenter, FakeSam3) and str(segmenter.weights) == "/nonexistent/best.pth"
     monkeypatch.setattr(seg, "_cached", None)
+
+
+def test_factory_passes_parcels_and_prefers_baked_weights(monkeypatch, tmp_path):
+    import sys
+    import types
+
+    class FakeSam3:
+        def __init__(self, weights, parcels=None):
+            self.weights, self.parcels = weights, parcels
+
+        @classmethod
+        def available(cls):
+            return True
+
+    module = types.ModuleType("route_algo.processing.sam3_model")
+    module.Sam3Segmenter = FakeSam3
+    monkeypatch.setitem(sys.modules, "route_algo.processing.sam3_model", module)
+    monkeypatch.delenv("PROCESSING_FORCE_FALLBACK", raising=False)
+    monkeypatch.setenv("SAM3_FT_WEIGHTS", "/w/best_effective.pth")
+    monkeypatch.setenv("SAM3_PARCELS", "/p/parcels.geojson")
+    monkeypatch.setattr(seg, "_cached", None)
+    segmenter = seg.get_segmenter()
+    assert str(segmenter.parcels) == "/p/parcels.geojson"
+    monkeypatch.setattr(seg, "_cached", None)
+
+    baked, raw = tmp_path / "best_effective.pth", tmp_path / "best.pth"
+    monkeypatch.setattr(seg, "BAKED_WEIGHTS", baked)
+    monkeypatch.setattr(seg, "RAW_WEIGHTS", raw)
+    monkeypatch.delenv("SAM3_FT_WEIGHTS")
+    assert seg.weights_path() == raw
+    baked.write_bytes(b"")
+    assert seg.weights_path() == baked

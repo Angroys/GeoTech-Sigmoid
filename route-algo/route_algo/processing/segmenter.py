@@ -24,8 +24,11 @@ from typing import Any, Protocol, runtime_checkable
 
 log = logging.getLogger(__name__)
 
-DEFAULT_WEIGHTS = Path("/home/minimax/GeoTech-Sigmoid/data/tested-on-vm/sam3_ft/run3c/best.pth")
-DEFAULT_FALLBACK_LABELS = Path("/home/minimax/GeoTech-Sigmoid/data/tested-on-vm/sam3_ft/run3c/labels")
+RUN3C_DIR = Path("/home/minimax/GeoTech-Sigmoid/data/tested-on-vm/sam3_ft/run3c")
+# Baked weights are self-contained; the raw best.pth also needs SAM3_BASE_WEIGHTS (sam3.pt).
+BAKED_WEIGHTS = RUN3C_DIR / "best_effective.pth"
+RAW_WEIGHTS = RUN3C_DIR / "best.pth"
+DEFAULT_FALLBACK_LABELS = RUN3C_DIR / "labels"
 SIRET3_TILE = re.compile(r"^siret3_r\d{3}_c\d{3}$")
 SEGMENT_CLASSES = ("canopy", "waste")
 # Label names used by the precomputed run3c files -> segmenter classes.
@@ -46,8 +49,18 @@ _cached: Segmenter | None = None
 _last_reason = "not loaded"
 
 
+def default_weights() -> Path:
+    return BAKED_WEIGHTS if BAKED_WEIGHTS.is_file() else RAW_WEIGHTS
+
+
 def weights_path() -> Path:
-    return Path(os.environ.get("SAM3_FT_WEIGHTS", DEFAULT_WEIGHTS))
+    env = os.environ.get("SAM3_FT_WEIGHTS")
+    return Path(env) if env else default_weights()
+
+
+def parcels_path() -> Path | None:
+    env = os.environ.get("SAM3_PARCELS", "").strip()
+    return Path(env) if env else None
 
 
 def fallback_labels_dir() -> Path:
@@ -87,7 +100,8 @@ def get_segmenter() -> Segmenter | None:
             if not Sam3Segmenter.available():
                 _last_reason = f"SAM 3 segmenter unavailable (no CUDA/model deps, or weights missing at {weights})"
                 return None
-            segmenter = Sam3Segmenter(weights)
+            parcels = parcels_path()
+            segmenter = Sam3Segmenter(weights, parcels=parcels) if parcels else Sam3Segmenter(weights)
         except Exception as exc:  # model construction can fail on CUDA/weights in many ways
             log.exception("SAM 3 segmenter failed to initialise")
             _last_reason = f"SAM 3 segmenter failed to initialise ({exc})"
@@ -95,6 +109,18 @@ def get_segmenter() -> Segmenter | None:
         _cached = segmenter
         _last_reason = "loaded"
         return segmenter
+
+
+def device_label(model: Segmenter) -> str | None:
+    """"GPU"/"CPU" for the real adapter (which resolves its device lazily), None for other segmenters."""
+    resolve = getattr(model, "_device", None)
+    if not callable(resolve):
+        return None
+    try:
+        device = str(resolve())
+    except (RuntimeError, ImportError):  # label only; inference reports real device errors
+        return None
+    return "GPU" if device.startswith("cuda") else device.upper()
 
 
 def is_siret3_tile(tile: Path) -> bool:
