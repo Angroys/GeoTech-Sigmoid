@@ -12,26 +12,43 @@ current demo's disconnected walking areas.
 scripts/start-all.sh            # Ctrl+C stops both services
 ```
 
-The script installs `uv` and `bun` if they are missing, runs `uv sync` for
-`route-algo`, and runs `bun install` in `vineyard-front` (on the first run, or
-when `bun.lock` changes). It then starts one backend,
+The script installs `uv` and `bun` if they are missing, syncs `route-algo` with
+`uv sync --locked`, and runs `bun install` in `vineyard-front` (on the first
+run, or when `bun.lock` changes). It then starts one backend,
 `uvicorn route_algo.api:app` on `127.0.0.1:8001`, which serves `POST /plan` and
 the `/api/surveys` processing API. Once `/health` responds, it starts `bun dev`
 on `localhost:3000`, with `PROCESSING_API_URL` and `ROUTE_API_URL` both pointing
 at that backend. Output from the two services is prefixed with `[api]` and
-`[web]`. The script prints the frontend, backend and `/docs` URLs.
+`[web]`. The script prints the frontend, backend and `/docs` URLs, and the
+processing mode.
+
+**Processing mode.** If `nvidia-smi -L` finds an NVIDIA GPU, the script runs in
+model mode. It syncs the backend with the optional `model` extra
+(`uv sync --locked --extra model`: torch cu128 and sam3). The first run
+downloads several GB. Uploaded tiles are then segmented live with SAM 3 run3c.
+If inference fails, the backend serves the precomputed run3c labels instead.
+Without a GPU, or with `--no-model` or `--fallback`, the script installs only
+the base dependencies and the backend serves only the precomputed labels. The
+backend starts with `uv run --no-sync`, so a plain sync does not remove the
+model extra.
+
+Before it starts each service, the script checks that the port is free. If the
+port is in use, it exits with an error.
 
 | Flag | Effect |
 |---|---|
 | `--no-install` | Skip tool and dependency installation |
-| `--fallback` | Set `PROCESSING_FORCE_FALLBACK=1`, which serves precomputed labels instead of running the model |
+| `--no-model` | Skip the `model` extra and do not run SAM 3 |
+| `--fallback` | Set `PROCESSING_FORCE_FALLBACK=1` to always serve precomputed labels (implies `--no-model`) |
 | `--help` | Show usage |
 
 | Variable | Default |
 |---|---|
 | `BACKEND_PORT` / `FRONTEND_PORT` | `8001` / `3000` |
 | `DATA_DIR` | `./data`, else the main checkout's `data/` (for worktrees) |
-| `SAM3_FT_WEIGHTS` | `$DATA_DIR/tested-on-vm/sam3_ft/run3c/best.pth` |
+| `SAM3_FT_WEIGHTS` | `$DATA_DIR/tested-on-vm/sam3_ft/run3c/best_effective.pth`, else `best.pth` (model mode) |
+| `SAM3_BASE_WEIGHTS` | `$DATA_DIR/weights/sam3/sam3.pt` (model mode; needed with the raw `best.pth`) |
+| `SAM3_PARCELS`, `SAM3_TTA` | Not set by the script. Values you export are passed to the model |
 | `SAM3_FALLBACK_LABELS_DIR` | `$DATA_DIR/tested-on-vm/sam3_ft/run3c/labels` |
 | `PROCESSING_DATA_DIR` | `route-algo/.processing-data` (ignored by Git) |
 | `ROUTE_CONSTRAINTS_DIR` | `assets_for_participants-*/…/02_route`, else `$DATA_DIR/marcaj-data/assets_for_participants/02_route` |
