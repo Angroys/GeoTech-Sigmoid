@@ -27,8 +27,8 @@ Options:
   -h, --help    Show this help.
 
 Environment (all optional):
-  BACKEND_PORT               Backend port (default 8001)
-  FRONTEND_PORT              Frontend port (default 3000)
+  BACKEND_PORT               Backend port (default 8001; next free port up to +50 if busy)
+  FRONTEND_PORT              Frontend port (default 3000; next free port up to +50 if busy)
   HOST                       Web server bind address (default 0.0.0.0 = all interfaces;
                              use 127.0.0.1 for local-only)
   DATA_DIR                   Data root (default: <repo>/data, else main checkout's data/)
@@ -40,6 +40,8 @@ Environment (all optional):
   SAM3_FALLBACK_LABELS_DIR   Precomputed labels (default <run5 or run3c>/labels)
   PROCESSING_DATA_DIR        Upload/job storage (default route-algo/.processing-data)
   ROUTE_CONSTRAINTS_DIR      Sireț3 02_route constraints (default: organizer assets if found)
+  ROUTE_ROADS_FILE           Extracted roads added as walkable corridors for Sireț3 routes
+                             (default $DATA_DIR/road/roads_field.geojson if it exists)
 USAGE
 }
 
@@ -59,8 +61,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_PORT="${BACKEND_PORT:-8001}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 HOST="${HOST:-0.0.0.0}"
-BACKEND_URL="http://127.0.0.1:${BACKEND_PORT}"
-FRONTEND_URL="http://localhost:${FRONTEND_PORT}"
 LAN_IP="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
 
 log()  { printf '[start] %s\n' "$*"; }
@@ -71,13 +71,28 @@ die()  { printf '[start] ERROR: %s\n' "$*" >&2; exit 1; }
 port_in_use() {
   (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
 }
+# check_port NAME VAR: if the port in $VAR is busy, move $VAR to the next free
+# port (scanning up to +50) and print a notice; die only when none is free.
 check_port() {
-  if port_in_use "$2"; then
-    die "$1 port $2 is already in use (set ${1^^}_PORT to another port)"
-  fi
+  local name="$1" var="$2" port="${!2}" p
+  port_in_use "$port" || return 0
+  for ((p = port + 1; p <= port + 50; p++)); do
+    if [[ $name == frontend && $p == "${BACKEND_PORT}" ]]; then continue; fi
+    if ! port_in_use "$p"; then
+      log "NOTICE: $name port $port is in use; using $p instead (set $var to override)"
+      printf -v "$var" '%s' "$p"
+      return 0
+    fi
+  done
+  die "$name ports $port-$((port + 50)) are all in use (set $var to a free port)"
 }
-check_port backend "$BACKEND_PORT"
-check_port frontend "$FRONTEND_PORT"
+set_urls() {
+  BACKEND_URL="http://127.0.0.1:${BACKEND_PORT}"
+  FRONTEND_URL="http://localhost:${FRONTEND_PORT}"
+}
+check_port backend BACKEND_PORT
+check_port frontend FRONTEND_PORT
+set_urls
 
 # ---------------------------------------------------------------- model mode
 if [[ $USE_MODEL == auto ]]; then
@@ -173,6 +188,14 @@ shopt -u nullglob
 default_path ROUTE_CONSTRAINTS_DIR "${constraint_candidates[@]}" \
   "$REPO_DATA/marcaj-data/assets_for_participants/02_route"
 
+# Extracted field roads, walkable for Sireț3 routes (skipped by the backend if missing).
+if [[ -z "${ROUTE_ROADS_FILE:-}" && -e "$REPO_DATA/road/roads_field.geojson" ]]; then
+  export ROUTE_ROADS_FILE="$REPO_DATA/road/roads_field.geojson"
+fi
+[[ -n "${ROUTE_ROADS_FILE:-}" ]] && log "ROUTE_ROADS_FILE=$ROUTE_ROADS_FILE" \
+  || warn "no extracted roads file found; Sireț3 routes will use organizer passages + inter-rows only"
+export DATA_DIR="$REPO_DATA"
+
 export PROCESSING_DATA_DIR="${PROCESSING_DATA_DIR:-$ROOT/route-algo/.processing-data}"
 mkdir -p "$PROCESSING_DATA_DIR"
 
@@ -230,8 +253,11 @@ fi
 log "Processing mode: $MODE"
 
 # Re-check: installs can take a while and something may have grabbed a port.
-check_port backend "$BACKEND_PORT"
-check_port frontend "$FRONTEND_PORT"
+check_port backend BACKEND_PORT
+check_port frontend FRONTEND_PORT
+set_urls
+export PROCESSING_API_URL="$BACKEND_URL"
+export ROUTE_API_URL="$BACKEND_URL"
 
 log "Starting backend on $BACKEND_URL"
 # --no-sync: a plain `uv run` would re-sync and strip the optional model extra.
