@@ -26,11 +26,23 @@ log = logging.getLogger(__name__)
 
 # Repo-relative default; scripts/start-all.sh exports SAM3_* env vars (incl. worktree fallback to the main checkout).
 REPO_ROOT = Path(__file__).resolve().parents[3]
-RUN3C_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft/run3c"
+FT_ROOT = REPO_ROOT / "data/tested-on-vm/sam3_ft"
+RUN5_DIR = FT_ROOT / "run5"
+RUN3C_DIR = FT_ROOT / "run3c"
+
+
+def default_run_dir() -> Path:
+    """Newest fine-tuned run present: run5 (best), else run3c."""
+    if any((RUN5_DIR / name).is_file() for name in ("best_effective.pth", "best.pth")):
+        return RUN5_DIR
+    return RUN3C_DIR
+
+
+MODEL_DIR = default_run_dir()
 # Baked weights are self-contained; the raw best.pth also needs SAM3_BASE_WEIGHTS (sam3.pt).
-BAKED_WEIGHTS = RUN3C_DIR / "best_effective.pth"
-RAW_WEIGHTS = RUN3C_DIR / "best.pth"
-DEFAULT_FALLBACK_LABELS = RUN3C_DIR / "labels"
+BAKED_WEIGHTS = MODEL_DIR / "best_effective.pth"
+RAW_WEIGHTS = MODEL_DIR / "best.pth"
+DEFAULT_FALLBACK_LABELS = MODEL_DIR / "labels"
 SIRET3_TILE = re.compile(r"^siret3_r\d{3}_c\d{3}$")
 SEGMENT_CLASSES = ("canopy", "waste")
 # Label names used by the precomputed run3c files -> segmenter classes.
@@ -58,6 +70,14 @@ def default_weights() -> Path:
 def weights_path() -> Path:
     env = os.environ.get("SAM3_FT_WEIGHTS")
     return Path(env) if env else default_weights()
+
+
+def run_name(path: Path) -> str:
+    """Run label ("run5") for .../run5/best.pth or .../run5/labels; "fine-tuned" if unknown."""
+    for part in (path.parent.name, path.name):
+        if part.startswith("run"):
+            return part
+    return "fine-tuned"
 
 
 def parcels_path() -> Path | None:
@@ -130,7 +150,7 @@ def is_siret3_tile(tile: Path) -> bool:
 
 
 def fallback_features(tiles: list[Path]) -> list[dict[str, Any]]:
-    """Precomputed run3c labels for Sireț3 tiles, converted to segmenter features."""
+    """Precomputed run5/run3c labels for Sireț3 tiles, converted to segmenter features."""
     directory = fallback_labels_dir()
     foreign = [tile.name for tile in tiles if not is_siret3_tile(tile)]
     if foreign:

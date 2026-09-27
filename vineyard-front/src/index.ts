@@ -42,6 +42,8 @@ const proxyToProcessing = proxyTo(process.env.PROCESSING_API_URL, "tile processi
 const proxyToCadastre = proxyTo(process.env.CADASTRE_API_URL, "cadastre");
 
 const server = serve({
+  // Bind every interface by default so phones/laptops on the LAN can reach the app; HOST overrides.
+  hostname: process.env.HOST ?? "0.0.0.0",
   routes: {
     "/*": index,
 

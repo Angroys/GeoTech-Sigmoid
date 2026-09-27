@@ -1,4 +1,5 @@
 import json
+import re
 import time
 from pathlib import Path
 
@@ -38,6 +39,42 @@ def fixture_segments():
         {"type": "Feature", "geometry": f["geometry"], "properties": {"class": classes[f["properties"]["label"]]}}
         for f in data["features"] if f["properties"]["label"] in classes
     ]
+
+
+def assert_axis_aligned_box(geometry):
+    polygon = shape(geometry)
+    assert polygon.geom_type == "Polygon" and not polygon.interiors
+    assert polygon.area > 0
+    assert polygon.equals(box(*polygon.bounds))
+
+
+def test_run_name_and_run5_default(monkeypatch, tmp_path):
+    assert seg.run_name(Path("/d/sam3_ft/run5/best_effective.pth")) == "run5"
+    assert seg.run_name(Path("/d/sam3_ft/run3c/labels")) == "run3c"
+    run5, run3c = tmp_path / "run5", tmp_path / "run3c"
+    run5.mkdir()
+    monkeypatch.setattr(seg, "RUN5_DIR", run5)
+    monkeypatch.setattr(seg, "RUN3C_DIR", run3c)
+    assert seg.default_run_dir() == run3c
+    (run5 / "best.pth").write_bytes(b"")
+    assert seg.default_run_dir() == run5
+
+
+def test_waste_masks_become_axis_aligned_boxes():
+    from shapely.affinity import rotate
+    from shapely.geometry import Polygon
+
+    from route_algo.processing.postprocess import waste_boxes
+
+    x, y = ORIGIN
+    blob = rotate(box(x, y, x + 1.0, y + 0.3), 30)  # rotated mask
+    l_shape = Polygon([(x + 5, y), (x + 6, y), (x + 6, y + 0.4), (x + 5.4, y + 0.4), (x + 5.4, y + 1), (x + 5, y + 1)])
+    boxes = waste_boxes([blob, l_shape])
+    assert len(boxes) == 2
+    for rect, source in zip(boxes, (blob, l_shape)):
+        assert_axis_aligned_box(mapping(rect))
+        assert rect.covers(source.buffer(-0.01))
+        assert all(abs(a - b) < 0.011 for a, b in zip(rect.bounds, source.bounds))
 
 
 class StubSegmenter:
@@ -150,7 +187,7 @@ def test_model_lifecycle_and_result_schema(client, monkeypatch, good_tile):
     assert client.post(f"/api/surveys/{survey_id}/process").status_code == 202
     status = wait_done(client, survey_id)
     assert status["status"] == "ready" and status["source"] == "model"
-    assert status["message"].startswith("Live SAM 3 run3c inference on 1 tile (")
+    assert re.match(r"Live SAM 3 run\w+ inference on 1 tile \(", status["message"])
     assert "fallback" not in status["message"]
     assert stub.calls == [FIXTURE_TILE]
 
@@ -180,6 +217,7 @@ def test_model_lifecycle_and_result_schema(client, monkeypatch, good_tile):
     assert len(files["canopy"]) == 5 * 31 - 3
     [waste] = files["waste"]
     assert waste["properties"] == {"label": "waste", "waste_id": "W-001", "vineyard_id": "V1", "reachable": True}
+    assert_axis_aligned_box(waste["geometry"])
     [gap] = files["inspection_points"]
     assert gap["properties"]["reason"] == "row_gap" and gap["properties"]["reachable"] is True
     assert shape(gap["geometry"]).distance(shape({"type": "Point", "coordinates": [600021, 5199975]})) < 0.6
