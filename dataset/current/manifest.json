@@ -1,0 +1,2200 @@
+{
+ "exported_at": "2026-09-26T21:00:02.335872Z",
+ "crs": "EPSG:32635",
+ "mask_values": {
+  "background": 0,
+  "vineyard": 1,
+  "row": 2,
+  "interrow_area": 3,
+  "waste": 4,
+  "dead_vine": 5
+ },
+ "tiles": [
+  {
+   "tile": "siret3_r005_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:21.126783+00:00",
+   "annotations": 201
+  },
+  {
+   "tile": "siret3_r006_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:24:43.096703+00:00",
+   "annotations": 79
+  },
+  {
+   "tile": "siret3_r006_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:30:55.988782+00:00",
+   "annotations": 291
+  },
+  {
+   "tile": "siret3_r006_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:33:53.600363+00:00",
+   "annotations": 365
+  },
+  {
+   "tile": "siret3_r007_c001.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:33:06.159609+00:00",
+   "annotations": 3
+  },
+  {
+   "tile": "siret3_r007_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:38:05.413564+00:00",
+   "annotations": 258
+  },
+  {
+   "tile": "siret3_r007_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:02:05.482569+00:00",
+   "annotations": 348
+  },
+  {
+   "tile": "siret3_r007_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:12:38.060898+00:00",
+   "annotations": 394
+  },
+  {
+   "tile": "siret3_r008_c000.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:22:17.155046+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r008_c001.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:19:28.029564+00:00",
+   "annotations": 106
+  },
+  {
+   "tile": "siret3_r008_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:10.749658+00:00",
+   "annotations": 290
+  },
+  {
+   "tile": "siret3_r008_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:21:30.575634+00:00",
+   "annotations": 403
+  },
+  {
+   "tile": "siret3_r008_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:50:33.940408+00:00",
+   "annotations": 389
+  },
+  {
+   "tile": "siret3_r008_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:53:54.124725+00:00",
+   "annotations": 297
+  },
+  {
+   "tile": "siret3_r009_c000.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:00.455826+00:00",
+   "annotations": 167
+  },
+  {
+   "tile": "siret3_r009_c001.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:54:55.296399+00:00",
+   "annotations": 396
+  },
+  {
+   "tile": "siret3_r009_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:00:31.189078+00:00",
+   "annotations": 440
+  },
+  {
+   "tile": "siret3_r009_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:35.849902+00:00",
+   "annotations": 351
+  },
+  {
+   "tile": "siret3_r009_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:41:11.195814+00:00",
+   "annotations": 289
+  },
+  {
+   "tile": "siret3_r009_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:32:15.290982+00:00",
+   "annotations": 87
+  },
+  {
+   "tile": "siret3_r009_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:23:05.832252+00:00",
+   "annotations": 3
+  },
+  {
+   "tile": "siret3_r010_c000.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:02:17.595263+00:00",
+   "annotations": 96
+  },
+  {
+   "tile": "siret3_r010_c001.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:09:19.580106+00:00",
+   "annotations": 404
+  },
+  {
+   "tile": "siret3_r010_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:19:56.163329+00:00",
+   "annotations": 294
+  },
+  {
+   "tile": "siret3_r010_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:04:58.691981+00:00",
+   "annotations": 114
+  },
+  {
+   "tile": "siret3_r010_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:43:17.585093+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r010_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:49:05.370977+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r010_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:48:55.585579+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r011_c001.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:06:06.448457+00:00",
+   "annotations": 36
+  },
+  {
+   "tile": "siret3_r011_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:49:14.759448+00:00",
+   "annotations": 5
+  },
+  {
+   "tile": "siret3_r011_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:08.924736+00:00",
+   "annotations": 25
+  },
+  {
+   "tile": "siret3_r011_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:07.951103+00:00",
+   "annotations": 26
+  },
+  {
+   "tile": "siret3_r011_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:52:27.804541+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r011_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:09:32.155425+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r011_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:52:44.648432+00:00",
+   "annotations": 25
+  },
+  {
+   "tile": "siret3_r011_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:53:55.639479+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r012_c002.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:47:57.184924+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r012_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:30:05.851417+00:00",
+   "annotations": 177
+  },
+  {
+   "tile": "siret3_r012_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:47:48.167473+00:00",
+   "annotations": 202
+  },
+  {
+   "tile": "siret3_r012_c005.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:54:20.244039+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r012_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:49:14.636643+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r012_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:44:34.580199+00:00",
+   "annotations": 15
+  },
+  {
+   "tile": "siret3_r012_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:54:36.241814+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r012_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:49:22.520129+00:00",
+   "annotations": 8
+  },
+  {
+   "tile": "siret3_r013_c003.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:53:48.592461+00:00",
+   "annotations": 128
+  },
+  {
+   "tile": "siret3_r013_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:05:49.860721+00:00",
+   "annotations": 143
+  },
+  {
+   "tile": "siret3_r013_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:39:34.074298+00:00",
+   "annotations": 5
+  },
+  {
+   "tile": "siret3_r013_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:59:02.296584+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r013_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:39:19.872445+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r013_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:44:54.587954+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r013_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:21:16.290005+00:00",
+   "annotations": 241
+  },
+  {
+   "tile": "siret3_r014_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:48:38.311702+00:00",
+   "annotations": 178
+  },
+  {
+   "tile": "siret3_r014_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:40:30.804787+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r014_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:40:07.968310+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r014_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:40:00.438936+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r014_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:40:37.674582+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r014_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:09:41.348295+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r014_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:36.904096+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c004.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:39:28.979520+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:52:41.697541+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:55:23.934560+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:47.517546+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:43:05.548798+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:43:10.434781+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r015_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:01:18.299015+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r015_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:46:04.387101+00:00",
+   "annotations": 4
+  },
+  {
+   "tile": "siret3_r016_c005.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:01:45.121785+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r016_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:44:39.072043+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r016_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:53:28.506635+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r016_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:53:38.528730+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r016_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:29.887674+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r016_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:54:42.273572+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r016_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:55:37.939183+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r017_c006.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:55:27.504787+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r017_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:36:37.024564+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r017_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:53.737235+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r017_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:38:04.488999+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r017_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:00.253206+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r017_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:09.742849+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r017_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:17.403896+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r018_c007.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:49.039886+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r018_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:43:58.571295+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r018_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:52:36.149111+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r018_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:44:12.132718+00:00",
+   "annotations": 78
+  },
+  {
+   "tile": "siret3_r018_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:26:40.084227+00:00",
+   "annotations": 230
+  },
+  {
+   "tile": "siret3_r018_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:34:31.961170+00:00",
+   "annotations": 326
+  },
+  {
+   "tile": "siret3_r018_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:44:34.075413+00:00",
+   "annotations": 57
+  },
+  {
+   "tile": "siret3_r019_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:24.900780+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r019_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:40:56.232759+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r019_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:02:22.026850+00:00",
+   "annotations": 363
+  },
+  {
+   "tile": "siret3_r019_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:03:35.783366+00:00",
+   "annotations": 459
+  },
+  {
+   "tile": "siret3_r019_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:55:11.650473+00:00",
+   "annotations": 511
+  },
+  {
+   "tile": "siret3_r019_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:46:16.117769+00:00",
+   "annotations": 310
+  },
+  {
+   "tile": "siret3_r019_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:20:32.383968+00:00",
+   "annotations": 9
+  },
+  {
+   "tile": "siret3_r020_c008.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:20.944571+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r020_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:28.974028+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r020_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:43:42.061235+00:00",
+   "annotations": 87
+  },
+  {
+   "tile": "siret3_r020_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:11:59.828207+00:00",
+   "annotations": 394
+  },
+  {
+   "tile": "siret3_r020_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:46:22.639278+00:00",
+   "annotations": 443
+  },
+  {
+   "tile": "siret3_r020_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:18.182625+00:00",
+   "annotations": 450
+  },
+  {
+   "tile": "siret3_r020_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:59:10.418926+00:00",
+   "annotations": 250
+  },
+  {
+   "tile": "siret3_r020_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:57.741038+00:00",
+   "annotations": 13
+  },
+  {
+   "tile": "siret3_r021_c009.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:01:03.235342+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r021_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:24:18.637530+00:00",
+   "annotations": 4
+  },
+  {
+   "tile": "siret3_r021_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:45:04.878611+00:00",
+   "annotations": 174
+  },
+  {
+   "tile": "siret3_r021_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:23.386397+00:00",
+   "annotations": 478
+  },
+  {
+   "tile": "siret3_r021_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:37.180899+00:00",
+   "annotations": 471
+  },
+  {
+   "tile": "siret3_r021_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:06:44.762231+00:00",
+   "annotations": 358
+  },
+  {
+   "tile": "siret3_r021_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:42.941212+00:00",
+   "annotations": 41
+  },
+  {
+   "tile": "siret3_r021_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:32:44.204573+00:00",
+   "annotations": 51
+  },
+  {
+   "tile": "siret3_r022_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:35:42.868374+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r022_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:09:52.168383+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r022_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:56:44.442509+00:00",
+   "annotations": 265
+  },
+  {
+   "tile": "siret3_r022_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:46:35.547854+00:00",
+   "annotations": 418
+  },
+  {
+   "tile": "siret3_r022_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:44:59.955005+00:00",
+   "annotations": 365
+  },
+  {
+   "tile": "siret3_r022_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:48:41.366261+00:00",
+   "annotations": 71
+  },
+  {
+   "tile": "siret3_r022_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:14:26.610745+00:00",
+   "annotations": 5
+  },
+  {
+   "tile": "siret3_r022_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:58:25.625363+00:00",
+   "annotations": 2
+  },
+  {
+   "tile": "siret3_r023_c010.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:20.998075+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r023_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:35.270255+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r023_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:26.047237+00:00",
+   "annotations": 14
+  },
+  {
+   "tile": "siret3_r023_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:43.003160+00:00",
+   "annotations": 27
+  },
+  {
+   "tile": "siret3_r023_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:15:53.324293+00:00",
+   "annotations": 243
+  },
+  {
+   "tile": "siret3_r023_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:15:35.515246+00:00",
+   "annotations": 140
+  },
+  {
+   "tile": "siret3_r023_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:31:16.297250+00:00",
+   "annotations": 154
+  },
+  {
+   "tile": "siret3_r023_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:31:38.100820+00:00",
+   "annotations": 14
+  },
+  {
+   "tile": "siret3_r024_c011.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:15.065324+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r024_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:51:52.049370+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r024_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:22:49.349917+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r024_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:22:20.312891+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r024_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:24:59.132034+00:00",
+   "annotations": 13
+  },
+  {
+   "tile": "siret3_r024_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:48:30.582819+00:00",
+   "annotations": 265
+  },
+  {
+   "tile": "siret3_r024_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:48:13.749284+00:00",
+   "annotations": 66
+  },
+  {
+   "tile": "siret3_r024_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:11:56.777193+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r025_c012.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:41.885507+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r025_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:50.279754+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r025_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:39.385214+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r025_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:10:58.200707+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r025_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:02.038693+00:00",
+   "annotations": 35
+  },
+  {
+   "tile": "siret3_r025_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:07.644850+00:00",
+   "annotations": 157
+  },
+  {
+   "tile": "siret3_r025_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:12:05.130878+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r025_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:21:39.227045+00:00",
+   "annotations": 24
+  },
+  {
+   "tile": "siret3_r025_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:12:14.466700+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:12:53.622192+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:13:04.888602+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:13:38.478080+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:27:10.739106+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:29.133440+00:00",
+   "annotations": 74
+  },
+  {
+   "tile": "siret3_r026_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:18:59.048314+00:00",
+   "annotations": 105
+  },
+  {
+   "tile": "siret3_r026_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:30.794572+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:23.911830+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:00.887936+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:05.404121+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:09.165668+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:17.474321+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:12.330995+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r026_c032.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:20.693658+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c013.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:16:33.691890+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:15:58.036413+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:25:13.709558+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:19:20.592959+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:14:28.727199+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:35:11.550727+00:00",
+   "annotations": 150
+  },
+  {
+   "tile": "siret3_r027_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:48:09.964614+00:00",
+   "annotations": 75
+  },
+  {
+   "tile": "siret3_r027_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:23:25.495487+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:28.990690+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:15:57.691450+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:23:53.890480+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:35.278141+00:00",
+   "annotations": 2
+  },
+  {
+   "tile": "siret3_r027_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:31:19.974729+00:00",
+   "annotations": 7
+  },
+  {
+   "tile": "siret3_r027_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:21:47.734391+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:26:57.969460+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:14:52.863915+00:00",
+   "annotations": 2
+  },
+  {
+   "tile": "siret3_r027_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:25:04.019227+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:15:40.224562+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r027_c032.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:25:45.030281+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r027_c033.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:25:57.972164+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c014.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:26:11.156461+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:48:03.268316+00:00",
+   "annotations": 15
+  },
+  {
+   "tile": "siret3_r028_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:46.151839+00:00",
+   "annotations": 2
+  },
+  {
+   "tile": "siret3_r028_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:26:31.293745+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:43.228698+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:24:37.535183+00:00",
+   "annotations": 112
+  },
+  {
+   "tile": "siret3_r028_c020.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:50.013004+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r028_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:32:55.348144+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:01.991945+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:52.572816+00:00",
+   "annotations": 56
+  },
+  {
+   "tile": "siret3_r028_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:33.946170+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:42:17.811245+00:00",
+   "annotations": 2
+  },
+  {
+   "tile": "siret3_r028_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:27:42.093140+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:00.238369+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:32:54.893933+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:38:08.803075+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:26:07.244017+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T18:57:37.493414+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c032.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:27:32.993428+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r028_c033.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:27:06.701327+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c015.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:38:05.313057+00:00",
+   "annotations": 93
+  },
+  {
+   "tile": "siret3_r029_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:10.101434+00:00",
+   "annotations": 124
+  },
+  {
+   "tile": "siret3_r029_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:31:40.341181+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:11.428860+00:00",
+   "annotations": 11
+  },
+  {
+   "tile": "siret3_r029_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:38:55.959929+00:00",
+   "annotations": 39
+  },
+  {
+   "tile": "siret3_r029_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:35:05.943504+00:00",
+   "annotations": 31
+  },
+  {
+   "tile": "siret3_r029_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:46:43.717524+00:00",
+   "annotations": 38
+  },
+  {
+   "tile": "siret3_r029_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:17.613637+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:46.642023+00:00",
+   "annotations": 142
+  },
+  {
+   "tile": "siret3_r029_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:20.856863+00:00",
+   "annotations": 18
+  },
+  {
+   "tile": "siret3_r029_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:51.511148+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:27:18.171829+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:00.998038+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:30:35.385307+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r029_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:39.448544+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:20:02.417359+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:12.310697+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c032.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:26.679750+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r029_c033.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:17.366199+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r030_c016.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:35:45.404619+00:00",
+   "annotations": 136
+  },
+  {
+   "tile": "siret3_r030_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:35:28.281075+00:00",
+   "annotations": 73
+  },
+  {
+   "tile": "siret3_r030_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:35:30.735682+00:00",
+   "annotations": 71
+  },
+  {
+   "tile": "siret3_r030_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:35:24.732725+00:00",
+   "annotations": 55
+  },
+  {
+   "tile": "siret3_r030_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:31.850841+00:00",
+   "annotations": 55
+  },
+  {
+   "tile": "siret3_r030_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:45:29.066271+00:00",
+   "annotations": 80
+  },
+  {
+   "tile": "siret3_r030_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:01.436362+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r030_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:52.255757+00:00",
+   "annotations": 19
+  },
+  {
+   "tile": "siret3_r030_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:16.321408+00:00",
+   "annotations": 106
+  },
+  {
+   "tile": "siret3_r030_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:30:23.952357+00:00",
+   "annotations": 2
+  },
+  {
+   "tile": "siret3_r030_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:55.330689+00:00",
+   "annotations": 6
+  },
+  {
+   "tile": "siret3_r030_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:02.163696+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r030_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:04.912007+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r030_c029.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:34:13.826419+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r030_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:31:52.411014+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r030_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:40.267162+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r030_c032.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:19.442579+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c017.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:22.856166+00:00",
+   "annotations": 70
+  },
+  {
+   "tile": "siret3_r031_c018.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:59.830320+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r031_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:47.815625+00:00",
+   "annotations": 139
+  },
+  {
+   "tile": "siret3_r031_c020.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:35.649815+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r031_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:03.865085+00:00",
+   "annotations": 4
+  },
+  {
+   "tile": "siret3_r031_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:48.684001+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:54.710154+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:58.089251+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:29:56.702586+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:05.418285+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:13.663045+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:59.469079+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:06.902683+00:00",
+   "annotations": 4
+  },
+  {
+   "tile": "siret3_r031_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:10.214601+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r031_c031.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:14.928924+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c018.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:23.198939+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r032_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:38:02.306020+00:00",
+   "annotations": 22
+  },
+  {
+   "tile": "siret3_r032_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:48.122083+00:00",
+   "annotations": 54
+  },
+  {
+   "tile": "siret3_r032_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:27.579757+00:00",
+   "annotations": 161
+  },
+  {
+   "tile": "siret3_r032_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:08.927888+00:00",
+   "annotations": 114
+  },
+  {
+   "tile": "siret3_r032_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:43.351671+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:13.493753+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:41.090480+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:54.091644+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:20.681292+00:00",
+   "annotations": 8
+  },
+  {
+   "tile": "siret3_r032_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:38:20.932667+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:16.879418+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r032_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:28.591214+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c018.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:55.180679+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c019.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:24.498636+00:00",
+   "annotations": 142
+  },
+  {
+   "tile": "siret3_r033_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:26.499511+00:00",
+   "annotations": 47
+  },
+  {
+   "tile": "siret3_r033_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:25.598360+00:00",
+   "annotations": 108
+  },
+  {
+   "tile": "siret3_r033_c022.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:46:56.018355+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r033_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:13.597576+00:00",
+   "annotations": 16
+  },
+  {
+   "tile": "siret3_r033_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:17.840048+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:22.243701+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:47.585151+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:26.083452+00:00",
+   "annotations": 6
+  },
+  {
+   "tile": "siret3_r033_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:41.766042+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:30:15.049823+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r033_c030.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:30.685662+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r034_c019.tif",
+   "status": "invalid",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:03.938199+00:00",
+   "annotations": 0,
+   "labels_included": false
+  },
+  {
+   "tile": "siret3_r034_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:55.964410+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r034_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:39:49.044485+00:00",
+   "annotations": 27
+  },
+  {
+   "tile": "siret3_r034_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:38.432338+00:00",
+   "annotations": 74
+  },
+  {
+   "tile": "siret3_r034_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:43:06.087160+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r034_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:40:53.339725+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r034_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:51.847489+00:00",
+   "annotations": 65
+  },
+  {
+   "tile": "siret3_r034_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:37:59.282912+00:00",
+   "annotations": 146
+  },
+  {
+   "tile": "siret3_r034_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:44:00.930408+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r034_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:43:14.710777+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r034_c029.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:36.127036+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r035_c020.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:44:53.876995+00:00",
+   "annotations": 12
+  },
+  {
+   "tile": "siret3_r035_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:45:46.457852+00:00",
+   "annotations": 100
+  },
+  {
+   "tile": "siret3_r035_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:04.728386+00:00",
+   "annotations": 100
+  },
+  {
+   "tile": "siret3_r035_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:36:09.699517+00:00",
+   "annotations": 24
+  },
+  {
+   "tile": "siret3_r035_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:20.967142+00:00",
+   "annotations": 42
+  },
+  {
+   "tile": "siret3_r035_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:09.700792+00:00",
+   "annotations": 284
+  },
+  {
+   "tile": "siret3_r035_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:56:11.489766+00:00",
+   "annotations": 268
+  },
+  {
+   "tile": "siret3_r035_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:44:47.733475+00:00",
+   "annotations": 1
+  },
+  {
+   "tile": "siret3_r035_c028.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:05.877848+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r036_c021.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T19:11:32.805990+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r036_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:47:13.404942+00:00",
+   "annotations": 42
+  },
+  {
+   "tile": "siret3_r036_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:08.741113+00:00",
+   "annotations": 88
+  },
+  {
+   "tile": "siret3_r036_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:12.743320+00:00",
+   "annotations": 258
+  },
+  {
+   "tile": "siret3_r036_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:28:40.957427+00:00",
+   "annotations": 221
+  },
+  {
+   "tile": "siret3_r036_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:44:41.481670+00:00",
+   "annotations": 181
+  },
+  {
+   "tile": "siret3_r036_c027.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:11.014336+00:00",
+   "annotations": 0
+  },
+  {
+   "tile": "siret3_r037_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:18.803225+00:00",
+   "annotations": 54
+  },
+  {
+   "tile": "siret3_r037_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:25.813437+00:00",
+   "annotations": 253
+  },
+  {
+   "tile": "siret3_r037_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:30.639208+00:00",
+   "annotations": 232
+  },
+  {
+   "tile": "siret3_r037_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:42:34.709836+00:00",
+   "annotations": 218
+  },
+  {
+   "tile": "siret3_r037_c026.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:41:19.269781+00:00",
+   "annotations": 78
+  },
+  {
+   "tile": "siret3_r038_c022.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:50.673977+00:00",
+   "annotations": 77
+  },
+  {
+   "tile": "siret3_r038_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:43.413484+00:00",
+   "annotations": 440
+  },
+  {
+   "tile": "siret3_r038_c024.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:31:09.675923+00:00",
+   "annotations": 255
+  },
+  {
+   "tile": "siret3_r038_c025.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:24:39.195606+00:00",
+   "annotations": 63
+  },
+  {
+   "tile": "siret3_r039_c023.tif",
+   "status": "verified",
+   "updated_by": null,
+   "updated_at": "2026-09-26T20:33:39.460590+00:00",
+   "annotations": 74
+  }
+ ],
+ "note": "Invalid tiles are included with no labels (empty GeoJSON, all-background mask)."
+}

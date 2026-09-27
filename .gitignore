@@ -25,6 +25,11 @@ __pycache__/
 .venv/
 venv/
 
+# App data / local stores (never committed)
+backend/data/
+backend/exports/
+*.db
+
 # Local worktrees / handoffs (orchestration)
 worktrees/
 .handoffs/
@@ -36,3 +41,9 @@ assets_for_participants-*/
 
 # Local processing API storage (uploads, job results)
 .processing-data/
+
+# Downloaded datasets (not tracked)
+/data/
+
+# FiftyOne generated TIF previews
+.fiftyone_previews/
