@@ -177,7 +177,7 @@ def test_api_contract_and_validation(monkeypatch, tmp_path):
     assert response.json()["route"]["crs"]["properties"]["name"].endswith("32635")
     assert response.json()["map"]["route_evidence"]["crs"]["properties"]["name"].endswith("32635")
     assert client.post("/plan", json={"crs": "EPSG:4326"}).status_code == 422
-    assert client.post("/plan", json=request(start=[-1, 1]).model_dump()).status_code == 422
+    assert client.post("/plan", json=request(start=[-20, 1]).model_dump()).status_code == 422
     monkeypatch.setenv("ROUTE_CONSTRAINTS_DIR", str(tmp_path))
     missing = client.post("/plan", json=request(constraint_set="siret3").model_dump())
     assert missing.status_code == 503
