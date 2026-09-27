@@ -87,7 +87,7 @@ def load_roads():
     return _roads_cache[key]
 
 
-def with_roads(request: PlanRequest):
+def with_roads(request: PlanRequest, extend: bool = True):
     """Add extracted roads as walkable passages for Sireț3 requests. Returns (request, roads, warning)."""
     if request.constraint_set != "siret3":
         return request, None, None
@@ -100,7 +100,7 @@ def with_roads(request: PlanRequest):
     feature = {"type": "Feature", "geometry": mapping(roads),
                "properties": {"source": "extracted_road", "authorised": False, "half_width_m": ROAD_HALF_WIDTH_M}}
     extra = [feature]
-    extend_m = interrow_extend_m()
+    extend_m = interrow_extend_m() if extend else 0.0
     if extend_m:
         corridors = []
         for item in request.interrows.features:
@@ -144,8 +144,19 @@ def plan(request: PlanRequest | StoredPlanRequest):
         except (OSError, ValueError) as exc:
             raise HTTPException(503, "SAM3 mock data is unavailable. Run python -m route_algo.sam3c first.") from exc
     try:
-        request, roads, roads_warning = with_roads(with_constraints(request))
-        result = plan_route(request)
+        constrained = with_constraints(request)
+        request, roads, roads_warning = with_roads(constrained)
+        try:
+            result = plan_route(request)
+        except PlanningError:
+            if roads is None or not interrow_extend_m():
+                raise
+            # Very large surveys can exceed the triangulation limit; retry with roads only.
+            request, roads, roads_warning = with_roads(constrained, extend=False)
+            result = plan_route(request)
+            result["report"]["warnings"].append(
+                "Inter-row extensions made the walkable area too complex; planned with extracted roads only."
+            )
         report = result["report"]
         if request.constraint_set == "siret3":
             report["roads_used"] = roads is not None
