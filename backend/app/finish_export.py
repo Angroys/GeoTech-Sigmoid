@@ -127,9 +127,62 @@ def write_finish_outputs(tile_name: str, finish_directory: Path | None = None) -
     mask_path = finish_directory / f"{base}_mask.tif"
     geojson_path = finish_directory / f"{base}__labels.geojson"
 
+    png_path = finish_directory / f"{base}__labels.png"
+
     masks.write_mask_geotiff(tile_name, mask_path)
     write_labels_geojson(tile_name, geojson_path)
-    return {"mask": mask_path, "geojson": geojson_path}
+    write_labels_png(tile_name, png_path)
+    return {"mask": mask_path, "geojson": geojson_path, "png": png_path}
+
+
+# Label colours for the PNG previews (match the web app).
+_PNG_COLORS = {
+    "vineyard": (34, 224, 107), "row": (255, 45, 45), "interrow_area": (24, 224, 224),
+    "waste": (180, 189, 202), "dead_vine": (168, 85, 247),
+}
+_PNG_FILL_ALPHA = {"vineyard": 90, "interrow_area": 45, "waste": 110, "dead_vine": 130}
+PNG_SIZE = 1024  # px; tiles are 2048 px
+
+
+def write_labels_png(tile_name: str, out_path: Path, size: int = PNG_SIZE) -> Path:
+    """Preview PNG: the tile imagery with its final labels (and parcel outline)
+    drawn on top. Invalid tiles get no labels, only a red 'INVALID' frame."""
+    import rasterio
+    from PIL import Image, ImageDraw
+    from rasterio.enums import Resampling
+    from . import parcels as parcels_mod
+
+    with rasterio.open(tiles.tile_path(tile_name)) as src:
+        rgb = src.read([1, 2, 3], out_shape=(3, size, size), resampling=Resampling.average)
+        scale = size / src.width
+    img = Image.fromarray(rgb.transpose(1, 2, 0)).convert("RGBA")
+    over = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(over)
+    status = (db.get_tile_status(tile_name) or {}).get("verification_status")
+    anns = db.export_annotations(tile_name)
+    for lbl in ("interrow_area", "vineyard", "waste", "dead_vine", "row"):
+        col = _PNG_COLORS[lbl]
+        for a in anns:
+            if a["label"] != lbl:
+                continue
+            pts = [(x * scale, y * scale) for x, y in a["points"]]
+            if a["shape_type"] == "polyline" or lbl == "row":
+                if len(pts) >= 2:
+                    d.line(pts, fill=col + (255,), width=2)
+            elif len(pts) >= 3:
+                d.polygon(pts, fill=col + (_PNG_FILL_ALPHA.get(lbl, 80),), outline=col + (235,))
+    try:
+        for pc in parcels_mod.for_tile(tile_name):
+            pts = [(x * scale, y * scale) for x, y in pc["points"]]
+            if len(pts) >= 3:
+                d.line(pts + [pts[0]], fill=(255, 210, 63, 255), width=3)
+    except Exception:  # noqa: BLE001 - parcels are optional decoration
+        pass
+    if status == "invalid":
+        d.rectangle([0, 0, size - 1, size - 1], outline=(255, 60, 60, 255), width=8)
+        d.text((16, 12), "INVALID", fill=(255, 60, 60, 255))
+    Image.alpha_composite(img, over).convert("RGB").save(out_path, optimize=True)
+    return out_path
 
 
 def remove_finish_outputs(tile_name: str, finish_directory: Path | None = None) -> list[Path]:
@@ -138,7 +191,11 @@ def remove_finish_outputs(tile_name: str, finish_directory: Path | None = None) 
     finish_directory = finish_directory or config.finish_dir()
     base = _tilebase(tile_name)
     removed: list[Path] = []
-    for path in (finish_directory / f"{base}_mask.tif", finish_directory / f"{base}__labels.geojson"):
+    for path in (
+        finish_directory / f"{base}_mask.tif",
+        finish_directory / f"{base}__labels.geojson",
+        finish_directory / f"{base}__labels.png",
+    ):
         if path.exists():
             path.unlink()
             removed.append(path)
