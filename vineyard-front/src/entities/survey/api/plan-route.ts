@@ -4,6 +4,7 @@ import { z } from "zod";
 import { projectToSurveyCrs, reprojectFeatureCollection, reprojectLineString } from "@/shared/lib/geo";
 
 import type { RoutePurpose } from "../config/routes";
+import { SAM3_MOCK_ID } from "../config/sources";
 import { surveyFileSchemas } from "../model/schema";
 import type { Survey } from "../model/types";
 
@@ -55,11 +56,23 @@ const mapSchema = z.object({
   inferred_headlands: areaCollectionSchema,
   route_evidence: routeEvidenceSchema,
 });
-const resultSchema = z.object({
+export const routePlanResponseSchema = z.object({
   route: surveyFileSchemas.inspectionRoute.nullable(),
   map: mapSchema,
   report: reportSchema,
 });
+
+export type RoutePlanResponse = z.output<typeof routePlanResponseSchema>;
+
+const EMPTY_AREAS = { type: "FeatureCollection" as const, features: [] };
+
+export const EMPTY_ROUTE_MAP: RoutePlanResponse["map"] = {
+  supplied_passages: EMPTY_AREAS,
+  forbidden_areas: EMPTY_AREAS,
+  study_area: EMPTY_AREAS,
+  inferred_headlands: EMPTY_AREAS,
+  route_evidence: EMPTY_AREAS,
+};
 
 const projectCollection = (collection: FeatureCollection<Point | Polygon | LineString>) => ({
   type: "FeatureCollection",
@@ -73,14 +86,14 @@ const projectCollection = (collection: FeatureCollection<Point | Polygon | LineS
   })),
 });
 
-export const planSurveyRoute = async (
+export const requestRoutePlan = async (
   survey: Survey,
   purpose: RoutePurpose,
   start: Position,
   surveyId: string,
   signal: AbortSignal,
   pathMode: RoutePathMode = "supplied",
-) => {
+): Promise<RoutePlanResponse> => {
   const suppliedStart = survey.start.geometry.coordinates;
   const isSuppliedStart = start[0] === suppliedStart[0] && start[1] === suppliedStart[1];
   const projectedStart = isSuppliedStart ? survey.projectedStart : projectToSurveyCrs(start);
@@ -88,7 +101,13 @@ export const planSurveyRoute = async (
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
-    body: JSON.stringify({
+    body: JSON.stringify(surveyId === SAM3_MOCK_ID ? {
+      dataset: SAM3_MOCK_ID,
+      crs: "EPSG:32635",
+      purpose,
+      path_mode: "supplied",
+      start: projectedStart,
+    } : {
       crs: "EPSG:32635",
       purpose,
       path_mode: pathMode,
@@ -107,7 +126,10 @@ export const planSurveyRoute = async (
     const detail = z.object({ detail: z.string() }).safeParse(body);
     throw new Error(detail.success ? detail.data.detail : "The route inputs could not be processed.");
   }
-  const result = resultSchema.parse(body);
+  return routePlanResponseSchema.parse(body);
+};
+
+export const applyRoutePlan = (survey: Survey, purpose: RoutePurpose, result: RoutePlanResponse) => {
   const feature = result.route?.features[0];
   const reachability = new Map(result.report.targets.map(target => [target.target_id, target.reachable]));
   const plannedSurvey: Survey = {
@@ -157,3 +179,12 @@ export const planSurveyRoute = async (
     } : null,
   };
 };
+
+export const planSurveyRoute = async (
+  survey: Survey,
+  purpose: RoutePurpose,
+  start: Position,
+  surveyId: string,
+  signal: AbortSignal,
+  pathMode: RoutePathMode = "supplied",
+) => applyRoutePlan(survey, purpose, await requestRoutePlan(survey, purpose, start, surveyId, signal, pathMode));

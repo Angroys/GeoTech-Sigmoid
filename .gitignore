@@ -47,3 +47,8 @@ assets_for_participants-*/
 
 # FiftyOne generated TIF previews
 .fiftyone_previews/
+
+# Reproducible full-map SAM3 mock (generate with python -m route_algo.sam3c)
+vineyard-front/public/data/siret3-sam3c/
+graphify-out/
+sam3c/

@@ -39,7 +39,7 @@ export const SurveyFacts: FC<SurveyFactsProps> = ({ source, role }) => {
       ) : (
         <p className="text-muted-foreground flex items-center gap-2 text-sm" role="status">
           <Hourglass className="size-4" aria-hidden />
-          Processing {formatQuantity(state.job.tileCount, "tile", "tiles")}, submitted{" "}
+          Processing {state.job.tileCount > 0 ? formatQuantity(state.job.tileCount, "tile", "tiles") : "the orthomosaic"}, submitted{" "}
           {SUBMITTED_AT.format(new Date(state.job.submittedAt))}
         </p>
       );

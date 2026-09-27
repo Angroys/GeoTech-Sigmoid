@@ -14,7 +14,6 @@ type InterrowItemProps = {
 export const InterrowItem: FC<InterrowItemProps> = ({ interrow, isSelected, onSelect }) => {
   const ref = useScrollIntoView<HTMLButtonElement>(isSelected);
   const cover = INTERROW_COVER_STYLE[interrow.interrow_cover];
-  const [firstRow, secondRow] = interrow.row_ids;
 
   return (
     <li>
@@ -31,7 +30,7 @@ export const InterrowItem: FC<InterrowItemProps> = ({ interrow, isSelected, onSe
         <span>
           <span className="block font-medium tabular-nums">{interrow.interrow_id}</span>
           <span className="text-muted-foreground block text-xs tabular-nums">
-            Between {firstRow} and {secondRow}
+            {interrow.row_ids ? `Between ${interrow.row_ids[0]} and ${interrow.row_ids[1]}` : "Row association unavailable"}
           </span>
         </span>
         <span className="text-muted-foreground flex items-center gap-1.5 text-xs">

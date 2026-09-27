@@ -1,3 +1,4 @@
+import type { Parcel } from "@/entities/parcel";
 import { firstError, required, type FieldErrors, type Rule } from "@/shared/lib/form";
 
 export type AddVineyardValues = {
@@ -7,12 +8,15 @@ export type AddVineyardValues = {
   imageryUrl: string;
 };
 
-export const INITIAL_VALUES: AddVineyardValues = {
+const EMPTY_VALUES: AddVineyardValues = {
   name: "",
   location: "",
   capturedOn: "",
   imageryUrl: "",
 };
+
+export const initialValuesFor = (parcel: Parcel | null): AddVineyardValues =>
+  parcel ? { ...EMPTY_VALUES, name: `Parcel ${parcel.cadastralNumber}`, location: parcel.location } : EMPTY_VALUES;
 
 const notInFuture: Rule = value =>
   value && value > new Date().toISOString().slice(0, 10) ? "The survey date is in the future." : undefined;

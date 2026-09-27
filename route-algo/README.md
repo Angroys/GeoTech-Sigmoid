@@ -127,6 +127,62 @@ file in the output directory, and exits with code 2.
 
 ## Current demo data
 
+### Full-map SAM3 mock
+
+To use every tile from the local `sam3c` folder, generate a separate survey:
+
+```bash
+uv run --project route-algo python -m route_algo.sam3c
+```
+
+This creates `vineyard-front/public/data/siret3-sam3c/` from all 311 label files:
+32,404 canopy polygons, 1,785 inter-row polygons, 1,606 row segments representing
+528 physical rows, and all 39 waste detections. Source coordinates are retained
+without simplification. Stable IDs include the source tile and feature index;
+`manifest.json` records counts and input hashes. Generated files are ignored by
+Git; regenerate them after checking out the code or updating the predictions.
+The original generated Sireț3 demo remains separate.
+
+After starting the frontend and restarting the route service, open
+`http://localhost:3000/owner/siret3-sam3c`, choose **Route**, and **Calculate route**.
+The map loads the complete survey. The browser sends a small named-dataset
+request, so it does not reproject and upload roughly 40 MB of geometry each time.
+The service reads the generated files locally and applies the official Sireț3
+passages, forbidden areas and study boundary. The default start is the exact
+organizer start. Custom starts are still validated. No inferred headlands are
+enabled for this dataset.
+
+The same request works with `POST /plan` and the offline CLI:
+
+```json
+{
+  "dataset": "siret3-sam3c",
+  "crs": "EPSG:32635",
+  "purpose": "waste_collection",
+  "path_mode": "supplied",
+  "start": [629504.7, 5220250.75]
+}
+```
+
+These are model predictions, not reviewed annotations. Block outlines are
+derived convex hulls for display, never additional walking permissions.
+Unknown row associations and the eight unassigned inter-row polygons are
+retained as null; missing-vine inspection points are not fabricated. Inspection
+mode therefore also visits only waste targets for now. Exports preserve
+`dataset: siret3-sam3c` and `data_kind: model_prediction_mock`. Unreachable waste
+remains in the coverage report. The layer limit is 50,000 features, while the
+existing 200-target and 100,000-triangle limits still apply.
+
+The full-data check from the official start produced a closed route of about
+3.52 km visiting **19 of 39 waste detections**, with **0 m outside permitted
+walking areas** and 0 m outside the study boundary. The remaining 20 have no
+approach within 2 m in the start's connected walking area. Calculation took
+about 53 seconds on this machine; the solver's two-second budget does not
+include geometry/network construction. Coverage is against model detections,
+not ground truth, and route length can vary with the solver.
+
+### Generated survey
+
 The checked-in canopy/inter-row/target files are generated demo annotations.
 Only **3 of 102 aisles** touch the passage network reachable from the official
 start in supplied-only mode. The target aisles remain disconnected: **0/33 targets are reachable** there.

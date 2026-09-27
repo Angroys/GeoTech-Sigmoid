@@ -55,9 +55,9 @@ const BlockTable: FC<BlockTableProps> = ({ summary }) => {
       <tbody>
         {summary.blocks.map(block => {
           return (
-            <tr key={block.vineyardId} className="border-border border-b last:border-b-0">
+            <tr key={block.vineyardId ?? "unassigned"} className="border-border border-b last:border-b-0">
               <th scope="row" className="py-1.5 text-left font-medium">
-                {block.vineyardId}
+                {block.vineyardId ?? "Unassigned"}
               </th>
               <NumericCell>{formatCount(block.rowCount)}</NumericCell>
               <NumericCell>{formatMetres(block.rowLengthM)}</NumericCell>
