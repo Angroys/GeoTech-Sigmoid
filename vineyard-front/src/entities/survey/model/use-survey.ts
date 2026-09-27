@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 
 import { fetchSurvey, SurveyLoadError } from "../api/fetch-survey";
-import type { SurveySource } from "../config/sources";
+import type { ProcessingJob, SurveySource } from "../config/sources";
 import type { Survey } from "./types";
 
 export type SurveyState =
-  { status: "loading" } | { status: "ready"; survey: Survey } | { status: "error"; message: string };
+  | { status: "loading" }
+  | { status: "processing"; job: ProcessingJob }
+  | { status: "ready"; survey: Survey }
+  | { status: "error"; message: string };
 
 const UNEXPECTED_ERROR = "The survey could not be opened. Reload the page to try again.";
 
@@ -14,6 +17,10 @@ export const useSurvey = (source: SurveySource): SurveyState => {
 
   useEffect(() => {
     let isCurrent = true;
+    if (source.data.kind === "processing") {
+      setState({ status: "processing", job: source.data });
+      return;
+    }
     setState({ status: "loading" });
 
     fetchSurvey(source)

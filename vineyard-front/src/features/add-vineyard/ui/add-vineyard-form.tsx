@@ -1,15 +1,18 @@
 import type { FC } from "react";
 
-import { StatusMessage, SubmitButton, TextField } from "@/shared/ui";
+import { LinkButton, StatusMessage, SubmitButton, TextField } from "@/shared/ui";
 
 import { useAddVineyardForm } from "../model/use-add-vineyard-form";
 import { ImageryField } from "./imagery-field";
-import { SurveyFilesField } from "./survey-files-field";
+import { TilesField } from "./tiles-field";
+import { UploadProgressPanel } from "./upload-progress";
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
 export const AddVineyardForm: FC = () => {
-  const { values, errors, status, setValue, handleSubmit, imagery, files, checkImagery } = useAddVineyardForm();
+  const { values, errors, status, setValue, handleSubmit, imagery, tiles, upload, canUseSample, addWithSample, checkImagery } =
+    useAddVineyardForm();
+  const isBusy = status.kind === "submitting";
 
   return (
     <form noValidate onSubmit={handleSubmit} className="grid gap-10">
@@ -35,31 +38,21 @@ export const AddVineyardForm: FC = () => {
           value={values.location}
           onValueChange={value => setValue("location", value)}
         />
-        <div className="grid gap-5 sm:grid-cols-2">
-          <TextField
-            label="Surveyed on"
-            hint="The day the drone flew."
-            error={errors.capturedOn}
-            name="capturedOn"
-            type="date"
-            max={TODAY}
-            required
-            value={values.capturedOn}
-            onValueChange={value => setValue("capturedOn", value)}
-          />
-          <TextField
-            label="Ground sample distance, cm (optional)"
-            hint="Size of one pixel on the ground."
-            error={errors.groundSampleCm}
-            name="groundSampleCm"
-            inputMode="decimal"
-            autoComplete="off"
-            className="tabular-nums"
-            value={values.groundSampleCm}
-            onValueChange={value => setValue("groundSampleCm", value)}
-          />
-        </div>
+        <TextField
+          label="Surveyed on"
+          hint="The day the drone flew."
+          error={errors.capturedOn}
+          name="capturedOn"
+          type="date"
+          max={TODAY}
+          required
+          className="sm:max-w-60"
+          value={values.capturedOn}
+          onValueChange={value => setValue("capturedOn", value)}
+        />
       </fieldset>
+
+      <TilesField tiles={tiles} />
 
       <ImageryField
         url={values.imageryUrl}
@@ -69,12 +62,18 @@ export const AddVineyardForm: FC = () => {
         onCheck={checkImagery}
       />
 
-      <SurveyFilesField files={files} />
-
       <div className="grid gap-4">
+        <UploadProgressPanel progress={upload.progress} onCancel={upload.cancel} />
         <StatusMessage status={status} />
+        {canUseSample && !isBusy && (
+          <p className="text-muted-foreground text-sm">
+            Demo account:{" "}
+            <LinkButton onClick={() => void addWithSample()}>add this vineyard with the Sireț3 sample results</LinkButton>{" "}
+            instead, to try the rest of the app.
+          </p>
+        )}
         <div>
-          <SubmitButton label="Add vineyard" isSubmitting={status.kind === "submitting"} />
+          <SubmitButton label="Upload tiles and process" isSubmitting={isBusy} />
         </div>
       </div>
     </form>

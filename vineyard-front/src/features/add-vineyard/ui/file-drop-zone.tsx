@@ -2,15 +2,15 @@ import { Upload } from "lucide-react";
 import { useId, useState, type ChangeEvent, type DragEvent, type FC } from "react";
 
 import { cn } from "@/shared/lib/cn";
-import { LinkButton } from "@/shared/ui";
 
 type FileDropZoneProps = {
+  prompt: string;
+  accept: string;
   describedBy: string;
   onFiles: (files: File[]) => void;
-  onLoadSample: () => void;
 };
 
-export const FileDropZone: FC<FileDropZoneProps> = ({ describedBy, onFiles, onLoadSample }) => {
+export const FileDropZone: FC<FileDropZoneProps> = ({ prompt, accept, describedBy, onFiles }) => {
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -42,7 +42,7 @@ export const FileDropZone: FC<FileDropZoneProps> = ({ describedBy, onFiles, onLo
       )}
     >
       <Upload className="text-muted-foreground size-6" aria-hidden />
-      <p className="text-sm font-medium">Drop the survey files here</p>
+      <p className="text-sm font-medium">{prompt}</p>
       <p className="text-muted-foreground text-sm">
         or{" "}
         <label
@@ -56,14 +56,11 @@ export const FileDropZone: FC<FileDropZoneProps> = ({ describedBy, onFiles, onLo
         id={inputId}
         type="file"
         multiple
-        accept=".geojson,.json,application/geo+json,application/json"
+        accept={accept}
         onChange={onChange}
         aria-describedby={describedBy}
         className="sr-only"
       />
-      <LinkButton onClick={onLoadSample} className="mt-2 text-xs">
-        Load the Sireț3 sample files
-      </LinkButton>
     </div>
   );
 };

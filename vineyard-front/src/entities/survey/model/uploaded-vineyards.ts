@@ -24,13 +24,23 @@ const uploadedSourceSchema = z.object({
       bounds: lngLatBoundsSchema,
     })
     .nullable(),
-  data: z.object({ kind: z.literal("uploaded") }),
+  data: z.discriminatedUnion("kind", [
+    z.object({ kind: z.literal("uploaded") }),
+    z.object({ kind: z.literal("remote"), url: z.string().startsWith("/") }),
+    z.object({
+      kind: z.literal("processing"),
+      state: z.enum(["processing", "failed"]),
+      tileCount: z.number().int().positive(),
+      submittedAt: z.iso.datetime(),
+      message: z.string().nullable(),
+    }),
+  ]),
   uploadedBy: z.object({ accountId: z.string().min(1), fullName: z.string().min(1) }),
 });
 
 const uploadedVineyardSchema = z.object({
   source: uploadedSourceSchema,
-  files: surveyFilesSchema,
+  files: surveyFilesSchema.nullable(),
   uploadedAt: z.iso.datetime(),
 });
 
@@ -58,6 +68,13 @@ export const readUploadedFiles = async (id: string): Promise<SurveyFiles | null>
 
 export const saveUploadedVineyard = async (vineyard: UploadedVineyard) => {
   await store.put(vineyard.source.id, vineyard);
+  announceChange();
+};
+
+export const updateUploadedSource = async (id: string, changes: Pick<SurveySource, "data">) => {
+  const result = uploadedVineyardSchema.safeParse(await store.get(id));
+  if (!result.success) return;
+  await store.put(id, { ...result.data, source: { ...result.data.source, ...changes } });
   announceChange();
 };
 

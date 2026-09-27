@@ -1,68 +1,69 @@
 import type { Session } from "@/entities/session";
 import {
-  blocksBounds,
-  createSurveyId,
   imageryFromCog,
   saveUploadedVineyard,
+  SIRET3,
   type LngLatBounds,
-  type SurveyFiles,
   type SurveyId,
 } from "@/entities/survey";
 import { ApiError } from "@/shared/api";
 
-import { formatSurveyDate, parseGroundSample, type AddVineyardValues } from "../model/validation";
+import { formatSurveyDate, type AddVineyardValues } from "../model/validation";
 
-const THUMBNAIL_MARGIN_DEGREES = 0.0005;
+type StoredSource = Parameters<typeof saveUploadedVineyard>[0]["source"];
 
-const padded = ([west, south, east, north]: LngLatBounds): LngLatBounds => [
-  west - THUMBNAIL_MARGIN_DEGREES,
-  south - THUMBNAIL_MARGIN_DEGREES,
-  east + THUMBNAIL_MARGIN_DEGREES,
-  north + THUMBNAIL_MARGIN_DEGREES,
-];
+type Imagery = { url: string; bounds: LngLatBounds } | null;
 
-type SaveVineyardRequest = {
+type NewVineyard = {
+  id: SurveyId;
   values: AddVineyardValues;
-  files: SurveyFiles;
-  imageryBounds: LngLatBounds | null;
+  imagery: Imagery;
   session: Session;
 };
 
-export const saveVineyard = async ({
-  values,
-  files,
-  imageryBounds,
-  session,
-}: SaveVineyardRequest): Promise<SurveyId> => {
-  const name = values.name.trim();
-  const id = createSurveyId(name);
-  const imageryUrl = values.imageryUrl.trim();
+const STORAGE_REFUSED = "This browser refused to store the vineyard. Allow site data, or free some space, and try again.";
 
+const baseSource = ({ id, values, imagery, session }: NewVineyard): Omit<StoredSource, "data"> => {
+  const name = values.name.trim();
+  return {
+    id,
+    name,
+    location: values.location.trim(),
+    capturedOn: formatSurveyDate(values.capturedOn),
+    groundSampleCm: null,
+    areaHectares: null,
+    imagery: imagery
+      ? imageryFromCog(imagery.url, {
+          bounds: imagery.bounds,
+          focus: imagery.bounds,
+          attribution: `${name} aerial survey, added by ${session.fullName}`,
+        })
+      : null,
+    uploadedBy: { accountId: session.accountId, fullName: session.fullName },
+  };
+};
+
+const store = async (source: StoredSource) => {
   try {
-    await saveUploadedVineyard({
-      source: {
-        id,
-        name,
-        location: values.location.trim(),
-        capturedOn: formatSurveyDate(values.capturedOn),
-        groundSampleCm: parseGroundSample(values.groundSampleCm),
-        areaHectares: null,
-        imagery:
-          imageryBounds && imageryUrl
-            ? imageryFromCog(imageryUrl, {
-                bounds: imageryBounds,
-                focus: padded(blocksBounds(files)),
-                attribution: `${name} aerial survey, added by ${session.fullName}`,
-              })
-            : null,
-        data: { kind: "uploaded" },
-        uploadedBy: { accountId: session.accountId, fullName: session.fullName },
-      },
-      files,
-      uploadedAt: new Date().toISOString(),
-    });
+    await saveUploadedVineyard({ source, files: null, uploadedAt: new Date().toISOString() });
   } catch {
-    throw new ApiError("This browser refused to store the survey. Allow site data, or free some space, and try again.");
+    throw new ApiError(STORAGE_REFUSED);
   }
-  return id;
+};
+
+export const saveProcessingVineyard = async (vineyard: NewVineyard, tileCount: number) => {
+  await store({
+    ...baseSource(vineyard),
+    data: { kind: "processing", state: "processing", tileCount, submittedAt: new Date().toISOString(), message: null },
+  });
+};
+
+export const saveSampleVineyard = async (vineyard: NewVineyard) => {
+  const source = baseSource(vineyard);
+  await store({
+    ...source,
+    groundSampleCm: SIRET3.groundSampleCm,
+    imagery: source.imagery ?? SIRET3.imagery,
+    data: SIRET3.data,
+  });
 };

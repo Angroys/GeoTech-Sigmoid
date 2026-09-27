@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { BUILT_IN_SOURCES, type SurveySource } from "../config/sources";
+import { BUILT_IN_SOURCES, isProcessing, type SurveySource } from "../config/sources";
+import { PROCESSING_POLL_MS, syncProcessingSources } from "./sync-processing";
 import { listUploadedSources, subscribeToUploads } from "./uploaded-vineyards";
 
 export const useSurveySources = () => {
@@ -24,6 +25,14 @@ export const useSurveySources = () => {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const pending = (uploaded ?? []).filter(isProcessing);
+    if (pending.length === 0) return;
+    void syncProcessingSources(pending);
+    const timer = window.setInterval(() => void syncProcessingSources(pending), PROCESSING_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [uploaded]);
 
   return { sources: [...BUILT_IN_SOURCES, ...(uploaded ?? [])], isLoading: uploaded === null };
 };

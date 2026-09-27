@@ -2,12 +2,26 @@ import { ArrowRight } from "lucide-react";
 import type { FC } from "react";
 
 import { vineyardUrl, type Role } from "@/entities/role";
-import { describeCapture, type SurveySource } from "@/entities/survey";
+import { describeCapture, isProcessing, type SurveySource } from "@/entities/survey";
 import { AppLink } from "@/shared/ui";
 
 import { SurveyFacts } from "./survey-facts";
 import { UploadNote } from "./upload-note";
 import { VineyardThumbnail } from "./vineyard-thumbnail";
+
+type OpenVineyardLinkProps = { href: string };
+
+const OpenVineyardLink: FC<OpenVineyardLinkProps> = ({ href }) => {
+  return (
+    <AppLink
+      href={href}
+      className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring/50 inline-flex h-10 items-center justify-center gap-2 justify-self-start rounded-md px-4 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-[3px]"
+    >
+      Open vineyard
+      <ArrowRight className="size-4" aria-hidden />
+    </AppLink>
+  );
+};
 
 type VineyardEntryProps = { source: SurveySource; role: Role };
 
@@ -37,13 +51,7 @@ export const VineyardEntry: FC<VineyardEntryProps> = ({ source, role }) => {
           <SurveyFacts source={source} role={role} />
         </div>
 
-        <AppLink
-          href={href}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring/50 inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-[3px] justify-self-start"
-        >
-          Open vineyard
-          <ArrowRight className="size-4" aria-hidden />
-        </AppLink>
+        {!isProcessing(source) && <OpenVineyardLink href={href} />}
       </div>
     </article>
   );

@@ -12,16 +12,18 @@ export { ROUTE_COPY, type RoutePurpose } from "./config/routes";
 export {
   imageryCropUrl,
   imageryFromCog,
+  isProcessing,
+  SIRET3,
+  type ProcessingJob,
   type LngLatBounds,
   type SurveyId,
   type SurveyImagery,
   type SurveySource,
 } from "./config/sources";
 export { ImageryCheckError, inspectImagery } from "./api/inspect-imagery";
+export { createProcessingSurvey, startProcessing, uploadTile } from "./api/processing-api";
 export { planSurveyRoute, type RouteReport, type RoutePathMode } from "./api/plan-route";
-export { blocksBounds } from "./lib/assemble-survey";
 export { blockOfSelection, blockSelection } from "./lib/block-selection";
-export { checkSurveyFile, type SurveyFileCheck } from "./lib/check-survey-file";
 export { createSurveyId } from "./lib/create-survey-id";
 export { describeCapture } from "./lib/describe-source";
 export { listOfSelection } from "./lib/list-of-selection";

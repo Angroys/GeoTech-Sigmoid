@@ -26,13 +26,6 @@ export const FEATURE_COLORS = {
   inspectionPoint: "#f2a93b",
   route: "#2b4a7e",
   routeCasing: "#ffffff",
-  suppliedPassage: "#37a8c7",
-  inferredHeadland: "#9b6bd3",
-  forbiddenArea: "#d94b4b",
-  studyArea: "#f3d45c",
-  outsideBlocks: "#7b8794",
-  outsideSupplied: "#e58a2b",
-  outsidePermitted: "#e12626",
   blockOutline: "#ffffff",
   selection: "#ffe066",
 } as const satisfies Record<string, HexColor>;

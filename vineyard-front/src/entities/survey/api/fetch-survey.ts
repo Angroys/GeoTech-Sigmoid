@@ -39,8 +39,6 @@ const loadRemoteFiles = async (baseUrl: string): Promise<SurveyFiles> => {
       loadFile(baseUrl, "interrows", surveyFileSchemas.interrows),
       loadFile(baseUrl, "waste", surveyFileSchemas.waste),
       loadFile(baseUrl, "inspectionPoints", surveyFileSchemas.inspectionPoints),
-      // Remote surveys are planned on demand against the walking constraints.
-      // The old generated demo routes are not validated by the routing service.
       Promise.resolve(null),
       Promise.resolve(null),
       loadFile(baseUrl, "start", surveyFileSchemas.start),
@@ -60,6 +58,8 @@ const loadSurvey = async (source: SurveySource): Promise<Survey> => {
       return assembleSurvey(await loadRemoteFiles(source.data.url));
     case "uploaded":
       return assembleSurvey(await loadUploadedFiles(source.id));
+    case "processing":
+      throw new SurveyLoadError("The tiles of this vineyard are still being processed.");
     default:
       return assertNever(source.data);
   }

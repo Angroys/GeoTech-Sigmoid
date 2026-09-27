@@ -1,11 +1,14 @@
-import { CircleAlert, LoaderCircle } from "lucide-react";
+import { CircleAlert, Hourglass, LoaderCircle } from "lucide-react";
 import type { FC } from "react";
 
 import type { Role } from "@/entities/role";
 import { useSurvey, type SurveySource } from "@/entities/survey";
+import { formatQuantity } from "@/shared/lib/format";
 import { assertNever } from "@/shared/lib/types";
 
 import { VineyardFacts } from "./vineyard-facts";
+
+const SUBMITTED_AT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 type SurveyFactsProps = { source: SurveySource; role: Role };
 
@@ -25,6 +28,19 @@ export const SurveyFacts: FC<SurveyFactsProps> = ({ source, role }) => {
         <p className="text-destructive flex gap-2 text-sm" role="alert">
           <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
           The measurements could not be opened.
+        </p>
+      );
+    case "processing":
+      return state.job.state === "failed" ? (
+        <p className="text-destructive flex gap-2 text-sm" role="alert">
+          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+          Processing failed: {state.job.message}
+        </p>
+      ) : (
+        <p className="text-muted-foreground flex items-center gap-2 text-sm" role="status">
+          <Hourglass className="size-4" aria-hidden />
+          Processing {formatQuantity(state.job.tileCount, "tile", "tiles")}, submitted{" "}
+          {SUBMITTED_AT.format(new Date(state.job.submittedAt))}
         </p>
       );
     case "ready":

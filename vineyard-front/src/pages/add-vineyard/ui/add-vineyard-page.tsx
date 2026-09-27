@@ -22,8 +22,8 @@ export const AddVineyardPage: FC = () => {
 
         <h1 className="mt-6 text-[2rem] leading-tight font-semibold tracking-[-0.02em]">Add a vineyard</h1>
         <p className="text-muted-foreground mt-2 max-w-[62ch] text-[0.9375rem] leading-relaxed">
-          Upload the processing pipeline&rsquo;s output for one drone survey. Until the register has a server, the
-          survey is kept in this browser and is visible to everyone who signs in on it.
+          Upload the image tiles of one drone survey. The processing service finds the vine canopies, rows,
+          inter-rows and waste in them and calculates the measurements; the vineyard opens once it has finished.
         </p>
 
         <div className="border-border mt-10 border-t pt-10">

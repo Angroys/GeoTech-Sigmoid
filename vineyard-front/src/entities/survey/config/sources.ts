@@ -17,7 +17,15 @@ export type SurveyImagery = {
   bounds: LngLatBounds;
 };
 
-type SurveyDataLocation = { kind: "remote"; url: string } | { kind: "uploaded" };
+export type ProcessingJob = {
+  kind: "processing";
+  state: "processing" | "failed";
+  tileCount: number;
+  submittedAt: string;
+  message: string | null;
+};
+
+type SurveyDataLocation = { kind: "remote"; url: string } | { kind: "uploaded" } | ProcessingJob;
 
 export type SurveySource = {
   id: SurveyId;
@@ -53,6 +61,10 @@ export const imageryCropUrl = (imagery: SurveyImagery, bounds: LngLatBounds, siz
   if (!imagery.cogUrl) return null;
   return `${TITILER}/bbox/${formatBbox(bounds)}/${sizePx}x${sizePx}.jpg?url=${encodeURIComponent(imagery.cogUrl)}`;
 };
+
+export const processingResultsUrl = (id: SurveyId) => `/api/surveys/${encodeURIComponent(id)}/results`;
+
+export const isProcessing = (source: SurveySource) => source.data.kind === "processing";
 
 export const COG_INFO_URL = (cogUrl: string) => `${TITILER}/info.geojson?url=${encodeURIComponent(cogUrl)}`;
 

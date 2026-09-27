@@ -1,8 +1,7 @@
 import type { FeatureCollection, Geometry, LineString } from "geojson";
 
-import { reprojectLineString, reprojectPoint, reprojectPolygon, reprojectPosition } from "@/shared/lib/geo";
+import { reprojectLineString, reprojectPoint, reprojectPolygon } from "@/shared/lib/geo";
 
-import type { LngLatBounds } from "../config/sources";
 import type { SurveyFiles } from "../model/schema";
 import type { RouteProperties, Survey } from "../model/types";
 
@@ -60,11 +59,4 @@ export const assembleSurvey = (files: SurveyFiles): Survey => {
     start: { type: "Feature", geometry: reprojectPoint(startFeature.geometry), properties: startFeature.properties },
     projectedStart: startFeature.geometry.coordinates,
   };
-};
-
-export const blocksBounds = (files: SurveyFiles): LngLatBounds => {
-  const positions = files.blocks.features.flatMap(({ geometry }) => geometry.coordinates.flat()).map(reprojectPosition);
-  const longitudes = positions.map(([lng = 0]) => lng);
-  const latitudes = positions.map(([, lat = 0]) => lat);
-  return [Math.min(...longitudes), Math.min(...latitudes), Math.max(...longitudes), Math.max(...latitudes)];
 };

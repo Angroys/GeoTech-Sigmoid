@@ -19,6 +19,29 @@ const serveFile = async (filePath: string, contentType: string) => {
   return new Response(file, { headers: { "Content-Type": contentType } });
 };
 
+const PROCESSING_API_URL = process.env.PROCESSING_API_URL;
+
+const proxyToProcessing = async (req: Request) => {
+  if (!PROCESSING_API_URL) {
+    return Response.json({ message: "The tile processing service is not connected." }, { status: 503 });
+  }
+  const { pathname, search } = new URL(req.url);
+  const hasBody = req.method !== "GET" && req.method !== "HEAD";
+  try {
+    const response = await fetch(`${PROCESSING_API_URL}${pathname}${search}`, {
+      method: req.method,
+      headers: { "Content-Type": req.headers.get("Content-Type") ?? "application/octet-stream" },
+      body: hasBody ? req.body : null,
+    });
+    return new Response(response.body, {
+      status: response.status,
+      headers: { "Content-Type": response.headers.get("Content-Type") ?? "application/json" },
+    });
+  } catch {
+    return Response.json({ message: "The tile processing service did not answer. Try again later." }, { status: 502 });
+  }
+};
+
 const server = serve({
   routes: {
     "/*": index,
@@ -48,6 +71,9 @@ const server = serve({
         }
       },
     },
+
+    "/api/surveys": proxyToProcessing,
+    "/api/surveys/*": proxyToProcessing,
 
     "/data/:survey/:file": req => {
       const { survey, file } = req.params;

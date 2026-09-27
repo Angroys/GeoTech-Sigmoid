@@ -10,18 +10,12 @@ import { boundsOf } from "../lib/bounds";
 import { isGeoJsonSource, NO_FEATURES } from "../lib/geojson-source";
 
 const surveyEntries = (survey: Survey, routePurpose: RoutePurpose) => {
-  const routeMap = survey.routeMap;
   return [
-    [SOURCE_IDS.studyArea, routeMap?.studyArea ?? NO_FEATURES],
-    [SOURCE_IDS.suppliedPassages, routeMap?.suppliedPassages ?? NO_FEATURES],
-    [SOURCE_IDS.inferredHeadlands, routeMap?.inferredHeadlands ?? NO_FEATURES],
-    [SOURCE_IDS.forbiddenAreas, routeMap?.forbiddenAreas ?? NO_FEATURES],
     [SOURCE_IDS.blocks, survey.blocks],
     [SOURCE_IDS.interrows, survey.interrows],
     [SOURCE_IDS.canopy, survey.canopy],
     [SOURCE_IDS.rows, survey.rows],
     [SOURCE_IDS.route, survey.routes[routePurpose] ?? NO_FEATURES],
-    [SOURCE_IDS.routeEvidence, routeMap?.routeEvidence ?? NO_FEATURES],
     [SOURCE_IDS.waste, survey.waste],
     [SOURCE_IDS.inspectionPoints, survey.inspectionPoints],
     [SOURCE_IDS.start, survey.start],

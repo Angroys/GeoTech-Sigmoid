@@ -1,11 +1,9 @@
-import { firstError, matches, required, type FieldErrors, type Rule } from "@/shared/lib/form";
-
+import { firstError, required, type FieldErrors, type Rule } from "@/shared/lib/form";
 
 export type AddVineyardValues = {
   name: string;
   location: string;
   capturedOn: string;
-  groundSampleCm: string;
   imageryUrl: string;
 };
 
@@ -13,11 +11,8 @@ export const INITIAL_VALUES: AddVineyardValues = {
   name: "",
   location: "",
   capturedOn: "",
-  groundSampleCm: "",
   imageryUrl: "",
 };
-
-const DECIMAL = /^\d+([.,]\d+)?$/;
 
 const notInFuture: Rule = value =>
   value && value > new Date().toISOString().slice(0, 10) ? "The survey date is in the future." : undefined;
@@ -39,16 +34,8 @@ export const validateAddVineyard = (values: AddVineyardValues): FieldErrors<AddV
   name: firstError(values.name, [required("Name the vineyard.")]),
   location: firstError(values.location, [required("Say where the vineyard is.")]),
   capturedOn: firstError(values.capturedOn, [required("Enter the day the drone flew."), notInFuture]),
-  groundSampleCm: firstError(values.groundSampleCm, [
-    optional([matches(DECIMAL, "Enter a number of centimetres, such as 3.5.")]),
-  ]),
   imageryUrl: firstError(values.imageryUrl, [optional([isHttpsUrl])]),
 });
-
-export const parseGroundSample = (value: string) => {
-  const trimmed = value.trim().replace(",", ".");
-  return trimmed === "" ? null : Number(trimmed);
-};
 
 const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",

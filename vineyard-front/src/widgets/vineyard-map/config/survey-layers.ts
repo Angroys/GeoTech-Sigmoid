@@ -3,16 +3,11 @@ import type { AddLayerObject, ExpressionSpecification } from "maplibre-gl";
 import { FEATURE_COLORS, INTERROW_COVER_STYLE, ROW_STRUCTURE_STYLE, type SurveyLayerId } from "@/entities/survey";
 
 export const SOURCE_IDS = {
-  studyArea: "route-study-area",
-  suppliedPassages: "route-supplied-passages",
-  inferredHeadlands: "route-inferred-headlands",
-  forbiddenAreas: "route-forbidden-areas",
   blocks: "survey-blocks",
   interrows: "survey-interrows",
   canopy: "survey-canopy",
   rows: "survey-rows",
   route: "survey-route",
-  routeEvidence: "route-evidence",
   waste: "survey-waste",
   inspectionPoints: "survey-inspection-points",
   start: "survey-start",
@@ -61,65 +56,6 @@ const interrowCoverColor: ExpressionSpecification = [
 ];
 
 export const SURVEY_MAP_LAYERS = {
-  "study-area": [
-    {
-      id: "study-area-outline",
-      type: "line",
-      source: SOURCE_IDS.studyArea,
-      paint: {
-        "line-color": FEATURE_COLORS.studyArea,
-        "line-width": byZoom(1.5, 3),
-        "line-dasharray": [4, 2],
-        "line-opacity": 0.95,
-      },
-    },
-  ],
-  "supplied-passages": [
-    {
-      id: "supplied-passages-fill",
-      type: "fill",
-      source: SOURCE_IDS.suppliedPassages,
-      paint: { "fill-color": FEATURE_COLORS.suppliedPassage, "fill-opacity": 0.24 },
-    },
-    {
-      id: "supplied-passages-outline",
-      type: "line",
-      source: SOURCE_IDS.suppliedPassages,
-      paint: { "line-color": FEATURE_COLORS.suppliedPassage, "line-width": byZoom(0.8, 2), "line-opacity": 0.9 },
-    },
-  ],
-  "inferred-headlands": [
-    {
-      id: "inferred-headlands-fill",
-      type: "fill",
-      source: SOURCE_IDS.inferredHeadlands,
-      paint: { "fill-color": FEATURE_COLORS.inferredHeadland, "fill-opacity": 0.28 },
-    },
-    {
-      id: "inferred-headlands-outline",
-      type: "line",
-      source: SOURCE_IDS.inferredHeadlands,
-      paint: {
-        "line-color": FEATURE_COLORS.inferredHeadland,
-        "line-width": byZoom(0.8, 2),
-        "line-dasharray": [2, 1.5],
-      },
-    },
-  ],
-  "forbidden-areas": [
-    {
-      id: "forbidden-areas-fill",
-      type: "fill",
-      source: SOURCE_IDS.forbiddenAreas,
-      paint: { "fill-color": FEATURE_COLORS.forbiddenArea, "fill-opacity": 0.3 },
-    },
-    {
-      id: "forbidden-areas-outline",
-      type: "line",
-      source: SOURCE_IDS.forbiddenAreas,
-      paint: { "line-color": FEATURE_COLORS.forbiddenArea, "line-width": byZoom(1, 2.5) },
-    },
-  ],
   blocks: [
     {
       id: "blocks-outline",
@@ -221,41 +157,6 @@ export const SURVEY_MAP_LAYERS = {
         "circle-stroke-color": FEATURE_COLORS.routeCasing,
         "circle-stroke-width": 2.5,
       },
-    },
-  ],
-  "route-evidence": [
-    {
-      id: "route-outside-blocks",
-      type: "line",
-      source: SOURCE_IDS.routeEvidence,
-      filter: ["==", ["get", "kind"], "outside_blocks"],
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: {
-        "line-color": FEATURE_COLORS.outsideBlocks,
-        "line-width": byZoom(4, 8),
-        "line-dasharray": [1, 1.5],
-        "line-opacity": 0.85,
-      },
-    },
-    {
-      id: "route-outside-supplied",
-      type: "line",
-      source: SOURCE_IDS.routeEvidence,
-      filter: ["==", ["get", "kind"], "outside_supplied"],
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: {
-        "line-color": FEATURE_COLORS.outsideSupplied,
-        "line-width": byZoom(3, 7),
-        "line-dasharray": [1.5, 1],
-      },
-    },
-    {
-      id: "route-outside-permitted",
-      type: "line",
-      source: SOURCE_IDS.routeEvidence,
-      filter: ["==", ["get", "kind"], "outside_permitted"],
-      layout: { "line-join": "round", "line-cap": "round" },
-      paint: { "line-color": FEATURE_COLORS.outsidePermitted, "line-width": byZoom(5, 10) },
     },
   ],
   waste: [

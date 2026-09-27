@@ -111,10 +111,6 @@ const RouteTab: FC<TabContentProps> = props => {
                   ? "."
                   : ` and ${routeCalculation.report.outside_study_area_length_m.toFixed(3)} m outside the study area.`}
               </p>
-              <p>
-                Use the map layers to compare passages, forbidden areas, the study boundary, inferred headlands and
-                classified route segments.
-              </p>
             </div>}
             {routeCalculation.report.warnings.map(warning => <p key={warning}>{warning}</p>)}
           </>}
