@@ -12,9 +12,12 @@ installing uv / bun and project dependencies on first run.
 
 Model mode is on when an NVIDIA GPU is detected (nvidia-smi -L succeeds):
 the backend is synced with the optional `model` extra (torch cu128 + sam3,
-several GB on the first run) and processes uploaded tiles with SAM 3 run3c.
-Without a GPU, or with --no-model / --fallback, only the precomputed run3c
-labels are served.
+several GB on the first run) and processes uploaded tiles with the newest
+fine-tuned SAM 3 run present (run5, else run3c). Without a GPU, or with
+--no-model / --fallback, only that run's precomputed labels are served.
+
+The web server binds $HOST (default 0.0.0.0, i.e. reachable from the LAN);
+the backend stays on 127.0.0.1 behind the web server's /api proxy.
 
 Options:
   --no-install  Skip installing uv/bun and running uv sync / bun install.
@@ -26,13 +29,15 @@ Options:
 Environment (all optional):
   BACKEND_PORT               Backend port (default 8001)
   FRONTEND_PORT              Frontend port (default 3000)
+  HOST                       Web server bind address (default 0.0.0.0 = all interfaces;
+                             use 127.0.0.1 for local-only)
   DATA_DIR                   Data root (default: <repo>/data, else main checkout's data/)
-  SAM3_FT_WEIGHTS            Fine-tuned checkpoint (default $DATA_DIR/tested-on-vm/sam3_ft/run3c/
-                             best_effective.pth, else best.pth)
+  SAM3_FT_WEIGHTS            Fine-tuned checkpoint (default $DATA_DIR/tested-on-vm/sam3_ft/run5/
+                             best_effective.pth, else run5/best.pth, else the same under run3c/)
   SAM3_BASE_WEIGHTS          Base SAM 3 weights, needed with raw best.pth
                              (default $DATA_DIR/weights/sam3/sam3.pt)
   SAM3_PARCELS, SAM3_TTA     Passed through to the model if you set them
-  SAM3_FALLBACK_LABELS_DIR   Precomputed labels (default $DATA_DIR/tested-on-vm/sam3_ft/run3c/labels)
+  SAM3_FALLBACK_LABELS_DIR   Precomputed labels (default <run5 or run3c>/labels)
   PROCESSING_DATA_DIR        Upload/job storage (default route-algo/.processing-data)
   ROUTE_CONSTRAINTS_DIR      Sireț3 02_route constraints (default: organizer assets if found)
 USAGE
@@ -53,8 +58,10 @@ done
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_PORT="${BACKEND_PORT:-8001}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
+HOST="${HOST:-0.0.0.0}"
 BACKEND_URL="http://127.0.0.1:${BACKEND_PORT}"
 FRONTEND_URL="http://localhost:${FRONTEND_PORT}"
+LAN_IP="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
 
 log()  { printf '[start] %s\n' "$*"; }
 warn() { printf '[start] WARNING: %s\n' "$*" >&2; }
@@ -145,9 +152,13 @@ default_path() {
   warn "$var not set and no default found (tried: $*)"
 }
 
+RUN5="$REPO_DATA/tested-on-vm/sam3_ft/run5"
 RUN3C="$REPO_DATA/tested-on-vm/sam3_ft/run3c"
+# Prefer the newest fine-tuned run (run5) when present, else run3c.
+if [[ -e "$RUN5/best_effective.pth" || -e "$RUN5/best.pth" ]]; then RUN_DIR="$RUN5"; else RUN_DIR="$RUN3C"; fi
 if [[ $USE_MODEL -eq 1 ]]; then
-  default_path SAM3_FT_WEIGHTS "$RUN3C/best_effective.pth" "$RUN3C/best.pth"
+  default_path SAM3_FT_WEIGHTS "$RUN_DIR/best_effective.pth" "$RUN_DIR/best.pth" \
+    "$RUN3C/best_effective.pth" "$RUN3C/best.pth"
   if [[ -z "${SAM3_BASE_WEIGHTS:-}" && -e "$REPO_DATA/weights/sam3/sam3.pt" ]]; then
     export SAM3_BASE_WEIGHTS="$REPO_DATA/weights/sam3/sam3.pt"
   fi
@@ -155,7 +166,7 @@ if [[ $USE_MODEL -eq 1 ]]; then
   [[ -z "${SAM3_PARCELS:-}" ]] || log "SAM3_PARCELS=$SAM3_PARCELS"
   [[ -z "${SAM3_TTA:-}" ]] || log "SAM3_TTA=$SAM3_TTA"
 fi
-default_path SAM3_FALLBACK_LABELS_DIR "$RUN3C/labels"
+default_path SAM3_FALLBACK_LABELS_DIR "$RUN_DIR/labels" "$RUN3C/labels"
 shopt -s nullglob
 constraint_candidates=("$ROOT"/assets_for_participants-*/assets_for_participants/02_route)
 shopt -u nullglob
@@ -210,10 +221,11 @@ start_prefixed() {
     _ "$prefix" "$dir" "$@" &
 }
 
+run_label() { local d; d="$(basename "$(dirname "${1:-x/unknown/x}")")"; printf '%s' "$d"; }
 if [[ $USE_MODEL -eq 1 ]]; then
-  MODE="live model (SAM 3 run3c, weights: ${SAM3_FT_WEIGHTS:-missing}); falls back to precomputed labels on failure"
+  MODE="live model (SAM 3 $(run_label "${SAM3_FT_WEIGHTS:-}"), weights: ${SAM3_FT_WEIGHTS:-missing}); falls back to precomputed labels on failure"
 else
-  MODE="fallback only (precomputed run3c labels)"
+  MODE="fallback only (precomputed $(run_label "${SAM3_FALLBACK_LABELS_DIR:-}") labels: ${SAM3_FALLBACK_LABELS_DIR:-missing})"
 fi
 log "Processing mode: $MODE"
 
@@ -236,9 +248,9 @@ for i in $(seq 1 120); do
 done
 log "Backend healthy."
 
-log "Starting frontend on $FRONTEND_URL"
-# Bun.serve() picks its port from $PORT.
-start_prefixed "[web]" "$ROOT/vineyard-front" env PORT="$FRONTEND_PORT" bun dev
+log "Starting frontend on $HOST:$FRONTEND_PORT"
+# Bun.serve() picks its port from $PORT and its bind address from $HOST (src/index.ts).
+start_prefixed "[web]" "$ROOT/vineyard-front" env PORT="$FRONTEND_PORT" HOST="$HOST" bun dev
 WEB_PID=$!
 
 for _ in $(seq 1 60); do
@@ -248,7 +260,8 @@ done
 
 cat <<INFO
 [start] ------------------------------------------------------------
-[start] Frontend      $FRONTEND_URL
+[start] Frontend      $FRONTEND_URL  (bound to $HOST)
+$([[ $HOST == 0.0.0.0 && -n $LAN_IP ]] && echo "[start] LAN           http://$LAN_IP:$FRONTEND_PORT")
 [start] Backend       $BACKEND_URL   (POST /plan, /api/surveys)
 [start] Backend docs  $BACKEND_URL/docs
 [start] Processing    $MODE

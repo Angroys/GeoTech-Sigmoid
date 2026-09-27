@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 SURVEY_ID = re.compile(r"^[a-z0-9-]+$")
 TILE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.tiff?$", re.IGNORECASE)
 DEFAULT_DATA_DIR = Path(__file__).resolve().parents[2] / ".processing-data"
-FALLBACK_NOTE = "Results from precomputed run3c labels (fallback, not live inference)"
+FALLBACK_NOTE = "Results from precomputed {run} labels (fallback, not live inference)"
 
 _lock = threading.RLock()
 
@@ -118,7 +118,7 @@ def _model_note(model: seg.Segmenter, tile_count: int, seconds: float) -> str:
     if seg.parcels_path() is not None:
         details.append("restricted to vineyard parcels")
     plural = "tile" if tile_count == 1 else "tiles"
-    return f"Live SAM 3 run3c inference on {tile_count} {plural} ({', '.join(details)})"
+    return f"Live SAM 3 {seg.run_name(seg.weights_path())} inference on {tile_count} {plural} ({', '.join(details)})"
 
 
 def _segment(tile_paths: list[Path]) -> tuple[list[dict[str, Any]], str, str]:
@@ -150,7 +150,7 @@ def run_job(survey_id: str) -> None:
         out.mkdir(exist_ok=True)
         for name in RESULT_FILES:
             _write_json(out / f"{name}.geojson", feature_collection(results[name], source))
-        message = f"{FALLBACK_NOTE}: {note}" if source == "fallback" else note
+        message = f"{FALLBACK_NOTE.format(run=seg.run_name(seg.fallback_labels_dir()))}: {note}" if source == "fallback" else note
         update(survey_id, status="ready", message=message, source=source)
     except ProcessingError as exc:
         update(survey_id, status="failed", message=str(exc), source=None)

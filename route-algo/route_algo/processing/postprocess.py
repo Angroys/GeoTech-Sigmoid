@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 import shapely
-from shapely.geometry import LineString, Point, Polygon, mapping, shape
+from shapely.geometry import LineString, Point, Polygon, box, mapping, shape
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import nearest_points, unary_union
 
@@ -231,6 +231,16 @@ def _analyse_block(vid: str, canopy: list[Polygon]) -> Block | None:
     return Block(vid, block_polygon, frame, rows, assigned, interrows)
 
 
+def waste_boxes(geoms: list[BaseGeometry], min_area: float = 0.01) -> list[Polygon]:
+    """Waste is reported as axis-aligned bounding boxes (EPSG:32635), never as masks."""
+    boxes: list[Polygon] = []
+    for geom in _polygons(geoms, min_area):
+        rect = _clean(box(*geom.bounds), "Polygon")
+        if rect is not None and rect.area > 0:
+            boxes.append(rect)
+    return boxes
+
+
 def build_results(segments: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     """Map segmenter features (class canopy|waste, EPSG:32635) to result features per file."""
     canopy_raw: list[BaseGeometry] = []
@@ -306,7 +316,7 @@ def build_results(segments: list[dict[str, Any]]) -> dict[str, list[dict[str, An
                 "interrow_cover": "unassessable", "area_m2": round(strip.area, 2),
             }))
 
-    waste = [w for w in (_clean(g, "Polygon") for g in _polygons(waste_raw, 0.01)) if w is not None]
+    waste = waste_boxes(waste_raw)
     waste = waste[:MAX_TARGETS // 2]
     for index, polygon in enumerate(waste, start=1):
         centre = polygon.centroid

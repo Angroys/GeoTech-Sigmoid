@@ -1,13 +1,14 @@
-"""Optional, lazily loaded fine-tuned SAM 3 (run3c) tile segmenter.
+"""Optional, lazily loaded fine-tuned SAM 3 (run5, else run3c) tile segmenter.
 
 Importing this module never imports torch / sam3 / cv2 / rasterio; those live behind
 ``Sam3Segmenter.available()`` and the first ``segment_tile`` call. The model is built once per
 (weights, device) and cached for the life of the process.
 
 Environment:
-  SAM3_FT_WEIGHTS   run3c checkpoint: either the raw best.pth or a baked "effective" file written
+  SAM3_FT_WEIGHTS   run5/run3c checkpoint (run5 and run3c share the 6-class head): either the raw best.pth or a baked "effective" file written
                     by scripts/sam3_infer_tile.py --bake-out (default:
-                    <repo>/data/tested-on-vm/sam3_ft/run3c/best_effective.pth if present, else best.pth)
+                    <repo>/data/tested-on-vm/sam3_ft/run5/best_effective.pth, else run5/best.pth, else the same
+                    files under run3c/)
   SAM3_BASE_WEIGHTS base SAM 3 sam3.pt, needed only for a raw best.pth (default:
                     <repo>/data/weights/sam3/sam3.pt); see sam3_ft/model.py for why
   SAM3_ALLOW_CPU=1  allow running without CUDA (very slow; for debugging only)
@@ -30,6 +31,7 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+RUN5_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft/run5"
 RUN3C_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft/run3c"
 DEFAULT_BASE = REPO_ROOT / "data/weights/sam3/sam3.pt"
 # The class names written in `properties.class` (same as `label` in run3c/labels/*__labels.geojson).
@@ -42,8 +44,11 @@ def weights_path() -> Path:
     env = os.environ.get("SAM3_FT_WEIGHTS")
     if env:
         return Path(env).expanduser()
-    baked = RUN3C_DIR / "best_effective.pth"
-    return baked if baked.is_file() else RUN3C_DIR / "best.pth"
+    for run in (RUN5_DIR, RUN3C_DIR):  # newest fine-tuned run first
+        for name in ("best_effective.pth", "best.pth"):
+            if (run / name).is_file():
+                return run / name
+    return RUN3C_DIR / "best.pth"
 
 
 def base_weights_path() -> Path:
