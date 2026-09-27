@@ -68,7 +68,10 @@ export const useAddVineyardForm = (parcel: Parcel | null) => {
       if (tiles.problems.length > 0) throw new ApiError("Remove the files that are not valid tiles, then try again.");
       const vineyard = await describeVineyard(submitted, session);
       await uploadImagery(vineyard);
-      await saveProcessingVineyard(vineyard, tiles.tiles.length);
+      await saveProcessingVineyard(
+        vineyard,
+        tiles.tiles.map(tile => tile.name),
+      );
     },
     successMessage: "Survey sent. Processing has started.",
     onSuccess: () => navigate(WORKSPACE_ROUTE.owner),
