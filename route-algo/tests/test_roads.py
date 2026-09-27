@@ -121,3 +121,22 @@ def test_interrow_extension_reaches_road_across_gap(tmp_path, monkeypatch):
     monkeypatch.setenv("ROUTE_INTERROW_EXTEND_M", "5")
     report = client.post("/plan", json=body).json()["report"]
     assert report["visited_count"] == 1 and report["outside_length_m"] < 1e-6
+
+
+def test_complexity_failure_retries_without_interrow_extension(tmp_path, monkeypatch):
+    monkeypatch.setenv("ROUTE_CONSTRAINTS_DIR", str(constraints(tmp_path)))
+    monkeypatch.setenv("ROUTE_ROADS_FILE", str(roads(tmp_path)))
+    real = api.plan_route
+
+    def fussy(req):
+        if any(f["properties"].get("source") == "interrow_extension" for f in req.passages.features):
+            raise api.PlanningError("Walkable geometry is empty or too complex (limit: 100,000 triangles).")
+        return real(req)
+
+    monkeypatch.setattr(api, "plan_route", fussy)
+    body = request("siret3").model_dump(exclude={"passages", "forbidden", "study_area"})
+    response = TestClient(api.app).post("/plan", json=body)
+    assert response.status_code == 200
+    report = response.json()["report"]
+    assert report["roads_used"] is True and report["visited_count"] == 1
+    assert any("roads only" in w for w in report["warnings"])
