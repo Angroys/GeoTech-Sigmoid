@@ -44,6 +44,8 @@ const proxyToCadastre = proxyTo(process.env.CADASTRE_API_URL, "cadastre");
 const server = serve({
   // Bind every interface by default so phones/laptops on the LAN can reach the app; HOST overrides.
   hostname: process.env.HOST ?? "0.0.0.0",
+  // Full-map route planning can take minutes; keep the connection open (Bun's maximum).
+  idleTimeout: 255,
   routes: {
     "/*": index,
 
@@ -58,7 +60,7 @@ const server = serve({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body,
-            signal: AbortSignal.timeout(120_000),
+            signal: AbortSignal.timeout(250_000),
           });
           return new Response(await response.text(), {
             status: response.status,
