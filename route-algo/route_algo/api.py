@@ -145,11 +145,12 @@ def plan(request: PlanRequest | StoredPlanRequest):
             raise HTTPException(503, "SAM3 mock data is unavailable. Run python -m route_algo.sam3c first.") from exc
     try:
         constrained = with_constraints(request)
-        request, roads, roads_warning = with_roads(constrained)
+        # The full-map dataset always exceeds the triangulation limit with extensions: go straight to roads only.
+        request, roads, roads_warning = with_roads(constrained, extend=not dataset)
         try:
             result = plan_route(request)
         except PlanningError:
-            if roads is None or not interrow_extend_m():
+            if roads is None or not interrow_extend_m() or dataset:
                 raise
             # Very large surveys can exceed the triangulation limit; retry with roads only.
             request, roads, roads_warning = with_roads(constrained, extend=False)
