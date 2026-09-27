@@ -1,4 +1,5 @@
 import { ApiError } from "@/shared/api";
+import { randomUUID } from "@/shared/lib/crypto";
 import { readItem, writeItem } from "@/shared/lib/storage";
 
 import { accountIdSchema, accountListSchema } from "../model/schema";
@@ -11,7 +12,7 @@ export const STORAGE_BLOCKED =
 
 const UNUSABLE_PASSWORD = { passwordHash: "0".repeat(64), salt: "0".repeat(32) };
 
-export const newAccountId = () => accountIdSchema.parse(crypto.randomUUID());
+export const newAccountId = () => accountIdSchema.parse(randomUUID());
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
