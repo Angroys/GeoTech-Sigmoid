@@ -20,7 +20,7 @@ from typing import Any, Iterable
 
 from . import config
 
-VALID_STATUS = {"unchecked", "in_progress", "verified"}
+VALID_STATUS = {"unchecked", "in_progress", "verified", "invalid"}
 VALID_SHAPE = {"polygon", "polyline", "box"}
 
 _lock = threading.Lock()
@@ -119,7 +119,7 @@ def annotation_counts() -> dict[str, int]:
 
 
 def status_counts() -> dict[str, int]:
-    out = {"unchecked": 0, "in_progress": 0, "verified": 0}
+    out = {"unchecked": 0, "in_progress": 0, "verified": 0, "invalid": 0}
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT verification_status s, COUNT(*) c FROM tiles GROUP BY verification_status"
@@ -127,6 +127,27 @@ def status_counts() -> dict[str, int]:
         for r in rows:
             out[r["s"]] = r["c"]
     return out
+
+
+def export_annotations(tile_name: str) -> list[dict[str, Any]]:
+    """Annotations as they should appear in any export/dataset output.
+
+    Invalid tiles stay in the dataset (image + georeferencing) but with NO
+    labels: an empty GeoJSON and an all-background mask.
+    """
+    st = get_tile_status(tile_name) or {}
+    if st.get("verification_status") == "invalid":
+        return []
+    return list_annotations(tile_name)
+
+
+def tiles_with_status(status: str) -> set[str]:
+    """Names of tiles currently in the given verification status."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT name FROM tiles WHERE verification_status = ?", (status,)
+        ).fetchall()
+    return {r["name"] for r in rows}
 
 
 # ---------------------------------------------------------- annotations ----

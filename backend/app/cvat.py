@@ -66,6 +66,14 @@ DEFAULT_LABELS: list[dict[str, Any]] = [
              "values": "bare_soil\nvegetation\nmixed\nunassessable"},
         ],
     },
+    {
+        "name": "dead_vine",
+        "type": "polygon",
+        "attributes": [
+            {"name": "vineyard_id", "mutable": "False", "input_type": "text",
+             "default_value": "", "values": ""},
+        ],
+    },
 ]
 
 DEFAULT_TASK_NAME = "Vineyard AI Field Challenge"

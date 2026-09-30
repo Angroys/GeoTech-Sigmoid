@@ -36,7 +36,7 @@ from rasterio.warp import transform as warp_transform
 from . import config, db, tiles
 
 # Recognised platform labels.
-VALID_LABELS = {"vineyard", "waste", "interrow_area", "row"}
+VALID_LABELS = {"vineyard", "waste", "interrow_area", "row", "dead_vine"}
 
 # prompt property -> platform label (earlier ``out/`` variant).
 PROMPT_LABEL_MAP = {
@@ -55,6 +55,8 @@ SUFFIX_LABEL_MAP = {
     "waste": "waste",
     "interrow_area": "interrow_area",
     "interrow": "interrow_area",
+    "dead_vine": "dead_vine",
+    "dead_vines": "dead_vine",
 }
 
 # Optional feature-property keys carried into annotation attributes when present.

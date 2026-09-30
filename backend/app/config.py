@@ -60,6 +60,46 @@ def exports_dir() -> Path:
     return p
 
 
+def finish_dir() -> Path:
+    """Directory for finished, georeferenced per-tile outputs ("finish" dataset).
+
+    Default: ``<repo_root>/data/finish`` (three levels above backend/, same base
+    as the tiles path). Override with GEOTECH_FINISH_DIR. Created if missing.
+
+    NOTE: ``data/`` is gitignored -- writing finished outputs here is intended
+    and must NOT be committed.
+    """
+    p = Path(
+        os.environ.get(
+            "GEOTECH_FINISH_DIR",
+            str(BACKEND_ROOT.parent.parent.parent / "data" / "finish"),
+        )
+    )
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def parcels_path() -> Path:
+    """Vineyard parcel outlines (EPSG:32635 GeoJSON) shown on the site.
+
+    Env GEOTECH_PARCELS; default <repo_root>/data/tested-on-vm/parcels/parcels_v2.geojson.
+    """
+    return Path(os.environ.get(
+        "GEOTECH_PARCELS",
+        str(BACKEND_ROOT.parent.parent.parent / "data" / "tested-on-vm" / "parcels" / "parcels_v2.geojson"),
+    ))
+
+
+def frontend_dist() -> Path:
+    """Built frontend (Vite dist) to serve as a single-origin SPA.
+
+    Default: the sibling frontend/dist next to backend/. Override with
+    GEOTECH_FRONTEND_DIST. When present, the API app also serves the UI so the
+    whole thing runs on one origin/port (no separate dev server or proxy).
+    """
+    return Path(os.environ.get("GEOTECH_FRONTEND_DIST", str(BACKEND_ROOT.parent / "frontend" / "dist")))
+
+
 # Fixed class -> mask value map (documented; used by app/masks.py).
 CLASS_VALUE_MAP: dict[str, int] = {
     "background": 0,
@@ -67,4 +107,5 @@ CLASS_VALUE_MAP: dict[str, int] = {
     "row": 2,
     "interrow_area": 3,
     "waste": 4,
+    "dead_vine": 5,
 }

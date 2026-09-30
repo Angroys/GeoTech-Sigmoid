@@ -18,13 +18,17 @@ export interface OverlayStyle {
  */
 export function overlayKeyFor(label: Label, attr: AnnotationAttributes = {}): string {
   if (label === 'row') {
-    return attr.row_structure === 'disrupted' ? 'rowsDisrupted' : 'rows';
+    // All rows share one colour; `row_structure` is still stored/editable.
+    return 'rows';
   }
   if (label === 'interrow_area') {
     return attr.interrow_cover === 'mixed' ? 'interRowMixed' : 'interRowBareSoil';
   }
   if (label === 'vineyard') {
     return 'canopies';
+  }
+  if (label === 'dead_vine') {
+    return 'deadVine';
   }
   // waste / other -> reuse canopies-style but distinguishable via wasteStyle below
   return 'canopies';
@@ -142,6 +146,9 @@ export const statusToken = (status: string) => {
     in_progress: 'inProgress',
     verified: 'verified',
   };
+  if (status === 'invalid') {
+    return { solid: '#FF5A5A', bg: 'rgba(255, 90, 90, 0.14)', text: '#FF8A8A', label: 'Invalid' };
+  }
   return tokens.status[map[status] ?? 'unchecked'];
 };
 

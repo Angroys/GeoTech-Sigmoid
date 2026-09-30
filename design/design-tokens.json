@@ -50,6 +50,14 @@
       "fill": "rgba(255, 176, 32, 0.16)",
       "strokeWidth": 1.5,
       "dashArray": "6 4"
+    },
+    "deadVine": {
+      "_class": "dead_vine (dead / missing vine plants) — v10 label",
+      "_treatment": "Violet/purple hue, well clear of vineyard green (#22E06B), waste grey (#B4BDCA), row red (#FF2D2D) and inter-row cyan (#18E0E0). Solid stroke + low-alpha fill, same halo treatment as the other area classes.",
+      "stroke": "#A855F7",
+      "fill": "rgba(168, 85, 247, 0.20)",
+      "strokeWidth": 1.5,
+      "dashArray": null
     }
   },
 

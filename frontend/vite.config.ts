@@ -14,7 +14,9 @@ export default defineConfig({
     host: true, // bind 0.0.0.0 for Headscale reachability
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        // Backend base URL; override with VITE_PROXY_TARGET when the backend
+        // is not on the default port (e.g. :8000 taken by another service).
+        target: process.env.VITE_PROXY_TARGET || 'http://localhost:8000',
         changeOrigin: true,
       },
     },
