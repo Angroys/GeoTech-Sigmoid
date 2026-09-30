@@ -70,7 +70,8 @@ def survey_status(survey_id: str) -> dict[str, Any]:
 
 @router.get("/{survey_id}/results/{file_name}")
 def survey_result(survey_id: str, file_name: str) -> FileResponse:
-    return FileResponse(service.result_path(survey_id, file_name), media_type="application/geo+json")
+    media = service.CHALLENGE_FILES.get(file_name, "application/geo+json")
+    return FileResponse(service.result_path(survey_id, file_name), media_type=media)
 
 
 def _is_api(request: Request) -> bool:

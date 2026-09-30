@@ -32,5 +32,16 @@ one the app already reads for the built-in Sireț3 survey (`public/data/siret3/`
 `blocks.geojson`, `rows.geojson`, `canopy.geojson`, `interrows.geojson`, `waste.geojson`,
 `inspection_points.geojson`, `start.geojson`.
 
+The same results folder also holds the **challenge deliverable** for the uploaded tiles:
+
+| File | Content |
+|---|---|
+| `annotations.xml` | CVAT 1.1, one `<image>` per uploaded tile (empty tiles included), exactly the four challenge labels: `vineyard` (polygon, one per plant), `row` (polyline, one per row per tile, `vineyard_id` / `row_id` / `row_structure`), `interrow_area` (polygon, one per row gap, `interrow_cover`), `waste` (rectangle). Checked against the label contract before the survey becomes `ready`. |
+| `challenge.geojson` | The same objects in EPSG:32635 with their attributes and source `tile`. |
+
+IDs are consistent across the uploaded tiles: a row crossing tile edges keeps its `row_id`. Dead vines are
+never exported (annotation rules: draw nothing). Classes the model was not trained on (run5: waste) produce
+no objects.
+
 Routes are not part of the results: the app plans them on the Route tab through the routing service
 (`route-algo`).

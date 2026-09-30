@@ -26,11 +26,14 @@ log = logging.getLogger(__name__)
 
 # Repo-relative default; scripts/start-all.sh exports SAM3_* env vars (incl. worktree fallback to the main checkout).
 REPO_ROOT = Path(__file__).resolve().parents[3]
-RUN3C_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft/run3c"
+SAM3_FT_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft"
+# Newest fine-tuned run first; each holds best.pth (+ optional baked best_effective.pth) and labels/.
+RUN_DIRS = (SAM3_FT_DIR / "run5", SAM3_FT_DIR / "run3c")
+RUN3C_DIR = SAM3_FT_DIR / "run3c"
 # Baked weights are self-contained; the raw best.pth also needs SAM3_BASE_WEIGHTS (sam3.pt).
 BAKED_WEIGHTS = RUN3C_DIR / "best_effective.pth"
 RAW_WEIGHTS = RUN3C_DIR / "best.pth"
-DEFAULT_FALLBACK_LABELS = RUN3C_DIR / "labels"
+DEFAULT_FALLBACK_LABELS = next((r / "labels" for r in RUN_DIRS if (r / "labels").is_dir()), RUN3C_DIR / "labels")
 SIRET3_TILE = re.compile(r"^siret3_r\d{3}_c\d{3}$")
 SEGMENT_CLASSES = ("canopy", "waste")
 # Label names used by the precomputed run3c files -> segmenter classes.
@@ -52,6 +55,11 @@ _last_reason = "not loaded"
 
 
 def default_weights() -> Path:
+    """Newest run that has weights (baked before raw); run3c's BAKED/RAW paths last."""
+    for run in RUN_DIRS[:-1]:
+        for name in ("best_effective.pth", "best.pth"):
+            if (run / name).is_file():
+                return run / name
     return BAKED_WEIGHTS if BAKED_WEIGHTS.is_file() else RAW_WEIGHTS
 
 
@@ -127,6 +135,16 @@ def device_label(model: Segmenter) -> str | None:
 
 def is_siret3_tile(tile: Path) -> bool:
     return bool(SIRET3_TILE.match(tile.stem))
+
+
+def fallback_labels(tiles: list[Path]) -> dict[str, list[dict[str, Any]]]:
+    """Precomputed labels per tile (all classes, team label schema) for the challenge export."""
+    directory = fallback_labels_dir()
+    out: dict[str, list[dict[str, Any]]] = {}
+    for tile in tiles:
+        path = directory / f"{tile.stem}__labels.geojson"
+        out[tile.name] = json.loads(path.read_text()).get("features", []) if path.is_file() else []
+    return out
 
 
 def fallback_features(tiles: list[Path]) -> list[dict[str, Any]]:

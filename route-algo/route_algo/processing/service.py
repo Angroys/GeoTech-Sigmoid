@@ -11,15 +11,24 @@ import time
 from pathlib import Path
 from typing import Any
 
+from . import challenge
 from . import segmenter as seg
-from .postprocess import RESULT_FILES, ProcessingError, build_results, feature_collection
+from .geotiff import read_tile_info
+from .postprocess import (
+    RESULT_FILES,
+    ProcessingError,
+    build_results,
+    feature_collection,
+)
 
 log = logging.getLogger(__name__)
 
 SURVEY_ID = re.compile(r"^[a-z0-9-]+$")
 TILE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.tiff?$", re.IGNORECASE)
 DEFAULT_DATA_DIR = Path(__file__).resolve().parents[2] / ".processing-data"
-FALLBACK_NOTE = "Results from precomputed run3c labels (fallback, not live inference)"
+FALLBACK_NOTE = "Results from precomputed SAM 3 labels (fallback, not live inference)"
+# Challenge deliverable next to the web-app layers: CVAT 1.1 annotations and the same labels as GeoJSON.
+CHALLENGE_FILES = {"annotations.xml": "application/xml", "challenge.geojson": "application/geo+json"}
 
 _lock = threading.RLock()
 
@@ -118,39 +127,74 @@ def _model_note(model: seg.Segmenter, tile_count: int, seconds: float) -> str:
     if seg.parcels_path() is not None:
         details.append("restricted to vineyard parcels")
     plural = "tile" if tile_count == 1 else "tiles"
-    return f"Live SAM 3 run3c inference on {tile_count} {plural} ({', '.join(details)})"
+    weights = getattr(model, "weights", None)
+    run = Path(weights).parent.name if weights else "run3c"
+    return f"Live SAM 3 {run} inference on {tile_count} {plural} ({', '.join(details)})"
 
 
-def _segment(tile_paths: list[Path]) -> tuple[list[dict[str, Any]], str, str]:
-    """Return (features, source, message): a model note, or the fallback reason."""
+def _segment(tile_paths: list[Path]) -> tuple[dict[str, list[dict[str, Any]]], str, str]:
+    """Return ({tile name: features}, source, message): a model note, or the fallback reason.
+
+    Model features carry every class in the team label schema; fallback features are the precomputed
+    per-tile label files (also every class)."""
     model = seg.get_segmenter()
     reason = seg.unavailable_reason()
     if model is not None:
         try:
             started = time.monotonic()
-            features: list[dict[str, Any]] = []
-            for tile in tile_paths:
-                features.extend(model.segment_tile(tile))
-            return features, "model", _model_note(model, len(tile_paths), time.monotonic() - started)
+            per_tile = {tile.name: model.segment_tile(tile) for tile in tile_paths}
+            return per_tile, "model", _model_note(model, len(tile_paths), time.monotonic() - started)
         except Exception as exc:  # inference failure must degrade to fallback, not crash the job
             log.exception("SAM 3 inference failed")
             reason = f"live inference failed ({exc})"
     try:
-        return seg.fallback_features(tile_paths), "fallback", reason
+        seg.fallback_features(tile_paths)  # raises when no precomputed labels cover these tiles
+        return seg.fallback_labels(tile_paths), "fallback", reason
     except seg.SegmenterUnavailable as exc:
         raise ProcessingError(f"The segmentation model is unavailable: {reason}; fallback impossible: {exc}.") from exc
+
+
+def _web_segments(per_tile: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Canopy and waste segments for the route layers (rows / interrows are rebuilt from canopy)."""
+    out = []
+    for features in per_tile.values():
+        for f in features:
+            props = f.get("properties") or {}
+            cls = seg.FALLBACK_CLASS_MAP.get(props.get("label") or props.get("class") or "")
+            if props.get("class") == "canopy":
+                cls = "canopy"
+            if cls and (f.get("geometry") or {}).get("type") in {"Polygon", "MultiPolygon"}:
+                out.append({"type": "Feature", "geometry": f["geometry"], "properties": {"class": cls}})
+    return out
+
+
+def _write_challenge(survey_id: str, tile_paths: list[Path], per_tile: dict[str, list[dict[str, Any]]]) -> str:
+    tiles = [challenge.Tile(p.name, read_tile_info(p), per_tile.get(p.name, [])) for p in tile_paths]
+    result = challenge.build(tiles, task_name=f"Vineyard AI Field Challenge - {survey_id}")
+    out = survey_dir(survey_id) / "results"
+    tmp = out / "annotations.xml.tmp"
+    tmp.write_text(result["xml"], encoding="utf-8")
+    tmp.replace(out / "annotations.xml")
+    _write_json(out / "challenge.geojson", result["geojson"])
+    if result["problems"]:
+        raise ProcessingError("The challenge export failed its checks: " + "; ".join(result["problems"][:5]))
+    c = result["counts"]
+    return (f"challenge export: {c.get('vineyard', 0)} plants, {c.get('row', 0)} rows, "
+            f"{c.get('interrow_area', 0)} inter-rows, {c.get('waste', 0)} waste")
 
 
 def run_job(survey_id: str) -> None:
     try:
         tile_paths = tiles(survey_id)
-        features, source, note = _segment(tile_paths)
-        results = build_results(features)
+        per_tile, source, note = _segment(tile_paths)
+        results = build_results(_web_segments(per_tile))
         out = survey_dir(survey_id) / "results"
         out.mkdir(exist_ok=True)
         for name in RESULT_FILES:
             _write_json(out / f"{name}.geojson", feature_collection(results[name], source))
+        export = _write_challenge(survey_id, tile_paths, per_tile)
         message = f"{FALLBACK_NOTE}: {note}" if source == "fallback" else note
+        message = f"{message}; {export}"
         update(survey_id, status="ready", message=message, source=source)
     except ProcessingError as exc:
         update(survey_id, status="failed", message=str(exc), source=None)
@@ -171,6 +215,10 @@ def status(survey_id: str) -> dict[str, Any]:
 
 def result_path(survey_id: str, file_name: str) -> Path:
     record = load(survey_id)
+    if file_name in CHALLENGE_FILES:
+        if record["status"] != "ready":
+            raise SurveyError(409, f"Results are not ready (status: {record['status']}).")
+        return survey_dir(survey_id) / "results" / file_name
     stem = file_name.removesuffix(".geojson").removesuffix(".json")
     if stem not in RESULT_FILES:
         raise SurveyError(404, f"Unknown result file {file_name!r}.")

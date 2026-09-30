@@ -197,17 +197,22 @@ def _feature(label: str, geom: BaseGeometry, score: float, **extra: Any) -> dict
 
 
 def vectorize(
-    prob: np.ndarray, rgb: np.ndarray, transform: Any, valid: np.ndarray | None = None
+    prob: np.ndarray,
+    rgb: np.ndarray,
+    transform: Any,
+    valid: np.ndarray | None = None,
+    disabled: frozenset[str] = frozenset(),
 ) -> list[dict[str, Any]]:
     """prob: (C, H, W) float in [0, 1]; rgb: (H, W, 3) uint8; transform: rasterio Affine of the tile;
-    valid: optional (H, W) bool mask (e.g. rasterised vineyard parcels). Returns GeoJSON Features."""
+    valid: optional (H, W) bool mask (e.g. rasterised vineyard parcels); disabled: classes the weights
+    were not trained on (their untrained channels must never produce objects). Returns GeoJSON Features."""
     from rasterio.features import rasterize
     from skimage.segmentation import watershed
 
     _, H, W = prob.shape
     if valid is None:
         valid = np.ones((H, W), bool)
-    m = {k: (prob[i] > T[k]) & valid for k, i in CLASS_IDX.items()}
+    m = {k: (prob[i] > T[k]) & valid if k not in disabled else np.zeros((H, W), bool) for k, i in CLASS_IDX.items()}
     feats: list[dict[str, Any]] = []
 
     p_vine = prob[CLASS_IDX["vineyard"]]

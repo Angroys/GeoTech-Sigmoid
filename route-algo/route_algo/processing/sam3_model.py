@@ -5,9 +5,11 @@ Importing this module never imports torch / sam3 / cv2 / rasterio; those live be
 (weights, device) and cached for the life of the process.
 
 Environment:
-  SAM3_FT_WEIGHTS   run3c checkpoint: either the raw best.pth or a baked "effective" file written
-                    by scripts/sam3_infer_tile.py --bake-out (default:
-                    <repo>/data/tested-on-vm/sam3_ft/run3c/best_effective.pth if present, else best.pth)
+  SAM3_FT_WEIGHTS   fine-tuned checkpoint: either the raw best.pth or a baked "effective" file written
+                    by scripts/sam3_infer_tile.py --bake-out (default: the newest of
+                    <repo>/data/tested-on-vm/sam3_ft/{run5,run3c}/best_effective.pth, then best.pth)
+  SAM3_DISABLED_CLASSES  comma-separated classes to switch off (default: drop_classes from the
+                    args.json next to the weights; run5 was trained without waste and dead_vine)
   SAM3_BASE_WEIGHTS base SAM 3 sam3.pt, needed only for a raw best.pth (default:
                     <repo>/data/weights/sam3/sam3.pt); see sam3_ft/model.py for why
   SAM3_ALLOW_CPU=1  allow running without CUDA (very slow; for debugging only)
@@ -30,7 +32,10 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-RUN3C_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft/run3c"
+SAM3_FT_DIR = REPO_ROOT / "data/tested-on-vm/sam3_ft"
+# Newest fine-tuned run first (run5: labelled tiles, batch 16, 100 epochs, waste/dead_vine not trained).
+RUN_DIRS = (SAM3_FT_DIR / "run5", SAM3_FT_DIR / "run3c")
+RUN3C_DIR = SAM3_FT_DIR / "run3c"
 DEFAULT_BASE = REPO_ROOT / "data/weights/sam3/sam3.pt"
 # The class names written in `properties.class` (same as `label` in run3c/labels/*__labels.geojson).
 OUTPUT_CLASSES = ("vineyard", "row", "interrow_area", "waste", "dead_vine")
@@ -42,8 +47,24 @@ def weights_path() -> Path:
     env = os.environ.get("SAM3_FT_WEIGHTS")
     if env:
         return Path(env).expanduser()
-    baked = RUN3C_DIR / "best_effective.pth"
-    return baked if baked.is_file() else RUN3C_DIR / "best.pth"
+    for run in RUN_DIRS:
+        for name in ("best_effective.pth", "best.pth"):
+            if (run / name).is_file():
+                return run / name
+    return RUN3C_DIR / "best.pth"
+
+
+def disabled_classes(weights: Path) -> frozenset[str]:
+    """Classes left out of training (train.py --drop-classes, recorded in args.json next to the
+    weights); SAM3_DISABLED_CLASSES (comma-separated) overrides."""
+    env = os.environ.get("SAM3_DISABLED_CLASSES")
+    if env is not None:
+        return frozenset(c.strip() for c in env.split(",") if c.strip())
+    args = weights.parent / "args.json"
+    try:
+        return frozenset(json.loads(args.read_text()).get("drop_classes") or ())
+    except (OSError, ValueError):
+        return frozenset()
 
 
 def base_weights_path() -> Path:
@@ -110,6 +131,7 @@ class Sam3Segmenter:
         env_parcels = os.environ.get("SAM3_PARCELS")
         self.parcels = parcels if parcels is not None else (Path(env_parcels) if env_parcels else None)
         self.tta = os.environ.get("SAM3_TTA", "1") != "0"
+        self.disabled = disabled_classes(self.weights)
 
     @classmethod
     def available(cls) -> bool:
@@ -181,7 +203,7 @@ class Sam3Segmenter:
         device = self._device()
         with _LOCK:  # one tile at a time on the GPU
             prob = predict_tile(model, img, device=device, tta=self.tta)
-        return vectorize(prob, img, transform, valid)
+        return vectorize(prob, img, transform, valid, disabled=self.disabled)
 
 
 def feature_collection(features: list[dict[str, Any]]) -> dict[str, Any]:
