@@ -1,0 +1,59 @@
+{
+  "classes": {
+    "1": "vineyard",
+    "2": "waste",
+    "3": "interrow_area",
+    "4": "background",
+    "0": "void/ignore"
+  },
+  "tiles": [
+    {
+      "tile": "siret3_r007_c002",
+      "vineyard": 466,
+      "waste": 6,
+      "row": 28,
+      "row_disrupted": 1,
+      "interrow_parts": 8,
+      "share": {
+        "void": 0.35,
+        "vineyard": 0.073,
+        "waste": 0.0,
+        "interrow_area": 0.517,
+        "background": 0.06
+      },
+      "sec": 30.0
+    },
+    {
+      "tile": "siret3_r007_c003",
+      "vineyard": 540,
+      "waste": 0,
+      "row": 47,
+      "row_disrupted": 8,
+      "interrow_parts": 5,
+      "share": {
+        "void": 0.308,
+        "vineyard": 0.082,
+        "waste": 0.0,
+        "interrow_area": 0.577,
+        "background": 0.034
+      },
+      "sec": 27.9
+    },
+    {
+      "tile": "siret3_r007_c004",
+      "vineyard": 464,
+      "waste": 0,
+      "row": 32,
+      "row_disrupted": 0,
+      "interrow_parts": 5,
+      "share": {
+        "void": 0.454,
+        "vineyard": 0.059,
+        "waste": 0.0,
+        "interrow_area": 0.43,
+        "background": 0.057
+      },
+      "sec": 26.7
+    }
+  ]
+}

@@ -28,3 +28,6 @@ venv/
 # Local worktrees / handoffs (orchestration)
 worktrees/
 .handoffs/
+
+# Downloaded datasets (not tracked)
+/data/

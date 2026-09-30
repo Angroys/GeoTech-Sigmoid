@@ -1,0 +1,29 @@
+[
+  {
+    "tile": "siret3_r007_c002",
+    "plants": 429,
+    "canopy_m2": 177.8,
+    "row_segments": 25,
+    "row_band_share": 0.284,
+    "sam_added_px": 65582,
+    "sec": 9.2
+  },
+  {
+    "tile": "siret3_r007_c003",
+    "plants": 480,
+    "canopy_m2": 199.5,
+    "row_segments": 44,
+    "row_band_share": 0.316,
+    "sam_added_px": 48970,
+    "sec": 8.6
+  },
+  {
+    "tile": "siret3_r007_c004",
+    "plants": 428,
+    "canopy_m2": 148.7,
+    "row_segments": 30,
+    "row_band_share": 0.26,
+    "sam_added_px": 31181,
+    "sec": 8.2
+  }
+]
