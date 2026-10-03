@@ -1,5 +1,5 @@
 import { CircleAlert, LoaderCircle } from "lucide-react";
-import type { FC } from "react";
+import { useState, type FC } from "react";
 
 import {
   DelegationFacts,
@@ -7,19 +7,34 @@ import {
   type Delegation,
   type InspectorDelegationsState,
 } from "@/entities/delegation";
-import { useOwnerParcels } from "@/entities/parcel";
+import { useOwnerParcels, type OwnerParcelsState } from "@/entities/parcel";
 import { useSession } from "@/entities/session";
 import type { SurveySource } from "@/entities/survey";
+import { formatCount, formatQuantity } from "@/shared/lib/format";
 import { assertNever } from "@/shared/lib/types";
+import { CollapsibleGroup } from "@/shared/ui";
 
 import { surveysOfParcel } from "../lib/surveys-of-parcel";
 import { ParcelEntry } from "./parcel-entry";
 
-type DelegationParcelsProps = { delegation: Delegation; sources: readonly SurveySource[] };
+const parcelsSummary = (state: OwnerParcelsState, sources: readonly SurveySource[]) => {
+  switch (state.status) {
+    case "loading":
+      return "Looking up the operator’s parcels";
+    case "error":
+      return "The parcels could not be loaded";
+    case "ready": {
+      const surveyed = state.parcels.filter(parcel => surveysOfParcel(sources, parcel.cadastralNumber).length > 0);
+      return `${formatQuantity(state.parcels.length, "parcel", "parcels")} · ${formatCount(surveyed.length)} with a drone survey`;
+    }
+    default:
+      return assertNever(state);
+  }
+};
 
-const DelegationParcels: FC<DelegationParcelsProps> = ({ delegation, sources }) => {
-  const state = useOwnerParcels(delegation.operator.idno);
+type DelegationParcelsProps = { delegation: Delegation; state: OwnerParcelsState; sources: readonly SurveySource[] };
 
+const DelegationParcels: FC<DelegationParcelsProps> = ({ delegation, state, sources }) => {
   if (state.status === "loading") {
     return <p className="text-muted-foreground text-sm">Looking up the operator&rsquo;s parcels</p>;
   }
@@ -46,12 +61,23 @@ const DelegationParcels: FC<DelegationParcelsProps> = ({ delegation, sources }) 
 type DelegationCardProps = { delegation: Delegation; sources: readonly SurveySource[] };
 
 const DelegationCard: FC<DelegationCardProps> = ({ delegation, sources }) => {
+  const parcels = useOwnerParcels(delegation.operator.idno);
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <li className="border-border bg-popover grid gap-5 rounded-xl border p-4 shadow-[0_1px_2px_rgb(29_36_32/0.06)] sm:p-5">
       <DelegationFacts delegation={delegation} />
-      <div className="grid gap-3">
-        <h3 className="text-sm font-semibold">Parcels to inspect</h3>
-        <DelegationParcels delegation={delegation} sources={sources} />
+      <div className="-mx-2">
+        <CollapsibleGroup
+          title="Parcels to inspect"
+          summary={parcelsSummary(parcels, sources)}
+          isExpanded={isExpanded}
+          onToggle={() => setIsExpanded(expanded => !expanded)}
+        >
+          <div className="px-2 pt-2">
+            <DelegationParcels delegation={delegation} state={parcels} sources={sources} />
+          </div>
+        </CollapsibleGroup>
       </div>
     </li>
   );
