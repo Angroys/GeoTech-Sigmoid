@@ -7,7 +7,11 @@ export const WORKSPACE_ROUTE = { owner: ROUTES.owner, inspector: ROUTES.inspecto
   AppRoute
 >;
 
-export const vineyardUrl = (role: Role, surveyId: string, blockId?: string) => {
+type VineyardQuery = { block?: string; delegation?: string };
+
+export const vineyardUrl = (role: Role, surveyId: string, query: VineyardQuery = {}) => {
   const path = `${WORKSPACE_ROUTE[role]}/${encodeURIComponent(surveyId)}`;
-  return blockId ? `${path}?block=${encodeURIComponent(blockId)}` : path;
+  const params = new URLSearchParams(Object.entries(query).filter(([, value]) => value !== undefined));
+  const search = params.toString();
+  return search ? `${path}?${search}` : path;
 };

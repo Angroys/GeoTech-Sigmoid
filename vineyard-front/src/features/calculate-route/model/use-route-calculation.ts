@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   applyRoutePlan,
   requestRoutePlan,
-  type RoutePathMode,
   type RoutePlanResponse,
   type RoutePurpose,
   type Survey,
@@ -21,11 +20,6 @@ type Calculation = {
   error?: string;
 };
 
-const DEMO_SURVEY_ID = "siret3";
-
-const pathModeFor = (surveyId: string): RoutePathMode =>
-  surveyId === DEMO_SURVEY_ID ? "demo_headlands" : "supplied";
-
 const finishedCalculation = (key: string, survey: Survey, purpose: RoutePurpose, plan: RoutePlanResponse): Calculation => {
   const result = applyRoutePlan(survey, purpose, plan);
   return { key, inputSurvey: survey, status: result.routeFile ? "ready" : "no_route", result };
@@ -38,8 +32,7 @@ const restoredCalculation = (key: string, survey: Survey, purpose: RoutePurpose)
 
 export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: RoutePurpose, requestedStart: Position | null) => {
   const start = requestedStart ?? survey.start.geometry.coordinates;
-  const pathMode = pathModeFor(surveyId);
-  const key = JSON.stringify([surveyId, purpose, start, pathMode]);
+  const key = JSON.stringify([surveyId, purpose, start]);
   const [state, setState] = useState<Calculation | null>(() => restoredCalculation(key, survey, purpose));
   const controller = useRef<AbortController | null>(null);
 
@@ -54,7 +47,7 @@ export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: R
     controller.current = active;
     setState({ key, inputSurvey: survey, status: "calculating" });
     try {
-      const plan = await requestRoutePlan(survey, purpose, start, surveyId, active.signal, pathMode);
+      const plan = await requestRoutePlan(survey, purpose, start, surveyId, active.signal);
       if (active.signal.aborted) return;
       savePlan(key, plan);
       setState(finishedCalculation(key, survey, purpose, plan));
@@ -90,7 +83,6 @@ export const useRouteCalculation = (survey: Survey, surveyId: string, purpose: R
 
   return {
     survey: effectiveSurvey,
-    pathMode,
     status: current?.status ?? "idle",
     error: current?.error,
     report: current?.result?.report,

@@ -8,6 +8,7 @@ import { WorkspaceLayout } from "@/shared/ui";
 import { InspectionReport } from "@/widgets/inspection-report";
 import { VineyardMap } from "@/widgets/vineyard-map";
 
+import { useActiveDelegation } from "../model/use-active-delegation";
 import { useVineyardWorkspace } from "../model/use-vineyard-workspace";
 import { WorkspacePanel } from "./workspace-panel";
 
@@ -16,6 +17,7 @@ type VineyardWorkspaceProps = { role: Role; source: SurveySource; survey: Survey
 const VineyardWorkspace: FC<VineyardWorkspaceProps> = props => {
   const { role, source } = props;
   const workspace = useVineyardWorkspace(props);
+  const delegation = useActiveDelegation();
   const survey = workspace.survey;
 
   if (workspace.report.isReportOpen) {
@@ -26,6 +28,7 @@ const VineyardWorkspace: FC<VineyardWorkspaceProps> = props => {
           survey={survey}
           purpose={workspace.routePurpose}
           progress={workspace.progress}
+          delegation={delegation}
           onClose={workspace.report.closeReport}
         />
       </div>

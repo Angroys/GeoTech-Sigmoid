@@ -14,6 +14,6 @@ export const MODE_COPY = {
 } as const satisfies Record<AuthMode, ModeCopy>;
 
 export const ROLE_HEADLINE = {
-  owner: "Your parcels, harvests and inspection results in one register.",
+  owner: "Your parcels, drone surveys and inspection results in one register.",
   inspector: "Check registered parcels and file inspection reports from the field.",
 } as const satisfies Record<Role, string>;

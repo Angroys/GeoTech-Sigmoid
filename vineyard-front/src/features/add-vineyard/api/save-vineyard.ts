@@ -55,7 +55,6 @@ const store = async (source: StoredSource) => {
 
 const SIRET3_TILE = /^siret3_r\d{3}_c\d{3}\.tiff?$/i;
 
-/** Uploaded Sireț3 challenge tiles lie inside the published Sireț3 orthomosaic: reuse it as the map background. */
 export const imageryForTiles = (tileNames: readonly string[]) =>
   tileNames.length > 0 && tileNames.every(name => SIRET3_TILE.test(name)) ? SIRET3.imagery : null;
 

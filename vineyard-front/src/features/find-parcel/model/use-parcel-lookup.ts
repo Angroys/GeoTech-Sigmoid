@@ -10,7 +10,7 @@ export type ParcelLookupState =
   | { status: "not-found"; cadastralNumber: string; source: ParcelSource }
   | { status: "error"; message: string };
 
-const INVALID_NUMBER = "Enter the 10-digit cadastral number, for example 3631204101.";
+const INVALID_NUMBER = "Enter the cadastral number, 10 or 11 digits, for example 80371140111.";
 
 const normalizeCadastralNumber = (value: string) => value.replace(/[\s.-]/g, "");
 

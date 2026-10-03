@@ -6,6 +6,7 @@ import { LinkButton, StatusMessage, SubmitButton, TextField } from "@/shared/ui"
 
 import { useAddVineyardForm } from "../model/use-add-vineyard-form";
 import type { AddVineyardValues } from "../model/validation";
+import { CoveredParcelsField } from "./covered-parcels-field";
 import { ImageryField } from "./imagery-field";
 import { TilesField } from "./tiles-field";
 import { UploadProgressPanel } from "./upload-progress";
@@ -84,6 +85,7 @@ export const AddVineyardForm: FC<AddVineyardFormProps> = ({ parcel }) => {
           onChange={value => setValue("imageryUrl", value)}
           onCheck={form.checkImagery}
         />
+        <CoveredParcelsField covered={form.covered} />
         <TextField
           label="Surveyed on"
           hint="The day the drone flew."
