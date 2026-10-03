@@ -1,6 +1,7 @@
 import { ArrowLeft, Download } from "lucide-react";
 import type { FC } from "react";
 
+import type { Delegation } from "@/entities/delegation";
 import { describeCapture, type RoutePurpose, type Survey, type SurveySource } from "@/entities/survey";
 import type { RouteProgressState } from "@/features/track-route-progress";
 import { formatCount, formatHectares, formatMetres, formatSquareMetres } from "@/shared/lib/format";
@@ -37,42 +38,65 @@ const GeneralDetails: FC<SectionProps> = ({ report }) => {
   );
 };
 
-const Inspectors: FC<SectionProps> = ({ report }) => {
+type DelegationSectionProps = { report: InspectionReportData; delegation: Delegation | null };
+
+const otherInspectorsOf = (report: InspectionReportData, delegation: Delegation | null) => {
+  const others = (delegation?.inspectors ?? []).filter(
+    inspector => inspector.badgeNumber !== report.inspector.badgeNumber,
+  );
+  return others.length > 0
+    ? others.map(inspector => `${inspector.fullName} (${inspector.badgeNumber})`).join(", ")
+    : null;
+};
+
+const Inspectors: FC<DelegationSectionProps> = ({ report, delegation }) => {
   return (
     <ReportSection number={2} titleRo="Inspectori" titleEn="Inspectors">
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
         <Field label="Nume, prenume / Full name" value={report.inspector.fullName} />
         <Field label="Nr. legitimației / Badge number" value={report.inspector.badgeNumber} />
-        <Field label="Alți inspectori / Other inspectors" className="col-span-2" />
+        <Field
+          label="Alți inspectori / Other inspectors"
+          value={otherInspectorsOf(report, delegation)}
+          className="col-span-2"
+        />
       </dl>
     </ReportSection>
   );
 };
 
-const LegalBasis: FC = () => {
+type LegalBasisProps = { delegation: Delegation | null };
+
+const LegalBasis: FC<LegalBasisProps> = ({ delegation }) => {
   return (
     <ReportSection number={3} titleRo="Temeiul controlului" titleEn="Legal basis and delegation">
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
-        <Field label="Nr. delegației de control / Control delegation no." />
-        <Field label="Nr. în Registrul de stat al controalelor / State Register of Controls no." />
+        <Field label="Nr. delegației de control / Control delegation no." value={delegation?.number ?? null} />
+        <Field
+          label="Nr. în Registrul de stat al controalelor / State Register of Controls no."
+          value={delegation?.rscNumber ?? null}
+        />
+        {delegation && (
+          <Field label="Temei legal / Legal basis" value={delegation.legalBasis} className="col-span-2" />
+        )}
       </dl>
       <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
         <span className="text-xs text-black/55">Tipul controlului / Type of control:</span>
-        <Choice label="Planificat / Planned" />
-        <Choice label="Inopinat / Unannounced" />
+        <Choice label="Planificat / Planned" isChecked={delegation?.controlType === "planned"} />
+        <Choice label="Inopinat / Unannounced" isChecked={delegation?.controlType === "unannounced"} />
       </p>
     </ReportSection>
   );
 };
 
-const ControlledPerson: FC<SectionProps> = ({ report }) => {
+const ControlledPerson: FC<DelegationSectionProps> = ({ report, delegation }) => {
   return (
     <ReportSection number={4} titleRo="Persoana supusă controlului" titleEn="Controlled person">
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
         <Field label="Plantația / Vineyard" value={report.source.name} />
         <Field label="Localitatea / Location" value={report.source.location} />
-        <Field label="Denumirea sau numele operatorului / Operator" />
-        <Field label="IDNO / IDNP" />
+        <Field label="Denumirea sau numele operatorului / Operator" value={delegation?.operator.name ?? null} />
+        <Field label="IDNO / IDNP" value={delegation?.operator.idno ?? null} />
       </dl>
     </ReportSection>
   );
@@ -178,10 +202,18 @@ type InspectionReportProps = {
   survey: Survey;
   purpose: RoutePurpose;
   progress: RouteProgressState;
+  delegation: Delegation | null;
   onClose: () => void;
 };
 
-export const InspectionReport: FC<InspectionReportProps> = ({ source, survey, purpose, progress, onClose }) => {
+export const InspectionReport: FC<InspectionReportProps> = ({
+  source,
+  survey,
+  purpose,
+  progress,
+  delegation,
+  onClose,
+}) => {
   const report = useInspectionReport({ source, survey, purpose, progress });
 
   return (
@@ -216,9 +248,9 @@ export const InspectionReport: FC<InspectionReportProps> = ({ source, survey, pu
         </header>
 
         <GeneralDetails report={report} />
-        <Inspectors report={report} />
-        <LegalBasis />
-        <ControlledPerson report={report} />
+        <Inspectors report={report} delegation={delegation} />
+        <LegalBasis delegation={delegation} />
+        <ControlledPerson report={report} delegation={delegation} />
         <PurposeAndMethods report={report} />
         <Findings report={report} />
         <Measurements report={report} />

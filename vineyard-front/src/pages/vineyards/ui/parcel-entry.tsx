@@ -1,21 +1,22 @@
 import { ArrowRight, Plus } from "lucide-react";
 import type { FC } from "react";
 
-import { ParcelFacts, ParcelOutline, type Parcel } from "@/entities/parcel";
+import { ParcelFacts, ParcelImage, type Parcel } from "@/entities/parcel";
 import { vineyardUrl, type Role } from "@/entities/role";
 import { describeCapture, isProcessing, type SurveySource } from "@/entities/survey";
 import { OrderDroneSurveyLink } from "@/features/order-drone-survey";
 import { ROUTES } from "@/shared/config";
 import { AppLink } from "@/shared/ui";
 
+import { parcelImageryOf } from "../lib/parcel-imagery";
 import { SurveyFacts } from "./survey-facts";
 import { UploadNote } from "./upload-note";
 
 const addSurveyUrl = (parcel: Parcel) => `${ROUTES.addVineyard}?parcel=${encodeURIComponent(parcel.cadastralNumber)}`;
 
-type ParcelSurveyProps = { source: SurveySource; role: Role };
+type ParcelSurveyProps = { source: SurveySource; role: Role; delegationNumber: string | undefined };
 
-const ParcelSurvey: FC<ParcelSurveyProps> = ({ source, role }) => {
+const ParcelSurvey: FC<ParcelSurveyProps> = ({ source, role, delegationNumber }) => {
   return (
     <li className="border-border grid gap-3 rounded-lg border p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
       <div className="grid min-w-0 gap-1">
@@ -28,7 +29,7 @@ const ParcelSurvey: FC<ParcelSurveyProps> = ({ source, role }) => {
       </div>
       {!isProcessing(source) && (
         <AppLink
-          href={vineyardUrl(role, source.id)}
+          href={vineyardUrl(role, source.id, delegationNumber ? { delegation: delegationNumber } : {})}
           className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring/50 inline-flex h-9 items-center gap-2 justify-self-start rounded-md px-3 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-[3px]"
         >
           Open vineyard
@@ -64,19 +65,24 @@ const NoSurvey: FC<NoSurveyProps> = ({ parcel, role }) => {
   );
 };
 
-type ParcelEntryProps = { parcel: Parcel; surveys: readonly SurveySource[]; role: Role };
+type ParcelEntryProps = {
+  parcel: Parcel;
+  surveys: readonly SurveySource[];
+  role: Role;
+  delegationNumber?: string | undefined;
+};
 
-export const ParcelEntry: FC<ParcelEntryProps> = ({ parcel, surveys, role }) => {
+export const ParcelEntry: FC<ParcelEntryProps> = ({ parcel, surveys, role, delegationNumber }) => {
   return (
     <article className="grid gap-4 p-4 sm:grid-cols-[6rem_minmax(0,1fr)] sm:p-5">
-      <ParcelOutline outline={parcel.outline} className="size-24 rounded-md" />
+      <ParcelImage parcel={parcel} imageUrlFor={parcelImageryOf(surveys)} className="size-24 rounded-md" />
       <div className="grid min-w-0 gap-4">
         <ParcelFacts parcel={parcel} />
         {surveys.length > 0 ? (
           <div className="grid gap-2">
             <ul className="grid gap-2">
               {surveys.map(source => (
-                <ParcelSurvey key={source.id} source={source} role={role} />
+                <ParcelSurvey key={source.id} source={source} role={role} delegationNumber={delegationNumber} />
               ))}
             </ul>
             {role === "owner" && (

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { DEMO_PARCEL_OF_BLOCK } from "@/entities/parcel/@x/survey";
+import { DEMO_SURVEYED_PARCEL_NUMBERS } from "@/entities/parcel/@x/survey";
 
 export const lngLatBoundsSchema = z.tuple([z.number(), z.number(), z.number(), z.number()]);
 export type LngLatBounds = [west: number, south: number, east: number, north: number];
@@ -49,7 +49,7 @@ export type SurveySource = {
   parcelNumbers: readonly string[];
 };
 
-const TITILER = "https://titiler.hotosm.org/cog";
+const TITILER = `${globalThis.location?.origin ?? "http://localhost"}/titiler`;
 
 const formatBbox = (bounds: LngLatBounds) => bounds.map(value => value.toFixed(6)).join(",");
 
@@ -84,8 +84,10 @@ export const COG_INFO_URL = (cogUrl: string) => `${TITILER}/info.geojson?url=${e
 const SIRET3_GEOTIFF =
   "https://oin-hotosm-temp.s3.us-east-1.amazonaws.com/68305aa2025981aa41124bc7/0/68305aa2025981aa41124bc8.tif";
 
+export const SAM3_MOCK_ID = "siret3-sam3c";
+
 export const SIRET3: SurveySource = {
-  id: surveyIdSchema.parse("siret3"),
+  id: surveyIdSchema.parse(SAM3_MOCK_ID),
   name: "Sireț3",
   location: "Sireți, Moldova",
   capturedOn: "20 May 2025",
@@ -96,18 +98,9 @@ export const SIRET3: SurveySource = {
     focus: [28.70683, 47.12041, 28.71156, 47.12377],
     attribution: "Sireț3 © 3DATA COLLECT, CC BY 4.0, via OpenAerialMap",
   }),
-  data: { kind: "remote", url: "/data/siret3" },
-  uploadedBy: null,
-  parcelNumbers: Object.values(DEMO_PARCEL_OF_BLOCK),
-};
-
-export const SAM3_MOCK_ID = "siret3-sam3c";
-
-export const SIRET3_SAM3C: SurveySource = {
-  ...SIRET3,
-  id: surveyIdSchema.parse(SAM3_MOCK_ID),
-  name: "Sireț3 SAM3 mock — full map",
   data: { kind: "remote", url: `/data/${SAM3_MOCK_ID}` },
+  uploadedBy: null,
+  parcelNumbers: DEMO_SURVEYED_PARCEL_NUMBERS,
 };
 
-export const BUILT_IN_SOURCES: readonly SurveySource[] = [SIRET3, SIRET3_SAM3C];
+export const BUILT_IN_SOURCES: readonly SurveySource[] = [SIRET3];

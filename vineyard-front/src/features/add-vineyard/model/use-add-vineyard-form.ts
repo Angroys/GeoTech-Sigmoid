@@ -9,6 +9,7 @@ import { useForm } from "@/shared/lib/form";
 import { navigate } from "@/shared/lib/router";
 
 import { saveProcessingVineyard, saveSampleVineyard } from "../api/save-vineyard";
+import { useCoveredParcels } from "./use-covered-parcels";
 import { useImageryCheck } from "./use-imagery-check";
 import { useTileFiles } from "./use-tile-files";
 import { useTileUpload } from "./use-tile-upload";
@@ -24,7 +25,8 @@ export const useAddVineyardForm = (parcel: Parcel | null) => {
   const tiles = useTileFiles();
   const tileUpload = useTileUpload();
   const [canUseSample, setCanUseSample] = useState(false);
-  const parcelNumbers = parcel ? [parcel.cadastralNumber] : [];
+  const imageryBounds = imagery.state.kind === "found" ? imagery.state.bounds : null;
+  const covered = useCoveredParcels(imageryBounds, parcel ? [parcel.cadastralNumber] : []);
 
   const describeVineyard = async (values: AddVineyardValues, owner: Session) => {
     const imageryUrl = values.imageryUrl.trim();
@@ -34,7 +36,7 @@ export const useAddVineyardForm = (parcel: Parcel | null) => {
       values,
       imagery: imageryBounds ? { url: imageryUrl, bounds: imageryBounds } : null,
       session: owner,
-      parcelNumbers,
+      parcelNumbers: [...covered.selected],
     };
   };
 
@@ -86,5 +88,5 @@ export const useAddVineyardForm = (parcel: Parcel | null) => {
 
   const checkImagery = () => void imagery.check(form.values.imageryUrl.trim()).catch(() => undefined);
 
-  return { ...form, imagery, tiles, upload: tileUpload, canUseSample, addWithSample, checkImagery };
+  return { ...form, imagery, covered, tiles, upload: tileUpload, canUseSample, addWithSample, checkImagery };
 };

@@ -26,13 +26,16 @@ export const Field: FC<FieldProps> = ({ label, value, className }) => {
   );
 };
 
-type ChoiceProps = { label: string };
+type ChoiceProps = { label: string; isChecked?: boolean };
 
-export const Choice: FC<ChoiceProps> = ({ label }) => {
+export const Choice: FC<ChoiceProps> = ({ label, isChecked = false }) => {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm">
-      <span className="size-3.5 border border-black/60" aria-hidden />
+      <span className="grid size-3.5 place-items-center border border-black/60 text-[0.625rem] leading-none" aria-hidden>
+        {isChecked ? "X" : ""}
+      </span>
       {label}
+      {isChecked && <span className="sr-only">(selected)</span>}
     </span>
   );
 };

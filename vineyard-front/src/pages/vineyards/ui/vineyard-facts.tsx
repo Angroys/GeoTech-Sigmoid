@@ -29,7 +29,7 @@ export const VineyardFacts: FC<VineyardFactsProps> = ({ survey, source, role }) 
           return (
             <AppLink
               key={block.vineyardId}
-              href={vineyardUrl(role, source.id, block.vineyardId)}
+              href={vineyardUrl(role, source.id, { block: block.vineyardId })}
               className="border-border hover:border-primary/40 hover:bg-primary/5 focus-visible:ring-ring/50 inline-flex items-baseline gap-1.5 rounded-full border px-2.5 py-0.5 text-xs outline-none focus-visible:ring-[3px]"
             >
               <span className="font-semibold">{block.vineyardId}</span>

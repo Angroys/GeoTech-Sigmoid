@@ -21,7 +21,6 @@ type UploadRequest = {
   tiles: readonly File[];
 };
 
-/** A 4xx answer (for example 422 for a tile the service rejects) will not change on retry. */
 export const isRetryable = (error: unknown) =>
   !(error instanceof ApiError && error.status !== null && error.status >= 400 && error.status < 500);
 

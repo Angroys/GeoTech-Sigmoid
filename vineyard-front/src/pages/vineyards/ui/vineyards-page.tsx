@@ -9,6 +9,7 @@ import { AppHeader } from "@/widgets/app-header";
 
 import { surveysOutside } from "../lib/surveys-of-parcel";
 import { useSessionParcels } from "../model/use-session-parcels";
+import { InspectorControls } from "./inspector-controls";
 import { InspectorParcelSearch } from "./inspector-parcel-search";
 import { OwnerParcels } from "./owner-parcels";
 import { VineyardEntry } from "./vineyard-entry";
@@ -64,13 +65,8 @@ const OwnerContent: FC<RoleContentProps> = ({ sources }) => {
 const InspectorContent: FC<RoleContentProps> = ({ sources }) => {
   return (
     <>
+      <InspectorControls sources={sources} />
       <InspectorParcelSearch sources={sources} />
-      <SurveyList
-        title="All vineyards"
-        description="Every surveyed vineyard in the register."
-        sources={sources}
-        role="inspector"
-      />
     </>
   );
 };

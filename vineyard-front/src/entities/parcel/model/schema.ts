@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const cadastralNumberSchema = z
   .string()
-  .regex(/^\d{10}$/)
+  .regex(/^\d{10,11}$/)
   .brand<"CadastralNumber">();
 
 export type CadastralNumber = z.infer<typeof cadastralNumberSchema>;
@@ -20,3 +20,8 @@ export const parcelDtoSchema = z.object({
 export type ParcelDto = z.output<typeof parcelDtoSchema>;
 
 export const ownerParcelsResponseSchema = z.object({ parcels: z.array(parcelDtoSchema) });
+
+export const parcelsInBoundsResponseSchema = z.object({
+  parcels: z.array(parcelDtoSchema),
+  is_truncated: z.boolean().default(false),
+});

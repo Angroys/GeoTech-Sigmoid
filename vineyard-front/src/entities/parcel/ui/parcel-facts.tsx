@@ -1,5 +1,6 @@
 import type { FC } from "react";
 
+import { CADASTRE_ATTRIBUTION } from "../config/attribution";
 import type { Parcel } from "../model/types";
 
 const HECTARES = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -20,6 +21,7 @@ export const ParcelFacts: FC<ParcelFactsProps> = ({ parcel }) => {
         {parcel.location}. <span className="tabular-nums">{HECTARES.format(parcel.areaHectares)} ha</span>.{" "}
         {parcel.landUse}.
       </p>
+      {!parcel.isDemo && <p className="text-muted-foreground text-xs">{CADASTRE_ATTRIBUTION}</p>}
     </div>
   );
 };

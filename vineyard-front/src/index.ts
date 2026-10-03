@@ -1,6 +1,7 @@
 import { serve } from "bun";
 import path from "node:path";
 
+import { createCadastreRoutes, GEOPORTAL_CADASTRE_WFS } from "../server/cadastre/routes";
 import index from "./index.html";
 
 const PROJECT_ROOT = path.join(import.meta.dir, "..");
@@ -39,7 +40,35 @@ const proxyTo = (baseUrl: string | undefined, serviceName: string) => async (req
 };
 
 const proxyToProcessing = proxyTo(process.env.PROCESSING_API_URL, "tile processing");
-const proxyToCadastre = proxyTo(process.env.CADASTRE_API_URL, "cadastre");
+const DEFAULT_TITILER_URL = "https://titiler.hotosm.org/cog";
+const TITILER_PREFIX = "/titiler";
+const IMAGERY_CACHE_SECONDS = 86_400;
+
+const cadastreWfsUrl = process.env.CADASTRE_WFS_URL ?? GEOPORTAL_CADASTRE_WFS;
+const isCadastreWfsOff = cadastreWfsUrl === "off";
+const proxyToCadastre =
+  process.env.CADASTRE_API_URL || isCadastreWfsOff
+    ? proxyTo(process.env.CADASTRE_API_URL, "cadastre")
+    : createCadastreRoutes(cadastreWfsUrl);
+
+const titilerUrl = process.env.TITILER_URL ?? DEFAULT_TITILER_URL;
+
+const proxyToTitiler = async (req: Request) => {
+  const { pathname, search } = new URL(req.url);
+  try {
+    const response = await fetch(`${titilerUrl}${pathname.slice(TITILER_PREFIX.length)}${search}`);
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        "Content-Type": response.headers.get("Content-Type") ?? "application/octet-stream",
+        "Cache-Control": response.ok ? `public, max-age=${IMAGERY_CACHE_SECONDS}` : "no-store",
+      },
+    });
+  } catch {
+    return Response.json({ message: "The imagery server did not answer. Try again later." }, { status: 502 });
+  }
+};
+const proxyToRsc = proxyTo(process.env.RSC_API_URL, "State Register of Controls");
 
 const server = serve({
   // Bind every interface by default so phones/laptops on the LAN can reach the app; HOST overrides.
@@ -76,6 +105,8 @@ const server = serve({
     },
 
     "/api/cadastre/*": proxyToCadastre,
+    "/api/rsc/*": proxyToRsc,
+    "/titiler/*": proxyToTitiler,
     "/api/surveys": proxyToProcessing,
     "/api/surveys/*": proxyToProcessing,
 

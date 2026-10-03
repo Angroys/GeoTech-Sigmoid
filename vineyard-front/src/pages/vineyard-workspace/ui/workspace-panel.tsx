@@ -71,12 +71,6 @@ const RouteTab: FC<TabContentProps> = props => {
         onClear={routeStart.clearStart}
       />
       <div className="mb-5 grid gap-3">
-        {routeCalculation.pathMode === "demo_headlands" && (
-          <p className="text-muted-foreground text-sm">
-            This demo survey connects its aisles with inferred paths at the row ends, so its routes are not validated for
-            the challenge submission.
-          </p>
-        )}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" disabled={routeCalculation.status === "calculating"} onClick={routeCalculation.calculate}>
             {routeCalculation.status === "calculating" ? "Calculating route…" : "Calculate route"}
